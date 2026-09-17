@@ -1,0 +1,919 @@
+fileFormatVersion: 2
+guid: 46c6bd83e167f41188a409aa27aa3da9
+ModelImporter:
+  serializedVersion: 24501
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black
+    second: {fileID: 2100000, guid: 11fd412f9b6004799994b87e675a833d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BlastDoor_BlastDoorL_Albedo
+    second: {fileID: 2100000, guid: b2478da2c8cfd4a9d98a43e95f01c07a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BlastDoor_BlastDoorR_Albedo
+    second: {fileID: 2100000, guid: ad6f203c74f874488a1dc127168bd2f8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BlastDoor_BlastDoor_Frame_Albedo
+    second: {fileID: 2100000, guid: 42773a158bb7545728d7bad89c2f9d60, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Chair_Material
+    second: {fileID: 2100000, guid: e7f3807a3bb7b4ac4806c170fcde4fd0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Computer_mat
+    second: {fileID: 2100000, guid: 0c2eb78dcf42a4b909717f9eb4d0e487, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Concrete_pipes_Mat
+    second: {fileID: 2100000, guid: 552b53ee744e147cba07c8828dae1fc0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Default_Material
+    second: {fileID: 2100000, guid: a385f5ae93ca841c480be69dffcf969c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Default_Material.002
+    second: {fileID: 2100000, guid: 6671ae9b905b84ea3b37e81aaf0e4442, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZDoor_Glass.001
+    second: {fileID: 2100000, guid: 57fd6c183239f448f85a889333f8967b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZDoor_Main.001
+    second: {fileID: 2100000, guid: c44ae8e173c74440ebb445582b99ca09, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_CEILING
+    second: {fileID: 2100000, guid: 7615b3a3142424cc787dea1c4b25fcfa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_DIRTY
+    second: {fileID: 2100000, guid: b1905315c269247acaaa163bbfc734be, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_FLOOR
+    second: {fileID: 2100000, guid: a178b3c2da360426a986e2cfd082f867, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_METAL_CEIL
+    second: {fileID: 2100000, guid: acdc7f0a4401a4a8d835736dce75f1c1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_MISC
+    second: {fileID: 2100000, guid: 81118f3b1f6d44c0298a00e7acfea789, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_PANELS1
+    second: {fileID: 2100000, guid: 079b13e3913b044968ca13cc74664bc3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_WALLS
+    second: {fileID: 2100000, guid: efde56728c22344488a853756d29333d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_WHITE
+    second: {fileID: 2100000, guid: 81282c52f234944a69952b9e4d09821c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ElecBox
+    second: {fileID: 2100000, guid: a6ddcace150f24f3aaaeb6a4950e5603, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ElevDisabled_1.001
+    second: {fileID: 2100000, guid: 5c38156586f9a4f429a5376a66f783bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: HEAVY_METAL
+    second: {fileID: 2100000, guid: 7a88ebc877102471585e467836e2118a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KeycardButtonClosed
+    second: {fileID: 2100000, guid: 387f2a060616f4796993805ab50e4716, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: KeycardButtonClosed.001
+    second: {fileID: 2100000, guid: ed483b5c141924496866f09eaa3e7129, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LCZ_Door_Material.001
+    second: {fileID: 2100000, guid: 1539caee4500b44b9840e3eb20460732, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LockdownScreen3
+    second: {fileID: 2100000, guid: e2218ba9f15914ea09cee09e4a4ca6c1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MonitorTexture
+    second: {fileID: 2100000, guid: 784f4ce85113446cabdeae2b6d3c858c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: MouseMaterial
+    second: {fileID: 2100000, guid: 0ee041e6bf5a74af7b39314d6b2d3e8a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoweredOn
+    second: {fileID: 2100000, guid: c4b3638060a3f47709d6016046d634da, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Prisdoorkleszcz
+    second: {fileID: 2100000, guid: 2f6c343ed5e784e3a90e58b7ec0c0faf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Rock1_A
+    second: {fileID: 2100000, guid: ab58de06669f945faab49355793d61dc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Rock2_A
+    second: {fileID: 2100000, guid: a2caab31bd61e4bbeb747f34afe51f17, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Rock3_A
+    second: {fileID: 2100000, guid: ae3d95846614747b59791a9c13b65e87, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Rock4_A
+    second: {fileID: 2100000, guid: 7307a1b8ad66c479ba7b4bd20c9eb008, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Server_Panel_2
+    second: {fileID: 2100000, guid: 6b3a508e291c042559957f87981a1a60, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Server_Rack
+    second: {fileID: 2100000, guid: 3061f861287354d128918edd5a515f21, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shelter
+    second: {fileID: 2100000, guid: 191e169afbfeb49c3b543d0d7b80d259, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Trim_ElectronicMat_var1
+    second: {fileID: 2100000, guid: 3242f71c828114d40bfea082ab619324, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Trim_labPlastic
+    second: {fileID: 2100000, guid: ee51e2516a3ff4bebbd45c823010c6c1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Trim_vents
+    second: {fileID: 2100000, guid: ecce13175c9ab4bce8f57249df65ad45, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WorkstationMonitorMat
+    second: {fileID: 2100000, guid: 55fc995eadb494ca89f32ccf3efe29bb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ZeroAlphaGlass
+    second: {fileID: 2100000, guid: bc9446762a294453ea014ae28e4eb117, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: _2_office_lamps_dif
+    second: {fileID: 2100000, guid: 429a14ade5f9f481e9043373e7dc3f84, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "____\u0296___"
+    second: {fileID: 2100000, guid: 0dfbf8c7beeb94365960d2f412c18446, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "____\u0296___.001"
+    second: {fileID: 2100000, guid: 21d724f51d96e434ca45f4be4a9f9d6a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "____\u0296___.002"
+    second: {fileID: 2100000, guid: 51a40a5839f734881a372768aec6b1bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "____\u0296___.003"
+    second: {fileID: 2100000, guid: ab19b68140b1648ad841a45b68fa982c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: boxfile_a
+    second: {fileID: 2100000, guid: 03bfe411beda245a4bbfe8af4975d9b2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: camer_b
+    second: {fileID: 2100000, guid: c81193885eec2406a875849d12cf005f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: concretefloor
+    second: {fileID: 2100000, guid: 6f36219c830504146917eea74a2f9f85, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: containment_doors
+    second: {fileID: 2100000, guid: 51cb1fddd2ab7425eaa44062c4f62668, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: controlpanel
+    second: {fileID: 2100000, guid: 1069afcc503fe47b99e38af3fa682938, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: crtbev
+    second: {fileID: 2100000, guid: 12be393a69e8742ed9f01c563e9413dd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: door01
+    second: {fileID: 2100000, guid: aa9f549c8d3884d48b77165c3dfe00b5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: flat_monitor
+    second: {fileID: 2100000, guid: 814907d1750fe4019ac6f9a12852cc95, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: glass_a
+    second: {fileID: 2100000, guid: 9e435965a68404990bbff3d42d429717, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: keyboard
+    second: {fileID: 2100000, guid: 70c6e392d70c94c799b071e5ef56ba80, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lczSpeaker
+    second: {fileID: 2100000, guid: fdd679be1a2df4bea8995f56724ee56b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lczSpeaker.002
+    second: {fileID: 2100000, guid: 9f4bd40c0f8464a399bfaeaf1e8746d5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mainminicctv_off
+    second: {fileID: 2100000, guid: f60856b1e80514c22b663a07d1213c39, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metalpanels2
+    second: {fileID: 2100000, guid: 9ffc886dcc06a413a8ab4da0348b26d6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: miscsigns2
+    second: {fileID: 2100000, guid: d3533f3ca0dfe45df98463696422651b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: miscsigns3
+    second: {fileID: 2100000, guid: d6388c8fbd90642608e462fcc0afd76d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: officewindow
+    second: {fileID: 2100000, guid: ba681c9a4135a4a14a46e23ca6f3af39, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: papertexture
+    second: {fileID: 2100000, guid: 2fb052deba2524665a65dea83ba617d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: pipes
+    second: {fileID: 2100000, guid: e75dfaeb2d9ce4600afffea66df4f083, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: red
+    second: {fileID: 2100000, guid: 131f7cdb279a14597b72c0631748b2af, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: red_1
+    second: {fileID: 2100000, guid: 79183f148604e4cc9bb8b148b8a01a4d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: road_props
+    second: {fileID: 2100000, guid: 0fd01b13442144b828037cb265290594, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: room3gw_pipes_lm1
+    second: {fileID: 2100000, guid: 31413338f22cd4b6d8a9cd5953a0fe09, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: scplogo
+    second: {fileID: 2100000, guid: c3c2448e3e6534ee2a731ac605b86a27, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tilefloor
+    second: {fileID: 2100000, guid: cf1d30bea517b484bb98a05da44ea29a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: vent
+    second: {fileID: 2100000, guid: 0051e30b1a9a7440598b5eae8d4550f3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: whitewall
+    second: {fileID: 2100000, guid: 9bbd4ffc73b684015b1147b0fb28d5d6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: workstationMat
+    second: {fileID: 2100000, guid: 2da9d6ce277554fbf9f2c76a348deceb, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 2_office_lamps_dif
+    second: {fileID: 2800000, guid: bcda4584126c6449fa7f8e2d80cbaa22, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: 2_office_lamps_dif 1
+    second: {fileID: 2800000, guid: 8510303eb72bc4ddd83d70e298d23ea1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: BlastDoor_BlastDoor Frame_Normal
+    second: {fileID: 2800000, guid: 0097d89b676594742aa54b3f3482fc82, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: BlastDoor_BlastDoorL_Normal
+    second: {fileID: 2800000, guid: b0be7bba6ae8a43e1891777d904a1f94, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: BlastDoor_BlastDoorR_Normal
+    second: {fileID: 2800000, guid: cb7084c0b844742c7b8a43bb3da21fca, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Chair_Mat_Normal
+    second: {fileID: 2800000, guid: daee2666315c2478ea1bf5c9bca3bb75, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Computer_Atlas_mat_N
+    second: {fileID: 2800000, guid: 7bb6232a95f534b3892485b510cce5af, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Concrete pipes diffuse
+    second: {fileID: 2800000, guid: a0bc61b50abe34175887d7e041e90146, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Concrete pipes normal
+    second: {fileID: 2800000, guid: afafd648f48c54fbcb58fbc0d5d03266, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Dirtymetal_Metallic
+    second: {fileID: 2800000, guid: b720bcbf32cad4979b5df33ee2805aab, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Dirtymetal_Roughness
+    second: {fileID: 2800000, guid: 227fe802307c34ca3a74b4d871482e33, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Door01
+    second: {fileID: 2800000, guid: c95d23a6721e34cc2bc48a0bf5b56f22, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: DoorMouse_Clr
+    second: {fileID: 2800000, guid: 3b992f8156e1847058979a800e4cf9ab, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: DoorMouse_Nor
+    second: {fileID: 2800000, guid: 50f4ce52d802248f0801f450e138e134, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Door_Normal
+    second: {fileID: 2800000, guid: aa4d0be1d7dbc4188a71a8196d1a5029, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: EZ_MISC_Normal
+    second: {fileID: 2800000, guid: a46f14d7832084a66b7e7118b1cb8b33, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: EZ_Walls_Normal
+    second: {fileID: 2800000, guid: d8c43d9df60a343bab073c5e1a3c80fa, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: ElecBox
+    second: {fileID: 2800000, guid: 3961553c7e9cb49bea837d903475f7e2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: LockdownScreen2
+    second: {fileID: 2800000, guid: 8ef04ff384d1f45388ae0f7b7cce072a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Material.001_Normal
+    second: {fileID: 2800000, guid: 8f4b788cadd4b4d73ae149ac4185ecb9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: MonitorTexture
+    second: {fileID: 2800000, guid: 8ef1e01e6ffb044b2b8bd8dea36330c0, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Pipes
+    second: {fileID: 2800000, guid: 9eef0babc6b094b1581357ba38f7e54b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: RackPanel_mat2_Normal
+    second: {fileID: 2800000, guid: e21b3d2942c6f488cbf53b3b84ca1b22, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: RackServer_mat_AlbedoTransparency
+    second: {fileID: 2800000, guid: d75890e85c1c34beb9f807ab19b2e873, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: RackServer_mat_Normal
+    second: {fileID: 2800000, guid: 560abe29701d843549317364555281f4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCP079_Speaker_Square_mat_D
+    second: {fileID: 2800000, guid: 37739654a16464967974f3229c4ede67, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCP079_Speaker_Square_mat_N
+    second: {fileID: 2800000, guid: 6fd14137ee82246e59bde8a58dcea9e6, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLDoorPanels_KeycardPanel_Albedo
+    second: {fileID: 2800000, guid: 688400b61e3a841199ddc55125359d5c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLDoorPanels_KeycardPanel_Normal
+    second: {fileID: 2800000, guid: ff2079ab9f038482fb69e93af0dc33d4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLEZDoor_EZ Door_AlbedoTransparency
+    second: {fileID: 2800000, guid: 8e0cd6009640447e48f63cbd52e1dcf4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLEZDoor_EZ Door_Normal
+    second: {fileID: 2800000, guid: 5e8f824f32a1d430783c00ad777c1368, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLEZDoor_Glass_AlbedoTransparency
+    second: {fileID: 2800000, guid: 34d1297ee408e479381a04b51858fa93, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLPoorDoor_PoorDoor_Albedo
+    second: {fileID: 2800000, guid: df5883fd4a0a24de4821b0edb173faf8, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLPoorDoor_PoorDoor_Normal
+    second: {fileID: 2800000, guid: 61a3834e255ad4927b8fbd7f06ae661c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLServer2_Glass_AlbedoTransparency
+    second: {fileID: 2800000, guid: 699067aee772a46618a19623537d4a40, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Shelter
+    second: {fileID: 2800000, guid: f0b26dd58ff5041faa49fc45b385758c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Stone1
+    second: {fileID: 2800000, guid: c0bc696dea54c4f398ae7ed911c0d05e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Stone2
+    second: {fileID: 2800000, guid: 8ffd0462b0d17400b890468f58bb7ffa, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Stone3
+    second: {fileID: 2800000, guid: 4d507056e061b4c7baff021dfcd6cb7b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Stone4
+    second: {fileID: 2800000, guid: de993ed7fb4dc45b794498cefe6e9e3e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tile_ConcreteCeiling__diffuse
+    second: {fileID: 2800000, guid: adcf1e735be0f4128b33b4cac25c3c2e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Tile_HCZCGround_Normal
+    second: {fileID: 2800000, guid: f60d4506ade0c47d591e3b52c7d39fee, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Trim_Electronic_Normal
+    second: {fileID: 2800000, guid: ed7230a435a7943efb7c4222790321aa, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Trim_labPlastic_AlbedoTransparency
+    second: {fileID: 2800000, guid: 102328fbfe43e4c97b5d46852bb20696, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Trim_labPlastic_Normal
+    second: {fileID: 2800000, guid: f3343dd86458b47fab30f88f3a667562, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: boxfile_a
+    second: {fileID: 2800000, guid: 844f32fb5674541869aeac5a362aacd9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: cctventrance_Material.001_BaseColor
+    second: {fileID: 2800000, guid: db71e93a5ba054dc4bf336fe332ee29a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: cctventrance_Material.001_Normal
+    second: {fileID: 2800000, guid: ef51674c7aea845149e3d5e78239f0c2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: ceiling
+    second: {fileID: 2800000, guid: 1c82d7d64f0544e85a795a70f5fc9b10, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: celling_normal
+    second: {fileID: 2800000, guid: f4ebbee0ac3d14a919bcdf76d5040705, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: containment_doors
+    second: {fileID: 2800000, guid: 105e1d16b35914521992dac41b313ffc, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: containmentdoorsbump
+    second: {fileID: 2800000, guid: d00be581eaa6f483e8ca4dbfcbddc1d3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: controlpanel
+    second: {fileID: 2800000, guid: 4e40280821f4a4c789f2ca58d59f5267, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: crtbev
+    second: {fileID: 2800000, guid: 71125b77810f44f508fc3cbb537d81c4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: dirtymetal 1
+    second: {fileID: 2800000, guid: b0aafd602f1734ca083cacfe18daf209, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: dirtymetal_normal
+    second: {fileID: 2800000, guid: 960d02b80e6ba4fb4aa45d7e30ac2f46, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: dirtymetalbump
+    second: {fileID: 2800000, guid: 7166b104074b549628191328432d2cc7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: flat_monitor
+    second: {fileID: 2800000, guid: e0fecdbaa17784b5587caeff9fed5e82, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: keyboard
+    second: {fileID: 2800000, guid: ffdd5d1681ef941b495130b5ef62abcd, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metal
+    second: {fileID: 2800000, guid: a006b8888df634908a378e841d7fbfbb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metal3
+    second: {fileID: 2800000, guid: f9f6b59f839264028928899ab4a7be1f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metalpanels
+    second: {fileID: 2800000, guid: 99d91c06934d64c3d9b0a15cca4a9a2d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metalpanels2
+    second: {fileID: 2800000, guid: 1da9472e9a4a44cbfb1380ffa8e48a72, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metalpanels2bump
+    second: {fileID: 2800000, guid: 1df33702702164642b264a53e56db9b9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metalpanelsbump
+    second: {fileID: 2800000, guid: dcd428670ae174d68aa8dc1fb911c28f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: misc-1k
+    second: {fileID: 2800000, guid: 9f11404122e444d06a0033f303d0be64, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: miscsigns2
+    second: {fileID: 2800000, guid: 17ef3f39460944a07bde414d656be599, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: miscsigns3
+    second: {fileID: 2800000, guid: bd0ec8a9d76c84842a0a4d1339f42d96, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: monitor - Default_BaseColor
+    second: {fileID: 2800000, guid: 3f0cc523dad9f46509d6d66668ea877a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: monitor - Default_Normal
+    second: {fileID: 2800000, guid: 9f5c2112d2d3b4d6fa9b99eae71fe6a9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: monitor - Default_Roughness
+    second: {fileID: 2800000, guid: 232780cde858942d6a7aec1ac4531f79, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: officewall
+    second: {fileID: 2800000, guid: f4821b89f98134ed49074d0c45707768, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: papertexture
+    second: {fileID: 2800000, guid: 09b26863374eb4cbb9246fc7f80f070e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: red
+    second: {fileID: 2800000, guid: 5dfa686fab1f44387ad99fd485e662a3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: road_props
+    second: {fileID: 2800000, guid: 04a9502167fa84836ac1f0822042efde, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: room3gw_pipes_lm1
+    second: {fileID: 2800000, guid: 680a5cad04d094c8181d2189a97247ca, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: scplogo
+    second: {fileID: 2800000, guid: 6cbb1406320c34eeb9d4afd0519fa16d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: tilebump
+    second: {fileID: 2800000, guid: 5235e19ec891c4b79ad6b8ddda8509e3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: tilefloor
+    second: {fileID: 2800000, guid: df2dc32305945490cb067e65ee453054, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: tilefloor_normal
+    second: {fileID: 2800000, guid: 83d74a5ebe3204f9da56bc90e23d8560, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: tilefloor_roughness
+    second: {fileID: 2800000, guid: a02cef7a0eb944183bca7ada688114ea, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: vent
+    second: {fileID: 2800000, guid: 1950155699c044b81bca7ffc308cf2eb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: vent_low_Material.005_AlbedoTransparency
+    second: {fileID: 2800000, guid: 6ec153a53f73e43e68ee446caa79294b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: vent_low_Material.005_Normal
+    second: {fileID: 2800000, guid: 2cafc2e71a4b44df9af171127cce5300, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: whitewall
+    second: {fileID: 2800000, guid: 1d9d35f88d01a40e1b05ea33304b5544, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: workbench_low_workbench_Normal
+    second: {fileID: 2800000, guid: a179da8855efa4023a1caa24ca2f9841, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+    searchTexturesGlobally: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 1
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,754 @@
+fileFormatVersion: 2
+guid: 20f634dfe09c34519a0c2168e9517e17
+ModelImporter:
+  serializedVersion: 24501
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Default_Mat__Env_Emissive
+    second: {fileID: 2100000, guid: 3a070f280f20441b990fe6b63e9301fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cstm_labosignC
+    second: {fileID: 2100000, guid: 4ef60b59a023046968615352b953d714, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_025_ShaftBridge01A_A_Mat
+    second: {fileID: 2100000, guid: 2676b2db5a1d04b0dbad612426e2610f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_025_ShaftBridge01A_A_Mat__Env_AlphaTest
+    second: {fileID: 2100000, guid: 024b65e71ea054bc596c6f0ae8c7776c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_A_Mat
+    second: {fileID: 2100000, guid: 72ae5623b51fa4f78bb76ec961ebb587, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_B_Mat
+    second: {fileID: 2100000, guid: 459698b1795f743c39bcea776ace7289, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_B_Mat.001
+    second: {fileID: 2100000, guid: 689a08065667d4245b7237ad7545d8de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_C_Mat
+    second: {fileID: 2100000, guid: f93289d692b0d4e9e878d365e551fde9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_D_Mat
+    second: {fileID: 2100000, guid: a18b58e45c93f4bb290b4345ed31312d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_D_Mat.002
+    second: {fileID: 2100000, guid: feae52e1127ad4d5890f4ad147133e0e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_037_Attachment01A_A_Mat__Env_Default
+    second: {fileID: 2100000, guid: 2be4a72fb062e459bb762b9edec46d8e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm35_009_FluorescentLight01A_A_Mat
+    second: {fileID: 2100000, guid: c3f5bbb2f1b4544ea94001650872311e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm35_009_FluorescentLight01A_A_Mat__Env_Emissive
+    second: {fileID: 2100000, guid: a0c3998058fbf48648b9d962942aecf9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_A_Mat
+    second: {fileID: 2100000, guid: b4d97ace03d054193b1195a220fb51b8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_143_IvyDoor01A_A_Mat__Env_Default.001
+    second: {fileID: 2100000, guid: dda4e2bd4979543589603e3daecd8473, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_Mat__Env_Default2
+    second: {fileID: 2100000, guid: 907aaf4e0c9ea4e0dba76fa639beae2e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_D_Mat__Env_Decal
+    second: {fileID: 2100000, guid: f00b83ffc374142ce9aca01c615d669d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm42_095_ListtagTerminal01A_A_Mat
+    second: {fileID: 2100000, guid: 4fe01df73a0c848039f3ab50dd575e5a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_A_Mat.001
+    second: {fileID: 2100000, guid: a00b83bd03d14461b9aad381096ed766, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_B_Mat__Env_Emissive
+    second: {fileID: 2100000, guid: 91b117946dadb4f2499dce8066a5adb4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_C_Mat
+    second: {fileID: 2100000, guid: 4027f56f671e64566b006e9ae0b139cc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm43_530_LaboLift01A_A_Mat
+    second: {fileID: 2100000, guid: 861f1d44be1cf4564b0288743b32f8de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm43_530_LaboLift01A_A_Mat_Emmi
+    second: {fileID: 2100000, guid: a1d1f28de5d9b47879d37347d1153210, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm43_531_LaboLiftSwitch01A_Mat
+    second: {fileID: 2100000, guid: fb84094679d3444699fe70f47bcc5d0a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm43_531_LaboLiftSwitch01A_Mat__Env_Emissive
+    second: {fileID: 2100000, guid: 2f454b0f5f8094b8e8b36fe5779dd978, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank01A_A_Mat__Env_Emissive
+    second: {fileID: 2100000, guid: 957cca73634964b0ea08e66d7b142e78, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank01A_B_Mat
+    second: {fileID: 2100000, guid: d31f1965c1d9640ca87303a3267a0be5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank01A_C_Mat
+    second: {fileID: 2100000, guid: 83a097a0d3d0a467ead2b29ebc9a0149, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank01A_C_Mat.001
+    second: {fileID: 2100000, guid: 282fe1bf9c3394a34a2857b1398f3305, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm46_504_Breakables01A_A_Mat
+    second: {fileID: 2100000, guid: 3cce385d63bde44aab859090b5aafa1f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm46_504_Breakables01A_B_Mat
+    second: {fileID: 2100000, guid: 1a14a8714553d4866b3e66478ad53509, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm60_134_BrakeCeiling01A_A_Mat__Env_default
+    second: {fileID: 2100000, guid: 558ccb88e3eee4ef483bea387b2fe208, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm60_134_BrakeCeiling01A_B_Mat__Env_Default
+    second: {fileID: 2100000, guid: e4865b02d224f4a0fb0f4f9ab06f8a1a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st2_CableAndPipe_A__Env_Default
+    second: {fileID: 2100000, guid: 157e97edb74644f1697f2c6cb712ac08, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_101_DoorFrame01__Env_AlphaTest
+    second: {fileID: 2100000, guid: 583375a3c6dcc499baea32a7787a985d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_101_IronColumn04
+    second: {fileID: 2100000, guid: ebbd382cc4be44ee6a73d221646b509f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_133_G3_Wall
+    second: {fileID: 2100000, guid: a320c9e9cb9c547ee97a3ca3123e4ae2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_133_G3_Wall_frame
+    second: {fileID: 2100000, guid: 085b93db34103486590b3198ac94ba06, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_Floor02__Env_Default
+    second: {fileID: 2100000, guid: 3002c843f610944fda0c4421f717535a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboCeiling02
+    second: {fileID: 2100000, guid: c2571610b9f504551b18fa7568027a5c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboDecal01_Mat__Env_Alpha
+    second: {fileID: 2100000, guid: 52b0bed1cf3a24f3a87302040c3fa177, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboFloor02_Mat__Env_Default
+    second: {fileID: 2100000, guid: 7ad8bdeefd0bc428881cf20eb58e0a4f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetal03A_Mat__Env_Default
+    second: {fileID: 2100000, guid: a5d74571546a14082bcf09213c625f3a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetalFlame01__Env_Default
+    second: {fileID: 2100000, guid: aeb36d2be84e74ce9a7fb137e207cfe5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01
+    second: {fileID: 2100000, guid: 962e10bfa2b6d454284bf55ea3d4c9f2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01__Env_Emissive
+    second: {fileID: 2100000, guid: 3513d6ef35a4d4af48d390ee78528e3b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01
+    second: {fileID: 2100000, guid: a963aa19f55a54922a2ab23ef37bb35d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_Labowall_Steal01_Mat__Env_Default
+    second: {fileID: 2100000, guid: 40e76078ef35b49c1ab5b781b0f51147, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_UMBRELLA_01
+    second: {fileID: 2100000, guid: 140375990c0cf47649ec8a3dacda2975, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_UMBRELLA_02
+    second: {fileID: 2100000, guid: 2731c7ab33c42423bb9821806f0776e5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_UMBRELLA_03
+    second: {fileID: 2100000, guid: 6d9e2043a4d71475c82c6761d3905dba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_UMBRELLA_04
+    second: {fileID: 2100000, guid: 136f79d522cf642ce9974897f4ee1c9c, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: cstm_labosignC
+    second: {fileID: 2800000, guid: 31419b5d095af4904a02507be18e497c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_025_ShaftBridge01A_A_ALBM
+    second: {fileID: 2800000, guid: 74125c5b745024548a4453b9f0898d71, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_025_ShaftBridge01A_A_NRMR
+    second: {fileID: 2800000, guid: 8786cd80e6b5549a5883bb5141535cdb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_A_ALBM
+    second: {fileID: 2800000, guid: b32c401a360d54ace918e8853a6f40b9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_A_NRMR
+    second: {fileID: 2800000, guid: 09b1d804b2fec443e84172dbabb4a38d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_B_ALBM
+    second: {fileID: 2800000, guid: 5004d5717fa004f00b57c65cbfd399ea, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_B_NRMR
+    second: {fileID: 2800000, guid: c1f8084a3164840e5a2286c7187957b1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_C_ALBM
+    second: {fileID: 2800000, guid: 3b9e939a8fddb4679a6adcf38c69b847, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_C_EMI
+    second: {fileID: 2800000, guid: 3a12bf16d49c8437ea43272c739b17c8, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_C_NRMR
+    second: {fileID: 2800000, guid: a31b7703057b54474986e5c3002026c2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_D_ALBM
+    second: {fileID: 2800000, guid: 09f6ceb1a27b1499c8d753370bc3dd3f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_D_EMI
+    second: {fileID: 2800000, guid: ea864445839a449028e27ed0fdf32da2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_028_Equipment01A_D_NRMR
+    second: {fileID: 2800000, guid: 480e8c40454a54f718220f1ca24c2bac, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_037_Attachment01A_A_ALBM
+    second: {fileID: 2800000, guid: 7468df1291d0346cfba449ba1fe7d841, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_037_Attachment01A_A_NRMR
+    second: {fileID: 2800000, guid: 4685b7019fb16450793d1aaac8b6a2db, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_009_FluorescentLight01A_A_ALBM
+    second: {fileID: 2800000, guid: 8004fd68149c349b29c4bfe029833478, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_009_FluorescentLight01A_A_EMI
+    second: {fileID: 2800000, guid: f8f2606deeb0f4c679a082bfb387dbc2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_009_FluorescentLight01A_A_NRMR
+    second: {fileID: 2800000, guid: 39f99f10b329c4a94980a1dbf6fd8f66, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_ALBM
+    second: {fileID: 2800000, guid: 1b2ec2cdf303d49bf8c4eef1b8555689, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_EMI
+    second: {fileID: 2800000, guid: 4ea1bbcd68150446887f9bc8665f8cbd, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_NRMR
+    second: {fileID: 2800000, guid: 8403866e90d77452bb7c09ffe7deaaaf, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_143_IvyDoor01A_A_ALBM
+    second: {fileID: 2800000, guid: 7b012de9d351a49188775884c32af27c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_143_IvyDoor01A_A_NRMR
+    second: {fileID: 2800000, guid: b32f37348a0e94bbaaeef86e09b81509, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_ALBM
+    second: {fileID: 2800000, guid: dd6acb34d885445d0a44c1e412d1390d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_NRMR
+    second: {fileID: 2800000, guid: 2c72fa65ab29648dfa74ab109a3751bc, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_D_ALBM
+    second: {fileID: 2800000, guid: 7c41faaba81154e1b867460246a9c086, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm42_095_ListtagTerminal01A_A_ALBM
+    second: {fileID: 2800000, guid: ce773eef8dc9641e680cf39160488343, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm42_095_ListtagTerminal01A_A_NRMR
+    second: {fileID: 2800000, guid: df75b37d092bb4defb4fec052203a655, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_A_ALBM
+    second: {fileID: 2800000, guid: 2f4ff04713d8a43f3aa608ef08c37283, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_A_EMI
+    second: {fileID: 2800000, guid: 766cb8b0e13b240518fae1e61c7f831d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_A_NRMR
+    second: {fileID: 2800000, guid: 5ec8f50e1d935430e8dc7eece1b0a8c7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_B_ALBM
+    second: {fileID: 2800000, guid: 689765e0e142d45588b97db2c9bb7d51, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm43_526_MovableBridge01A_B_NRMR
+    second: {fileID: 2800000, guid: d949e68eba2f2445ebd73e91dc05b3cd, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm43_530_LaboLift01A_ALBM
+    second: {fileID: 2800000, guid: 181eb57ca6252428597d541a09626c63, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm43_530_LaboLift01A_NRMR
+    second: {fileID: 2800000, guid: 7043d5bf9b10547be839b128ef4a2bb2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank_01A_A_ALBM
+    second: {fileID: 2800000, guid: 23aa2d9772dd649a980d4fbb5d55d626, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank_01A_A_NRMR
+    second: {fileID: 2800000, guid: 53caef2c704394959a06a5e7a389bb71, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank_01A_B_ALBM
+    second: {fileID: 2800000, guid: 3601af55598af478a8e72be74de81894, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank_01A_B_EMI
+    second: {fileID: 2800000, guid: 8f7c576c67e4844a39748b3d0c40e553, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_502_CultureTank_01A_B_NRMR
+    second: {fileID: 2800000, guid: ecd201bac9cd145a287c4ca9194ab637, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_504_Breakables01A_A_ALBM
+    second: {fileID: 2800000, guid: 3efc096c52495469f9d6e197a88a2265, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_504_Breakables01A_A_NRMR
+    second: {fileID: 2800000, guid: 1b5c427e01650442ba0adf41e1ca96f1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_504_Breakables01A_B_ALBM
+    second: {fileID: 2800000, guid: 312bc32a51c704d8aa06db1f23a6a045, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm46_504_Breakables01A_B_NRMR
+    second: {fileID: 2800000, guid: a5b2b1b841e324e8885135770b11a4d0, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm60_134_St5_BrakeCeiling_ALBM
+    second: {fileID: 2800000, guid: 8c2dbd6f74d0246fbb935eedffc39558, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm60_134_St5_BrakeCeiling_NRMR
+    second: {fileID: 2800000, guid: 9e822d30c849d49f59d06bcc10a344b1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm60_134_St5_BrakeCeiling_Plate_ALBM
+    second: {fileID: 2800000, guid: a6cc125fcd5284583b18c3303ceea4a1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm60_134_St5_BrakeCeiling_Plate_NRMR
+    second: {fileID: 2800000, guid: 6767c93fff0b84811bbeee97187fbc94, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st2_CableAndPipe_A_ALBM
+    second: {fileID: 2800000, guid: 0b2b1502548424605b44012c7f1bf728, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st2_CableAndPipe_A_NRMR
+    second: {fileID: 2800000, guid: 07d0968259095489588823bebc6e9ccf, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_101_IronColumn01_ALBM
+    second: {fileID: 2800000, guid: b4f5933864c26451c9c15b71ab7b153a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_101_IronColumn01_NRMR
+    second: {fileID: 2800000, guid: 3eae4606e9f8e406781d30f9e65c19ec, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_101_doorframe01_albm
+    second: {fileID: 2800000, guid: 1b3edd51d7ddf4bb59eaf9242a1f704a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_101_doorframe01_nrmr
+    second: {fileID: 2800000, guid: b0caaa9e6d68e42cb8d363d033d90b51, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_133_G3_Wall_ALBM
+    second: {fileID: 2800000, guid: 24b01a12574d840e79689132d3376608, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_133_G3_Wall_NRMR
+    second: {fileID: 2800000, guid: a7bee971d32a54988b589ba053f35f3c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_133_G3_Wall_frame_ALBM
+    second: {fileID: 2800000, guid: 9923b91e292e74e0bb236ddf635551c3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_133_G3_Wall_frame_NRMR
+    second: {fileID: 2800000, guid: c8fbb736faa8c40baa226c5931e5d12d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboCeiling02_ALBM
+    second: {fileID: 2800000, guid: b4f9b00d3dde24f5388d764e314e413d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboCeiling02_NRMR
+    second: {fileID: 2800000, guid: 20b119d7b50c046588ba8011e256fc59, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboDecal01_ALBM
+    second: {fileID: 2800000, guid: 5b3df268750584c369117269318aef4c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboDecal01_NRMR
+    second: {fileID: 2800000, guid: fe00a088f1b114a2ba77a961fa1e54c8, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboFloor02_NRMR
+    second: {fileID: 2800000, guid: 307bb6b1fa11e4ad5830a077a9570ace, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboFloor05_ALBM
+    second: {fileID: 2800000, guid: 92f89a6008e0b42dba040f51efb3aa82, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboFloor05_NRMR
+    second: {fileID: 2800000, guid: f1e61504b7af94b4b85337d024bf8b10, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetal03A_ALBM
+    second: {fileID: 2800000, guid: dc4f82619db7e4a3e8011e556877f333, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetal03A_NRMR
+    second: {fileID: 2800000, guid: f6c716297e2b14b53bdf29f6bf61eac6, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetalFlame01_ALBM
+    second: {fileID: 2800000, guid: 9e8647e54fcc048b9b7e805eff3fc93d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetalFlame01_NRMR
+    second: {fileID: 2800000, guid: 973a423243f6b4fc4a0364ad8b8ec1fb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01_ALBM
+    second: {fileID: 2800000, guid: 19d9223d4d3964668b0af1fa333f3486, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01_EMI
+    second: {fileID: 2800000, guid: 8bde8806926a04d3190a4d7ea77e1d97, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01_NRMR
+    second: {fileID: 2800000, guid: 61c25b6bcb6a94f4682d1bf03d58c273, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01_ALBM
+    second: {fileID: 2800000, guid: 029cfbff9e6cf448f81f694ea58df02a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01_NRMR
+    second: {fileID: 2800000, guid: 1ebb25fb6c805409c887f476ead7ec69, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_Labowall_Steal_ALBM
+    second: {fileID: 2800000, guid: 0377d0f1471aa42899ac7577977794ac, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_Labowall_Steal_NRMR
+    second: {fileID: 2800000, guid: 0cdd99f63b23249608341d947172df53, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+    searchTexturesGlobally: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 1
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

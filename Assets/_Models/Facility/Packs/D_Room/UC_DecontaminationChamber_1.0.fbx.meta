@@ -1,0 +1,904 @@
+fileFormatVersion: 2
+guid: 39944b7d26035433bb35a2e425852290
+ModelImporter:
+  serializedVersion: 24501
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Emissive
+    second: {fileID: 2100000, guid: 0bf01800cdcde4c909724a53268d2e9e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PlasticTape__Env_AlphaTest
+    second: {fileID: 2100000, guid: 2ed5becd0939a4994aa317d920b5d574, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cstm_labosignC
+    second: {fileID: 2100000, guid: ffddabb697ecc42d5934abe0e659878b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm20_003_CleaningMop01A_A_Mat
+    second: {fileID: 2100000, guid: 6c5ab0afaec424368a137a71c82cb838, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm20_005_GarbageBags02A_A_Mat.001
+    second: {fileID: 2100000, guid: c4665be30a68a45afa8151798964d5f4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm22_037_AirDiffuser01A_A_Mat
+    second: {fileID: 2100000, guid: d1b2e38cbcaee415f86d53e49683fe0c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm23_025_ShaftBridge01A_A_Mat
+    second: {fileID: 2100000, guid: b05461b3051594ba5929a8020c59709c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_075_Hanger01A_A_Mat
+    second: {fileID: 2100000, guid: 43ca0b001300a4f7b9bce9371b8f996a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_104_Dustbox01B_B_Mat
+    second: {fileID: 2100000, guid: 221f1c230e74c48bf94c43a4f3b4dd34, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_107_ClothingRack01A_D_Mat
+    second: {fileID: 2100000, guid: 9e2c6f89cbe8d4718a6337dd88d821fa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_126_BenchA01A_A_Mat
+    second: {fileID: 2100000, guid: cbcd512d5feea4b11aafd8ecbd479df6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_186_MedicalBox01A_A_Mat
+    second: {fileID: 2100000, guid: bfc168c46907146b99c9a860aa742987, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_210_IVstand01A_A_Mat__Env_Default.001
+    second: {fileID: 2100000, guid: dfa522793cc0d44938fc57dbf3f59bd1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_231_LaboTable01A_A_Mat__Env_Default
+    second: {fileID: 2100000, guid: 96a40d0fd0474435abb30f4ccbc174bb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm30_281_SterilizingDrum01A_A_Mat.001
+    second: {fileID: 2100000, guid: f8504990445934a96942ff5ca62a8948, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm31_030_ShowerBath01A_A_Mat
+    second: {fileID: 2100000, guid: 5dc29f98e52bd43758e889bee86b7fe6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm31_078_Labware02A_A_Mat
+    second: {fileID: 2100000, guid: b38deddb9d89b477aa4f1acab98414b9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm32_011_DarkroomTray01A_A_Mat
+    second: {fileID: 2100000, guid: 7bc70ac42427a4bdebb667fc62b7cdc1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm32_011_DarkroomTray01A_B_Mat
+    second: {fileID: 2100000, guid: c3f671d158c074ba498fa68b2298cf88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm32_051_ProtectCloth01A_A_Mat
+    second: {fileID: 2100000, guid: e781f32cb6c1544b8a163192f2992010, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm32_148_Medicine03A_A_Mat
+    second: {fileID: 2100000, guid: be442211075d140b9836e01c78834c50, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm32_175_Medicine05A_A_Mat
+    second: {fileID: 2100000, guid: 70785f612fa1342bda2b9dedd134b79a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm32_236_ProtectCloth01A_A_Mat__Env_Default
+    second: {fileID: 2100000, guid: 90cfe532c289049fb9e1095e8e0491d3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm35_051_FluorescentLight03A_Emissive_Mat
+    second: {fileID: 2100000, guid: 2f3fcfe92f4af45b8a79b6934814a487, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_A_Mat
+    second: {fileID: 2100000, guid: 5839a5ed011bc44b49bf4bd3aed72e18, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_029_BathTowel01A_A_Mat
+    second: {fileID: 2100000, guid: 28a5b2463ab274a0aac097903c74d7dc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_035_TableCloth03B_A_Mat
+    second: {fileID: 2100000, guid: 29d9164eb208d4a4d9043298bfc5a627, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_035_TableCloth03B_A_Mat.001
+    second: {fileID: 2100000, guid: 04ea8489e1951446a8d0c247d64a7e84, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_035_TableCloth03B_A_Mat.002
+    second: {fileID: 2100000, guid: 967130205c0c149f39cb50f856b50668, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_079_BloodClothes01A_A_Mat.001
+    second: {fileID: 2100000, guid: e1de959e055904d81b8ad7d8a33db028, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_084_GarbageMass01A_A_Mat
+    second: {fileID: 2100000, guid: d5ef1ca42d03c458c9455448396273a3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_085_ClothesMass01A_A_Mat
+    second: {fileID: 2100000, guid: a74c8e0cd5d8c407eb9f7f81e4912fda, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_103_Syringe01A_A_Mat__Env_Default.001
+    second: {fileID: 2100000, guid: 652d90330319a46558a95f48144fbd3b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_104_Syringe02A_A_Mat__Env_Default
+    second: {fileID: 2100000, guid: 0b93fb943fb0a47c8870fab3b56740c0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_120_MeasuringCylinder01B_A_Mat
+    second: {fileID: 2100000, guid: c19777da91a964553b36b1de43911a93, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_129_Laboglasses01A_A
+    second: {fileID: 2100000, guid: 88b27f48e693a44e8ad50bca4aa2e4fb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_129_Laboglasses01A_B
+    second: {fileID: 2100000, guid: 5fa597a25738443118eb4dcc4ce5776a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_134_LaboDocument01C_A_Mat
+    second: {fileID: 2100000, guid: c1937d47f3c754e07bd9d54ae1e526f1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm36_134_LaboDocument01C_A_Mat.001
+    second: {fileID: 2100000, guid: fcf5e99a261d245ed9cc3c8c0e652756, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_143_IvyDoor01A_A_Mat__Env_Default.001
+    second: {fileID: 2100000, guid: 5c7400439a1d0491e92dbcd9b0d758bc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_143_IvyDoor01A_A_Mat__Env_Default.003
+    second: {fileID: 2100000, guid: 8a70661bc46d04f5c9bd6c0092b78bd1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_Mat__Env_Default1
+    second: {fileID: 2100000, guid: 455a8ed1a80cd495c92abae60cbf7ce1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_Mat__Env_Default1.001
+    second: {fileID: 2100000, guid: 2f93e76723b9642e6aeaebf5a436da8a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_Mat__Env_Default2
+    second: {fileID: 2100000, guid: 3b0b25c8f2b7e4ccc954189ca5f04f49, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_Mat__Env_Default2.002
+    second: {fileID: 2100000, guid: c4d5c500748ab443e837046f29002c00, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sm70_000_EmergencySpray01A_Mat
+    second: {fileID: 2100000, guid: cf8e2ecb028ba4af1b19bdd0f3a98419, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st2_FloorWater01__Env_Decal
+    second: {fileID: 2100000, guid: 36beee49bb0134a15b2faa7adf981e4e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st3_sTPEastHandrail01
+    second: {fileID: 2100000, guid: b74c50e7f0f874544a6f29f38476fa02, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st3_sewageGlass01
+    second: {fileID: 2100000, guid: c97bd3c824638482ab8ed5d45cd60740, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st3_sewageSteel06
+    second: {fileID: 2100000, guid: b51f834179b5a4a3286c691115044c79, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_121_Window01_Alpha
+    second: {fileID: 2100000, guid: 40ce8421199484ab982495c770a4be07, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_Floor02
+    second: {fileID: 2100000, guid: 70da2040eda7346f8bb1840855b97bd5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboDecal01_Mat__Env_Alpha
+    second: {fileID: 2100000, guid: 00f3b76b062784d4fafd9c6ba3c35e53, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboFloor02_Mat__Env_Default
+    second: {fileID: 2100000, guid: f8cb853fa8aaa4d63b881cf8dca3588e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetal01A_Mat__Env_Default
+    second: {fileID: 2100000, guid: 5f17446561e8f480486ea48c85cd6557, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetal01A_Mat__Env_Default2
+    second: {fileID: 2100000, guid: 3cfe0abf91bf045fca15a8e5ac6644f3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01
+    second: {fileID: 2100000, guid: 8b06836cec65d4ce38695040c0f9da4f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01__Env_Emissive
+    second: {fileID: 2100000, guid: 17763dfdb1d63405ca629ddcd0362d19, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01
+    second: {fileID: 2100000, guid: a4cb99233a0ee44a6bb3e831fdc9d489, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01.Opaq
+    second: {fileID: 2100000, guid: ada1e864e8a1d4b23a8096e3ba7e5e7e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01_Black
+    second: {fileID: 2100000, guid: 79322b73a5d754e1d81c2bc8a24ad7df, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01_Black.001
+    second: {fileID: 2100000, guid: 8e2749ce7fc0f4580aa9923263a14f0f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_Labo_metallic01
+    second: {fileID: 2100000, guid: 2acfe55195a484396af59a77a506af67, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_Labowall_Steal01_Mat__Env_Default
+    second: {fileID: 2100000, guid: 410909219772143a498bd00f629603ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: st5_footsteps01_AlphaTest
+    second: {fileID: 2100000, guid: 0b47a2aa0b87f4e1d968c05a9bdbdc93, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: PlasticTape_ALBM
+    second: {fileID: 2800000, guid: 3e8ff4db8823b4dd88af7af52a183376, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: PlasticTape_NRMR
+    second: {fileID: 2800000, guid: 7d1f3d44c24e145138012ea53d12874d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: cstm_labosignC
+    second: {fileID: 2800000, guid: 97482e323d9ae47849c42de99dc779dd, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm20_003_CleaningMop01A_A_ALBM
+    second: {fileID: 2800000, guid: 1e9ab8543b0804d15bd4f3b5789f32f6, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm20_003_CleaningMop01A_A_NRMR
+    second: {fileID: 2800000, guid: cae803864b7a642e896b52017d82e3e3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm20_005_GarbageBags02A_A_ALBM
+    second: {fileID: 2800000, guid: caa5a729a7c5b4fd49c4f224adfb50ce, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm20_005_GarbageBags02A_A_NRMR
+    second: {fileID: 2800000, guid: ec3ce66b5e7b5479caf4f4802d5a9bcb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm22_037_AirDiffuser01A_A_ALBM
+    second: {fileID: 2800000, guid: cd666dcf63d994738bc17fd526415577, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm22_037_AirDiffuser01A_A_NRMR
+    second: {fileID: 2800000, guid: 36476e399bfd7465185766f1605a064c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_025_ShaftBridge01A_A_ALBM
+    second: {fileID: 2800000, guid: 3995feda758504ab7b4fb4c7b1b9b622, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm23_025_ShaftBridge01A_A_NRMR
+    second: {fileID: 2800000, guid: 1f4b5ee89793b45c091dd8ae8ab2d171, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_071_Dustbox01A_A_NRMR
+    second: {fileID: 2800000, guid: eac230dac2ff849ddbe257c82a8fe93b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_075_Hanger01A_A_ALBM
+    second: {fileID: 2800000, guid: c94d6b38e9df1419b9e959390eb5e955, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_075_Hanger01A_A_NRMR
+    second: {fileID: 2800000, guid: 360eb516d49b84eaab57c867e6e628de, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_104_Dustbox01B_B_ALBM
+    second: {fileID: 2800000, guid: ec04acd34f5164b80a5c647a312aa449, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_107_ClothingRack01A_D_ALB
+    second: {fileID: 2800000, guid: 78a2a571897614a85ac5ce429dbdae18, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_126_BenchA01A_A_ALBM
+    second: {fileID: 2800000, guid: c998ba1e98e604c1cbb5047d6d961692, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_126_BenchA01A_A_NRMR
+    second: {fileID: 2800000, guid: aa75194fdecb848fbbfe5d2876a61a26, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_186_MedicalBox01A_A_ALBM
+    second: {fileID: 2800000, guid: 7dbd2cc307579475685650fbd3504d8f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_186_MedicalBox01A_A_NRMR
+    second: {fileID: 2800000, guid: 48a03a873eed643ec81db3c0755cb990, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_210_IVstand01A_A_ALBM
+    second: {fileID: 2800000, guid: 24664aa764cda4ef8b894c5399d1f48f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_210_IVstand01A_A_NRMR
+    second: {fileID: 2800000, guid: 7c583161b2d544f6a9f609b5121a9684, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_231_LaboTable01A_A_ALBM
+    second: {fileID: 2800000, guid: a14770335d59d4b8caeb3b9250d16f0f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_231_LaboTable01A_A_NRMR
+    second: {fileID: 2800000, guid: 33c8f0863e8f948399d9e16780c8033f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_281_SterilizingDrum01A_A_ALBM
+    second: {fileID: 2800000, guid: 8ec949b620cd549fcb7ec65764170df7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm30_281_SterilizingDrum01A_A_NRMR
+    second: {fileID: 2800000, guid: 26d81833b98b64838bc2478ead21f32b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm31_030_ShowerBath01A_A_NRM
+    second: {fileID: 2800000, guid: c486f8e8da9f74e779730543e1d10863, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm31_078_Labware02A_A_ALBM
+    second: {fileID: 2800000, guid: b94ea22d0aae24d94ae507e6a714ff77, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm31_078_Labware02A_A_NRMR
+    second: {fileID: 2800000, guid: ac819a212d73844ba9fa0040c6d72d0e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_011_DarkroomTray01A_A_ALBM
+    second: {fileID: 2800000, guid: 0382d5d57d38e4ec5b0e916b2537161e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_011_DarkroomTray01A_A_NRMR
+    second: {fileID: 2800000, guid: d1c08399fab5e46ba861024091973f78, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_051_ProtectCloth01A_A_ALBM
+    second: {fileID: 2800000, guid: c653b10d871b84b9fb687d329f21ca40, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_051_ProtectCloth01A_A_NRMR
+    second: {fileID: 2800000, guid: f72889262dc3f40698f3d5491eb18f2d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_148_Medicine03A_A_ALBM
+    second: {fileID: 2800000, guid: 01914e156b81b4ae988afa7e00dbd48a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_148_Medicine03A_A_NRMR
+    second: {fileID: 2800000, guid: 5cf835b08a20b4361a2818e3897c5089, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_175_Medicine05A_A_ALBM
+    second: {fileID: 2800000, guid: 16acb1e402592432ab656332fdbde0db, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_175_Medicine05A_A_NRMR
+    second: {fileID: 2800000, guid: 7637869b52abc48a4b3cabdab03e4cc6, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_236_ProtectCloth01A_A_ALBM
+    second: {fileID: 2800000, guid: ba808c143fee846b8a5931d0c0af908d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm32_236_ProtectCloth01A_A_NRMR
+    second: {fileID: 2800000, guid: 62e8b44d2dfe24d1b861c0ab4258b44b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_051_FluorescentLight03A_B_ALBM
+    second: {fileID: 2800000, guid: f2c11e562dc1343d0a450bd5f726c761, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_051_FluorescentLight03A_B_NRMR
+    second: {fileID: 2800000, guid: a05e72c1a1dd84188b79bb52aecff9de, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_ALBM
+    second: {fileID: 2800000, guid: 007794027f8a8441faaada664b5b489f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_EMI
+    second: {fileID: 2800000, guid: ae8fe024bb96044e7833d1942dd9bc19, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm35_084_LaboLight01A_NRMR
+    second: {fileID: 2800000, guid: 548f805b418994e448a69720e2ae40eb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_029_BathTowel01A_A_ALBM
+    second: {fileID: 2800000, guid: 153da9688291941dda4cd78c07325fd7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_029_BathTowel01A_A_NRMR
+    second: {fileID: 2800000, guid: a86943ed75421483f900981c59eb1fc0, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_035_TableCloth03B_A_ALBM
+    second: {fileID: 2800000, guid: 33c30c81326b649788572a5d8c161610, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_035_TableCloth03B_A_NRMR
+    second: {fileID: 2800000, guid: 7733fe41fd1704db6a9a9a6d71803897, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_079_BloodClothes01A_A_ALBM
+    second: {fileID: 2800000, guid: 32ceb61a7037a49348f83c46d167a62c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_079_BloodClothes01A_A_NRMR
+    second: {fileID: 2800000, guid: f38deb5d5ab9d47bbbebeaf81409f444, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_084_GarbageMass01A_A_ALBM
+    second: {fileID: 2800000, guid: 7d84b7eeac6214ac6816f7508689d707, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_084_GarbageMass01A_A_NRMR
+    second: {fileID: 2800000, guid: 7880909fd1a104b13b6449936bdb5c03, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_085_ClothesMass01A_A_ALBM
+    second: {fileID: 2800000, guid: 58d021b145fc042efbc7eb4fc3611dbb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_085_ClothesMass01A_A_NRMR
+    second: {fileID: 2800000, guid: 4fc987ecdc4784d9ea8fb317fa176c12, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_103_Syringe01A_A_ALBM
+    second: {fileID: 2800000, guid: f3330daeeaa72417b8a62b60147d46ef, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_103_Syringe01A_A_NRMR
+    second: {fileID: 2800000, guid: bfe7f412c723443d4babf671cff24584, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_104_Syringe02A_A_ALBM
+    second: {fileID: 2800000, guid: 4aeef9b78fa1c4c9bac138d21009511d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_104_Syringe02A_A_NRMR
+    second: {fileID: 2800000, guid: ec38a3d6dac1344c4a741b4050640705, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_120_MeasuringCylinder01B_A_ALBM
+    second: {fileID: 2800000, guid: 30e77d186147c406d9e4f368dca662e9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_120_MeasuringCylinder01B_A_NRMR
+    second: {fileID: 2800000, guid: 4871ba94ded12428a9d6f035268e95bf, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_129_Laboglasses01A_ALBM
+    second: {fileID: 2800000, guid: c31a5cb6bf71b4725b4e2c98c5d36646, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_129_Laboglasses01A_NRMR
+    second: {fileID: 2800000, guid: 55d77473551574f5b95b84cc114c707d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_131_LaboDocument01A_A_ALBM
+    second: {fileID: 2800000, guid: 5d21857f8e4c243a7b9a2379ecd7bf5e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm36_131_LaboDocument01A_A_NRMR
+    second: {fileID: 2800000, guid: 70e15bb9a90ba4fac96d79c6b8925a0e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_143_IvyDoor01A_A_ALBM
+    second: {fileID: 2800000, guid: 390da1843b1be46e79d5424802ee2b59, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_143_IvyDoor01A_A_NRMR
+    second: {fileID: 2800000, guid: 7930b878dbd5944ee9a0211e78ebff8a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_ALBM
+    second: {fileID: 2800000, guid: 848862134bdae4e8fb48b0bc5a4c619e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm40_146_AutoDoorCommon01A_B_NRMR
+    second: {fileID: 2800000, guid: 3526d178a881b4b69855d86e803db1c5, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm70_000_EmergencySpray01A_A_ALBM
+    second: {fileID: 2800000, guid: 29d9dfc928caf45c9b18c2682b86ab19, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: sm70_000_EmergencySpray01A_A_NRMR
+    second: {fileID: 2800000, guid: b01eb5320653b4bef80e77704d0d573f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st2_FloorWater01_ALBM
+    second: {fileID: 2800000, guid: e21dd8b42439a45f685bac5a77cfbb68, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st2_FloorWater01_NRMR
+    second: {fileID: 2800000, guid: ee77f065c86c34c98a07639bc93a54c5, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st3_sTPEastHandrail01_ALBM
+    second: {fileID: 2800000, guid: dac712368223a41c1ae30983ff91c1c1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st3_sTPEastHandrail01_NRMR
+    second: {fileID: 2800000, guid: 8c8da8f189b4945ea85c2ad9aabb69ac, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st3_sewageGlass01_ALBM
+    second: {fileID: 2800000, guid: efbf1bb6bb9df416cb5457b16920afe2, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st3_sewageGlass01_NRMR
+    second: {fileID: 2800000, guid: 9ae328008c9b8486498dd838048bfe92, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st3_sewageSteel06_ALBM
+    second: {fileID: 2800000, guid: ecf43991cca5f48e1a50e1971d3e6534, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st3_sewageSteel06_NRMR
+    second: {fileID: 2800000, guid: daf114a8645e24d07a0246e1ee9d8a74, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboDecal01_ALBM
+    second: {fileID: 2800000, guid: 8a08e5abfecd746f9ad061bd142dffcb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboDecal01_NRMR
+    second: {fileID: 2800000, guid: ef0c8c602d95b46f986475f62fd04f9b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboFloor02_ALBM
+    second: {fileID: 2800000, guid: aad8ab8d7e4844b2d92d53fae2506ca4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboFloor02_NRMR
+    second: {fileID: 2800000, guid: ec8e2ec620a8a4c1f90bf02e00db8700, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetal01A_ALBM
+    second: {fileID: 2800000, guid: da52ff75415644bd4b7bf5d85b941526, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboMetal01A_NRMR
+    second: {fileID: 2800000, guid: 86a9448233ffe4ddb9736c056ad2b479, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01_ALBM
+    second: {fileID: 2800000, guid: d012433714f9a4249b40d837aafd915b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01_EMI
+    second: {fileID: 2800000, guid: c5c30e7fc09b741dcafba059ba704a52, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboPillar01_NRMR
+    second: {fileID: 2800000, guid: 4d4d8261a03694826b549b351d7669ac, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboTiles_NRMR
+    second: {fileID: 2800000, guid: 4c9986b77c0da4d708aa6c3018c01fbc, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01_ALBM
+    second: {fileID: 2800000, guid: 84f1df9f83fa34489a104bb1405d2ba7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_LaboWall01_NRMR
+    second: {fileID: 2800000, guid: 86e808430fcb546739301580a283696f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_Labowall_Steal_ALBM
+    second: {fileID: 2800000, guid: b4a841defbf1844269b743f71c12e5c0, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_Labowall_Steal_NRMR
+    second: {fileID: 2800000, guid: 73448f26d664a41aea8fd801ee43d57d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: st5_footsteps01_ALB
+    second: {fileID: 2800000, guid: b89b870a4bf9c48fdba230d7834e113e, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+    searchTexturesGlobally: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 1
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
