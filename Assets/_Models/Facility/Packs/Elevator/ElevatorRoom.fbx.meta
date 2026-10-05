@@ -1,0 +1,309 @@
+fileFormatVersion: 2
+guid: ebf7e6c6a3a3f4bab885417101df5276
+ModelImporter:
+  serializedVersion: 24501
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_Button
+    second: {fileID: 2100000, guid: a6efe2d00527e4f45a805a2057462f09, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_ButtonLight
+    second: {fileID: 2100000, guid: 843fabc61e3704ed680d3f2eb7eb8b31, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_Floor
+    second: {fileID: 2100000, guid: c3b830e4a37af46b59a6a8fc181276ad, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_Frame
+    second: {fileID: 2100000, guid: acf5fdc16426c4b16b6d8ec4f6c48e2e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_Grille
+    second: {fileID: 2100000, guid: 2059733fff8a84273b0a9378d002d085, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_Indicator
+    second: {fileID: 2100000, guid: 5dd1b4e20c2c14e40bdfce957512da70, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_LightPanel
+    second: {fileID: 2100000, guid: 01d199569d07841f29a770f791ff116f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_Panel
+    second: {fileID: 2100000, guid: 3f7d1b652b3b24e3288291884e4594e1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ELV_Steel
+    second: {fileID: 2100000, guid: f7b8b8d69b9514fa4955ff124a0bbec0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_DIRTY
+    second: {fileID: 2100000, guid: 500d26819b2c44b6aa521ea8c537d70e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_FLOOR
+    second: {fileID: 2100000, guid: 34959442cd0024b7295935a0c8a38e78, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EZ_MISC
+    second: {fileID: 2100000, guid: a4c11704310f44f939b0279d4bf6bf5a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Trim_ElectronicMat_var1
+    second: {fileID: 2100000, guid: cdfdc48d01cae4b749065830aa592d87, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: containment_doors
+    second: {fileID: 2100000, guid: c0f71fd172b1c4f6cbf52b1763500596, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: glass_a
+    second: {fileID: 2100000, guid: e347ddc6381da41cbaaf9b3796106b85, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lczSpeaker
+    second: {fileID: 2100000, guid: de51c9913dd854b2d863a6bebb2624b4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: mainminicctv_off
+    second: {fileID: 2100000, guid: 98596e4d6e934451ca5a2883c8da3542, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metalpanels2
+    second: {fileID: 2100000, guid: 6e8af50df094549ae8b9301ed68f15ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: whitewall
+    second: {fileID: 2100000, guid: 62931c1263cfd4278b5b1bf6dab8ba95, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Dirtymetal_Metallic
+    second: {fileID: 2800000, guid: df7fdf9dc611442a194ceb976681ae79, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Dirtymetal_Roughness
+    second: {fileID: 2800000, guid: 58ac7f081c035418badfb978b309c428, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: EZ_MISC_Normal
+    second: {fileID: 2800000, guid: 9ef115f10e9584ed5b2fbe25ab0a09af, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCP079_Speaker_Square_mat_D
+    second: {fileID: 2800000, guid: abe39a2875a624c338bfb56eea01017e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCP079_Speaker_Square_mat_N
+    second: {fileID: 2800000, guid: 86a83e8bae71545f4a43f5549f033afe, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SCPSLServer2_Glass_AlbedoTransparency
+    second: {fileID: 2800000, guid: 0f64ed267ff9549418ed285b1ed45eaa, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Trim_Electronic_Normal
+    second: {fileID: 2800000, guid: 14aca244fe81a445caefec0b8795a282, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: cctventrance_Material.001_BaseColor
+    second: {fileID: 2800000, guid: 9693dc4dca8354a61a5f5f9f982a5c2c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: cctventrance_Material.001_Normal
+    second: {fileID: 2800000, guid: eb20cbb2d48944cdb9ed4a153d134e9f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: containment_doors
+    second: {fileID: 2800000, guid: 2f23e1c00bb9a489c83277711cd5f8c7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: containmentdoorsbump
+    second: {fileID: 2800000, guid: 36dc25097e190465580280444c9e1e81, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: dirtymetal 1
+    second: {fileID: 2800000, guid: 9641615ca7795458095fcdfac80c6f24, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: dirtymetal_normal
+    second: {fileID: 2800000, guid: c1ce047b7bab94ddc9b90e9b99b3b8e6, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metalpanels2
+    second: {fileID: 2800000, guid: 80822514426934318bc124e534762d63, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: metalpanels2bump
+    second: {fileID: 2800000, guid: e472cd445feb445c083ee424e5b41348, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: misc-1k
+    second: {fileID: 2800000, guid: f127c807eca5643d0b136a795a622d3f, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: tilefloor
+    second: {fileID: 2800000, guid: 34379058dc90a4526bcd961f1b2fec8e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: tilefloor_normal
+    second: {fileID: 2800000, guid: b0be51cf6840547f4b2567693a1f3ed3, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: tilefloor_roughness
+    second: {fileID: 2800000, guid: c219fcbe5dc9a4db9b6901eb6a6d1ba6, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: whitewall
+    second: {fileID: 2800000, guid: b8d62ea971b3047ad83c0cc20424ec84, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+    searchTexturesGlobally: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    importUVs: -1
+    importVertexColors: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+    calculateBlendshapeNormalsDeltaFromImportedNormals: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
