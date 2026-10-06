@@ -48,12 +48,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: EZ_WALLS
-    second: {fileID: 2100000, guid: 7d1afea7eb90c45698eca840f447c4aa, type: 2}
+    second: {fileID: 2100000, guid: bcdbaa088831d4b9daee3e034ca8b3c7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: EZ_WHITE
-    second: {fileID: 2100000, guid: 45ad428ac07f04ef0acac481a8cefaa4, type: 2}
+    second: {fileID: 2100000, guid: bcdbaa088831d4b9daee3e034ca8b3c7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -98,7 +98,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: concretefloor
-    second: {fileID: 2100000, guid: 09630270fdb944757a0c9d47217eba35, type: 2}
+    second: {fileID: 2100000, guid: 3e48eda4f32ef4fbbbe6602e4ee92e58, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

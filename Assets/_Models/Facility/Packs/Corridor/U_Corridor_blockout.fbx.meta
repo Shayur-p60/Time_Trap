@@ -13,7 +13,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: ARM_Concrete
-    second: {fileID: 2100000, guid: 081ae069441c94a4ca8a80e4ad3ed7c0, type: 2}
+    second: {fileID: 2100000, guid: bcdbaa088831d4b9daee3e034ca8b3c7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -23,7 +23,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: ARM_Floor
-    second: {fileID: 2100000, guid: 0b927ceb13ac24a09a9cbe6bd1f084bc, type: 2}
+    second: {fileID: 2100000, guid: cd2594cfd94c34b22a189feb7be2028d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -63,7 +63,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: EZ_WALLS
-    second: {fileID: 2100000, guid: 804ebb564345a42e08b4a851ea61c457, type: 2}
+    second: {fileID: 2100000, guid: bcdbaa088831d4b9daee3e034ca8b3c7, type: 2}
   - first:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
