@@ -41,6 +41,9 @@ public static class TimeTrapLightingPreview
         for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
             EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetSceneAt(i));
 
-        Debug.Log($"[Time Trap] {label}: {emergency} Light_Emergency and {powered} Light_Powered lights updated.");
+        // one switch for everything that reacts to power (GeneratorRoomAlarm now, the generator script later)
+        PowerState.SetPowered(poweredOn);
+
+        Debug.Log($"[Time Trap] {label}: {emergency} Light_Emergency and {powered} Light_Powered lights updated; PowerState.IsPowered = {poweredOn}.");
     }
 }
