@@ -34,7 +34,7 @@ public static class TimeTrapColliderGenerator
     const float StepTolerance = 0.005f;
     const string ReportPath = "Library/TimeTrap_ColliderReport.txt";
 
-    enum Kind { SkipLight, SkipName, SkipDebris, SkipSmall, SkipNoMesh, Structural, Prop }
+    enum Kind { SkipLight, SkipName, SkipDebris, SkipSmall, SkipNoMesh, Structural, Prop, DoorLeaf }
 
     class Info
     {
@@ -137,6 +137,10 @@ public static class TimeTrapColliderGenerator
         }
 
         if (max < MinSize) { info.kind = Kind.SkipSmall; info.why = "< " + F(MinSize) + " m"; return info; }
+
+        // door leaves: a panel named "door" (not a frame), 1-3 m tall/wide and thin. Frames keep MeshColliders so the opening stays free;
+        // big meshes that merely contain "door" in their name (the Blast_Door room shell) are not leaves.
+        if (lname.Contains("door") && !lname.Contains("frame") && max >= 1f && max <= 3f && info.Min <= 0.45f) { info.kind = Kind.DoorLeaf; return info; }
 
         string sw;
         if (max > StructuralSize || ContainsAny(lname, StructuralWords, out sw)) { info.kind = Kind.Structural; return info; }
@@ -275,8 +279,60 @@ public static class TimeTrapColliderGenerator
         Mesh mesh = r.GetComponent<MeshFilter>().sharedMesh;
         var bc = r.gameObject.AddComponent<BoxCollider>();
         bc.center = mesh.bounds.center;
-        bc.size = mesh.bounds.size;
+        Vector3 size = mesh.bounds.size;
+        if (rule == "Door")
+        {
+            // door leaves are never thinner than MinDoorThickness in the world
+            Vector3 ls = r.transform.lossyScale;
+            for (int a = 0; a < 3; a++)
+            {
+                float minLocal = MinDoorThickness / Mathf.Max(Mathf.Abs(ls[a]), 1e-4f);
+                if (size[a] < minLocal) size[a] = minLocal;
+            }
+        }
+        bc.size = size;
         Mark(r.gameObject, bc, rule);
+    }
+
+    // Enables or disables every collider with the "Door" rule (Map/Doors boxes and the EZ door leaves). Editor-only test helper.
+    static int SetDoorColliders(bool enabled)
+    {
+        int n = 0;
+        foreach (var m in Object.FindObjectsByType<GeneratedCollider>(FindObjectsInactive.Include))
+        {
+            if (m.rule != "Door" || m.colliders == null) continue;
+            foreach (var c in m.colliders)
+                if (c != null && c.enabled != enabled) { c.enabled = enabled; EditorUtility.SetDirty(c); n++; }
+        }
+        MarkDirty();
+        return n;
+    }
+
+    static int CountDoorColliders(out int enabledCount)
+    {
+        int total = 0; enabledCount = 0;
+        foreach (var m in Object.FindObjectsByType<GeneratedCollider>(FindObjectsInactive.Include))
+        {
+            if (m.rule != "Door" || m.colliders == null) continue;
+            foreach (var c in m.colliders) if (c != null) { total++; if (c.enabled) enabledCount++; }
+        }
+        return total;
+    }
+
+    [MenuItem("Time Trap/Colliders/Doors Passable (Test)")]
+    static void MenuDoorsPassable()
+    {
+        int n = SetDoorColliders(false);
+        int en; int total = CountDoorColliders(out en);
+        Debug.Log("[Time Trap] Doors passable (test): disabled " + n + " door collider(s); " + en + " of " + total + " enabled. Run 'Doors Solid' before saving.");
+    }
+
+    [MenuItem("Time Trap/Colliders/Doors Solid")]
+    static void MenuDoorsSolid()
+    {
+        int n = SetDoorColliders(true);
+        int en; int total = CountDoorColliders(out en);
+        Debug.Log("[Time Trap] Doors solid: enabled " + n + " door collider(s); " + en + " of " + total + " enabled.");
     }
 
     // One box per door, fitted to all of its leaves (door-local space), never thinner than MinDoorThickness.
@@ -354,7 +410,9 @@ public static class TimeTrapColliderGenerator
         var skipWordCounts = new Dictionary<string, int>();
         var unsureThin = new Dictionary<string, string>();
         var unsureFurniture = new Dictionary<string, string>();
-        var unsureDoors = new Dictionary<string, int>();
+        var doorLeaves = new List<string>();
+        var doorFrames = new List<string>();
+        var doorOther = new List<string>();
         var unsureTabletop = new Dictionary<string, int>();
         var unsureSkipLarge = new Dictionary<string, string>();
         var unsureAncestor = new Dictionary<string, int>();
@@ -399,8 +457,8 @@ public static class TimeTrapColliderGenerator
                         System.Array.Sort(d);
                         if (d[1] < 0.15f && !unsureThin.ContainsKey(Stem(nm))) unsureThin[Stem(nm)] = F(info.dims.x) + " x " + F(info.dims.y) + " x " + F(info.dims.z) + " m";
                     }
-                    if ((lname.Contains("door") || lname.Contains("frame")) && area.name == "Corridors")
-                    { string s = Stem(nm); unsureDoors[s] = unsureDoors.ContainsKey(s) ? unsureDoors[s] + 1 : 1; }
+                    if (lname.Contains("frame") && area.name == "Corridors") doorFrames.Add(DoorLine(r, info));
+                    else if (lname.Contains("door") && area.name == "Corridors") doorOther.Add(DoorLine(r, info) + "  (named door, but a " + F(info.Max) + " m structure, not a leaf)");
 
                     foreach (var flight in FindStairFlights(r))
                     {
@@ -412,6 +470,12 @@ public static class TimeTrapColliderGenerator
                         stairs.Add(nm + (r.gameObject.activeInHierarchy ? "" : " [inactive]") + ": flight of " + flight.Count + " treads, riser median " + F(rm) + " m, max " + F(rx) + " m, y " + F(flight[0].Y) + " to " + F(flight[flight.Count - 1].Y)
                             + (tooTall ? "  ** TALLER THAN THE STEP OFFSET (" + F(effectiveStep) + ") - ramp needed **" : aboveScene ? "  (above the scene's " + F(sceneStep) + ", within the runtime " + F(effectiveStep) + ")" : ""));
                     }
+                }
+                else if (info.kind == Kind.DoorLeaf)
+                {
+                    AddBoxCollider(r, "Door");
+                    if (!r.gameObject.activeInHierarchy) inactiveAdded++;
+                    doorLeaves.Add(DoorLine(r, info));
                 }
                 else if (info.kind == Kind.Prop)
                 {
@@ -465,11 +529,12 @@ public static class TimeTrapColliderGenerator
             Func(counts, a + "/" + Kind.Structural, out int st); Func(counts, a + "/" + Kind.Prop, out int pr);
             Func(counts, a + "/" + Kind.SkipLight, out int sl); Func(counts, a + "/" + Kind.SkipName, out int sn);
             Func(counts, a + "/" + Kind.SkipDebris, out int sd); Func(counts, a + "/" + Kind.SkipSmall, out int ss); Func(counts, a + "/" + Kind.SkipNoMesh, out int sm);
+            Func(counts, a + "/" + Kind.DoorLeaf, out int dl);
             tStruct += st; tProp += pr;
-            sb.AppendLine(a + ": structural MeshCollider " + st + " | prop BoxCollider " + pr + " | skipped: light " + sl + ", name " + sn + ", Armory_Debris " + sd + ", <0.3 m " + ss + ", no mesh " + sm);
+            sb.AppendLine(a + ": structural MeshCollider " + st + " | prop BoxCollider " + pr + " | door-leaf BoxCollider " + dl + " | skipped: light " + sl + ", name " + sn + ", Armory_Debris " + sd + ", <0.3 m " + ss + ", no mesh " + sm);
         }
         sb.AppendLine("Map/Armory has no renderers of its own; the Armory geometry is Corridors/U_Corridor_blockout/Armory.");
-        sb.AppendLine("TOTAL structural MeshCollider (non-convex): " + tStruct + "   prop BoxCollider: " + tProp + "   door BoxCollider: " + doorBoxes + "   ramps: 0   UC-room gap fills: " + gapFilled);
+        sb.AppendLine("TOTAL structural MeshCollider (non-convex): " + tStruct + "   prop BoxCollider: " + tProp + "   door BoxCollider: " + (doorBoxes + doorLeaves.Count) + " (" + doorBoxes + " in Map/Doors + " + doorLeaves.Count + " EZ leaves)   ramps: 0   UC-room gap fills: " + gapFilled);
         sb.AppendLine("Colliders added on currently inactive objects (EZ_Intercom, Endoof.001): " + inactiveAdded);
         sb.Append("Skipped by name keyword: ");
         foreach (var kv in skipWordCounts) sb.Append(kv.Key + " " + kv.Value + ", ");
@@ -489,11 +554,20 @@ public static class TimeTrapColliderGenerator
             sb.AppendLine("on '" + cc.name + "': radius " + F(cc.radius) + ", height " + F(cc.height) + ", center " + V(cc.center) + ", step offset " + F(cc.stepOffset) + ", slope limit " + F(cc.slopeLimit) + ", skin width " + F(cc.skinWidth));
         else sb.AppendLine("No CharacterController found.");
         sb.AppendLine();
+        sb.AppendLine("-- EZ door pieces --");
+        int enabledDoors; int totalDoors = CountDoorColliders(out enabledDoors);
+        sb.AppendLine("Door colliders (Map/Doors boxes + EZ leaves): " + totalDoors + ", enabled " + enabledDoors + ". Toggle with Time Trap/Colliders/Doors Passable (Test) and Doors Solid.");
+        sb.AppendLine("Leaves, fitted BoxCollider marked Door (" + doorLeaves.Count + "):");
+        foreach (var l in doorLeaves) sb.AppendLine("    " + l);
+        sb.AppendLine("Frames, kept as MeshCollider so the opening stays free (" + doorFrames.Count + "):");
+        foreach (var l in doorFrames) sb.AppendLine("    " + l);
+        sb.AppendLine("Named door but not a leaf, kept as MeshCollider (" + doorOther.Count + "):");
+        foreach (var l in doorOther) sb.AppendLine("    " + l);
+        sb.AppendLine();
         sb.AppendLine("-- Unsure how to classify (review these) --");
         DumpStr(sb, "Furniture-named but over 2 m, so given a MeshCollider (non-convex, may be hollow/L-shaped)", unsureFurniture);
         DumpStr(sb, "Long and thin (two smallest sides < 15 cm, longest > 2 m), given a MeshCollider", unsureThin);
         DumpStr(sb, "Skipped by name but larger than 1 m", unsureSkipLarge);
-        DumpInt(sb, "Door and frame pieces inside EZ modules that now collide (closed doors block the opening)", unsureDoors);
         DumpInt(sb, "Tabletop-size props (0.3 to 0.6 m) given a BoxCollider", unsureTabletop);
         DumpInt(sb, "Skipped only because an ancestor's name matched a skip keyword", unsureAncestor);
 
@@ -506,6 +580,16 @@ public static class TimeTrapColliderGenerator
     }
 
     static void Func(Dictionary<string, int> d, string k, out int v) { v = d.ContainsKey(k) ? d[k] : 0; }
+
+    // "Module/.../Name | active | world centre | size" for the door report
+    static string DoorLine(Renderer r, Info info)
+    {
+        string path = r.name;
+        Transform t = r.transform.parent;
+        int depth = 0;
+        while (t != null && depth < 3) { path = t.name + "/" + path; t = t.parent; depth++; }
+        return path + " | " + (r.gameObject.activeInHierarchy ? "active" : "INACTIVE") + " | at " + V(r.bounds.center) + " | " + F(info.dims.x) + " x " + F(info.dims.y) + " x " + F(info.dims.z) + " m";
+    }
 
     static void DumpStr(StringBuilder sb, string title, Dictionary<string, string> d)
     {
@@ -724,6 +808,8 @@ public static class TimeTrapColliderGenerator
         foreach (var z in zones) results.Add(VerifyZone(z, misses));
 
         sb.AppendLine("=== RAY VERIFICATION ===");
+        int doorsOn; int doorsAll = CountDoorColliders(out doorsOn);
+        sb.AppendLine("Door colliders enabled while verifying: " + doorsOn + " of " + doorsAll + (doorsOn == doorsAll ? " (doors solid)" : "  ** some doors are passable (test mode) - door leaves will show as misses or be skipped **"));
         sb.AppendLine("Method: for each zone, down rays (from 0.5 m above) at ~1 sample per m2 on every up-facing floor surface of its structural/prop renderers, and horizontal rays at 1 m above each floor level toward ~1 sample per metre of wall surface (both sides, 0.6 m range). A sample is OK when a collider is hit at that spot.");
         int fT = 0, fM = 0, fC = 0, wT = 0, wM = 0;
         foreach (var r in results)
@@ -758,8 +844,9 @@ public static class TimeTrapColliderGenerator
     static string StairClimbTest(Transform map)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("-- Stair climb test (temporary CharacterController, radius 0.4, height 1.8, slope 45) --");
         var cc0 = Object.FindFirstObjectByType<CharacterController>();
+        float slope = cc0 != null ? cc0.slopeLimit : 45f;
+        sb.AppendLine("-- Stair climb test (temporary CharacterController, radius 0.4, height 1.8, slope limit " + F(slope) + " = the player's) --");
         float sceneStep = cc0 != null ? cc0.stepOffset : 0.3f;
         float runtimeStep = RuntimeStepOffset();
         bool any = false;
@@ -775,7 +862,7 @@ public static class TimeTrapColliderGenerator
                 foreach (float step in new float[] { sceneStep, runtimeStep })
                 {
                     if (step <= 0f) continue;
-                    sb.AppendLine("  " + r.name + " flight y " + F(flight[0].Y) + " to " + F(flight[flight.Count - 1].Y) + ", step offset " + F(step) + ": " + ClimbOnce(flight, step));
+                    sb.AppendLine("  " + r.name + " flight y " + F(flight[0].Y) + " to " + F(flight[flight.Count - 1].Y) + ", step offset " + F(step) + ": " + ClimbOnce(flight, step, slope));
                 }
             }
         }
@@ -784,7 +871,7 @@ public static class TimeTrapColliderGenerator
     }
 
     // Tests every riser on its own: stand on tread i, walk toward tread i+1, and check the controller ended up on it.
-    static string ClimbOnce(List<Tread> treads, float stepOffset)
+    static string ClimbOnce(List<Tread> treads, float stepOffset, float slopeLimit)
     {
         GameObject go = null;
         try
@@ -793,7 +880,7 @@ public static class TimeTrapColliderGenerator
             go.hideFlags = HideFlags.HideAndDontSave;
             var cc = go.AddComponent<CharacterController>();
             cc.radius = 0.4f; cc.height = 1.8f; cc.center = new Vector3(0, 0.9f, 0);
-            cc.slopeLimit = 45f; cc.skinWidth = 0.08f; cc.stepOffset = stepOffset;
+            cc.slopeLimit = slopeLimit; cc.skinWidth = 0.08f; cc.stepOffset = stepOffset;
             int ok = 0;
             var failed = new List<string>();
             for (int i = 0; i + 1 < treads.Count; i++)
