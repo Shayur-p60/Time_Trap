@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ba031d3779f4fd3b946c896235af64, type: 3}
+  m_Name: Chest
+  m_EditorClassIdentifier: Assembly-CSharp::PickupDefinition
+  displayName: Chest
+  promptText: '[E] Open chest'
+  visualPrefab: {fileID: 2627214381623892090, guid: ee427c967445e4bc88261e4d4ccdd680, type: 3}
+  icon: {fileID: 0}
+  glowColour: {r: 1, g: 0.62, b: 0.1, a: 1}
+  idleSpinBob: 0
+  reward:
+    kind: 3
+    ammoAmount: 8
+    batteryAmount: 35
+    powerUp: 0
+    chestRewards:
+    - definition: {fileID: 11400000, guid: 43522856941144c86b66da68cd9f83d6, type: 2}
+      weight: 3
+      requiresPower: 0
+    - definition: {fileID: 11400000, guid: a1b2a7cff95514e3cb890bbaa7b7d9bc, type: 2}
+      weight: 3
+      requiresPower: 0
+    - definition: {fileID: 11400000, guid: 53c6d836bf4d14f44be8c8eb36ab0917, type: 2}
+      weight: 1
+      requiresPower: 0
+    - definition: {fileID: 11400000, guid: 4fe6102349a55443099869277bf0c106, type: 2}
+      weight: 1
+      requiresPower: 0
+    - definition: {fileID: 11400000, guid: fbfa66219de5f488bb081e534986a5c9, type: 2}
+      weight: 1
+      requiresPower: 0
+    - definition: {fileID: 11400000, guid: 54a48ae5b6bf1410790ed4558462419d, type: 2}
+      weight: 2
+      requiresPower: 1

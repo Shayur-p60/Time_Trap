@@ -73,6 +73,8 @@ public class PlayerMovementController : MonoBehaviour
     private float currentRunWeight = 0f;
 
     public float CurrentGroundSpeed { get; private set; }
+    /// <summary>Multiplier on walk, sprint and crouch speed (1 = normal). The Speed Boost power-up sets this.</summary>
+    public float SpeedMultiplier { get; set; } = 1f;
     public bool IsCrouching => Input.GetKey(crouchKey);
 
     private void Awake()
@@ -236,6 +238,7 @@ public class PlayerMovementController : MonoBehaviour
         bool isCrouchHeld = Input.GetKey(crouchKey);
         bool isSprinting = !isCrouchHeld && Input.GetKey(sprintKey);
         float targetSpeed = isCrouchHeld ? crouchSpeed : (isSprinting ? sprintSpeed : moveSpeed);
+        targetSpeed *= SpeedMultiplier;
 
         Vector3 horizontalMove = moveDirection * (targetSpeed * Time.deltaTime);
         Vector3 verticalMove = Vector3.up * (verticalVelocity * Time.deltaTime);
