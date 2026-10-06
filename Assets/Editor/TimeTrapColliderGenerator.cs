@@ -16,7 +16,10 @@ using Object = UnityEngine.Object;
 // Ownership:
 //   Map/Corridors, Map/Elevator, Map/Armory, Map/Doors : every existing non-trigger collider is
 //       removed and rebuilt from the rules below.
-//   Map/Rooms (UC rooms) : existing colliders are never touched; only structural gaps are filled.
+//   Map/Rooms (UC rooms) : existing colliders are kept and structural gaps are filled; a room collider that
+//       reaches outside its room's visible geometry is disabled (never removed).
+// Every collider sits on its renderer's own GameObject. Boxes use the mesh's local bounds, so they rotate and
+// scale with the object; thin or sparse shapes and desks/tables/partitions get a MeshCollider instead.
 // Everything added carries a GeneratedCollider marker so the tool is re-runnable.
 public static class TimeTrapColliderGenerator
 {
@@ -27,9 +30,14 @@ public static class TimeTrapColliderGenerator
     static readonly string[] SkipWords = { "light", "lamp", "neon", "alarm", "speaker", "cctv", "cam", "sign", "decal", "poster", "paper" };
     static readonly string[] StructuralWords = { "brush", "straight", "crossing", "threeway", "room", "shell", "wall", "floor" };
     static readonly string[] FurnitureWords = { "desk", "chair", "table", "rack", "crate", "bench", "stool", "stand" };
+    // always solid and always shaped like their mesh, whatever their size or the skip keywords of their parents
+    static readonly string[] ShapeWords = { "desk", "table", "partition", "divider", "cubicle", "workbench", "counter" };
 
     const float MinSize = 0.3f;          // below this the renderer gets no collider
     const float StructuralSize = 2f;     // above this the renderer is structural
+    const float ThinSize = 0.15f;        // a prop thinner than this in any direction gets a MeshCollider, not a box
+    const float SparseFill = 0.2f;       // ... and so does one whose vertices touch less than this share of its box
+    const float RoomOutlierMargin = 0.5f; // a room collider may reach this far past the room's visible geometry
     const float MinDoorThickness = 0.1f; // door boxes are never thinner than this (world metres)
     const float StepTolerance = 0.005f;
     const string ReportPath = "Library/TimeTrap_ColliderReport.txt";
@@ -128,6 +136,7 @@ public static class TimeTrapColliderGenerator
 
         string hit;
         if (ContainsAny(lname, SkipWords, out hit)) { info.kind = Kind.SkipName; info.why = hit; return info; }
+        if (ContainsAny(lname, ShapeWords, out hit) && !lname.Contains("desktop")) { info.kind = Kind.Structural; info.why = hit; return info; }
         for (Transform t = r.transform.parent; t != null && t != areaRoot; t = t.parent)
         {
             if (ContainsAny(t.name.ToLowerInvariant(), SkipWords, out hit))
@@ -274,24 +283,138 @@ public static class TimeTrapColliderGenerator
         Mark(r.gameObject, mc, rule);
     }
 
-    static void AddBoxCollider(Renderer r, string rule)
+    // A box only suits a prop that is box-like: thin panels and sparse shapes (a board on a stand, a monitor on a foot)
+    // would get a box far bigger than what is visible.
+    static bool PropNeedsMesh(Renderer r, Info info)
     {
+        if (info.Min < ThinSize) return true;
         Mesh mesh = r.GetComponent<MeshFilter>().sharedMesh;
-        var bc = r.gameObject.AddComponent<BoxCollider>();
-        bc.center = mesh.bounds.center;
-        Vector3 size = mesh.bounds.size;
+        Bounds b = mesh.bounds;
+        Vector3[] v = mesh.vertices;
+        if (v.Length == 0) return false;
+        const int G = 6;
+        var cells = new HashSet<int>();
+        for (int i = 0; i < v.Length; i++)
+        {
+            int ix = Mathf.Min(G - 1, (int)((v[i].x - b.min.x) / Mathf.Max(b.size.x, 1e-5f) * G));
+            int iy = Mathf.Min(G - 1, (int)((v[i].y - b.min.y) / Mathf.Max(b.size.y, 1e-5f) * G));
+            int iz = Mathf.Min(G - 1, (int)((v[i].z - b.min.z) / Mathf.Max(b.size.z, 1e-5f) * G));
+            cells.Add((ix * G + iy) * G + iz);
+        }
+        return cells.Count < SparseFill * G * G * G;
+    }
+
+    // The box for a renderer, in its own local space: the mesh's local bounds, so it rotates and scales with the object.
+    static Bounds LocalBox(Renderer r, string rule)
+    {
+        Bounds b = r.GetComponent<MeshFilter>().sharedMesh.bounds;
         if (rule == "Door")
         {
             // door leaves are never thinner than MinDoorThickness in the world
+            Vector3 size = b.size;
             Vector3 ls = r.transform.lossyScale;
             for (int a = 0; a < 3; a++)
             {
                 float minLocal = MinDoorThickness / Mathf.Max(Mathf.Abs(ls[a]), 1e-4f);
                 if (size[a] < minLocal) size[a] = minLocal;
             }
+            b.size = size;
         }
-        bc.size = size;
+        return b;
+    }
+
+    // True when the box would pass Verify: at least 90% of points on the visible surface have the box face within
+    // VerifyTolerance. Chairs, stools and screens on a foot fail this and get a MeshCollider instead.
+    static bool BoxFits(Renderer r, Bounds box)
+    {
+        var m = new MeshData();
+        try { WorldMesh(r, out m.wv, out m.idx); } catch { return true; }
+        int triCount = m.idx.Length / 3;
+        if (triCount == 0) return true;
+        var areas = new float[triCount];
+        float total = 0f;
+        for (int t = 0; t < triCount; t++)
+        {
+            Vector3 a = m.wv[m.idx[t * 3]], b = m.wv[m.idx[t * 3 + 1]], c = m.wv[m.idx[t * 3 + 2]];
+            areas[t] = Vector3.Cross(b - a, c - a).magnitude * 0.5f;
+            total += areas[t];
+        }
+        if (total < 1e-5f) return true;
+        int n = 80;
+        if ((long)n * triCount > VerifyTriBudget) n = Mathf.Max(8, (int)(VerifyTriBudget / triCount));
+        Transform tr = r.transform;
+        float step = total / n, next = step * 0.5f, acc = 0f;
+        int s = 0, tested = 0, ok = 0;
+        for (int t = 0; t < triCount && s < n; t++)
+        {
+            acc += areas[t];
+            while (acc >= next && s < n)
+            {
+                next += step; s++;
+                if (areas[t] < 1e-7f) continue;
+                Vector3 a = m.wv[m.idx[t * 3]], b = m.wv[m.idx[t * 3 + 1]], c = m.wv[m.idx[t * 3 + 2]];
+                float u = Halton(s, 2), v = Halton(s, 3);
+                if (u + v > 1f) { u = 1f - u; v = 1f - v; }
+                Vector3 p = Vector3.Lerp(a + (b - a) * u + (c - a) * v, (a + b + c) / 3f, 0.1f);
+                Vector3 nrm = Vector3.Cross(b - a, c - a).normalized;
+                Vector3 o = p + nrm * VerifyStandoff, d = -nrm;
+                float dV;
+                if (!RayMesh(o, d, m, VerifyStandoff + 0.01f, out dV)) dV = VerifyStandoff;
+                tested++;
+                // the same ray against the box, in the object's local space (one unit of the parameter is one world metre)
+                Vector3 lo = tr.InverseTransformPoint(o), ld = tr.InverseTransformPoint(o + d) - lo;
+                if (box.Contains(lo)) continue; // a ray starting inside the box never hits it
+                float tmin = 0f, tmax = VerifyStandoff + 0.3f;
+                bool hit = true;
+                for (int ax = 0; ax < 3 && hit; ax++)
+                {
+                    if (Mathf.Abs(ld[ax]) < 1e-9f) { if (lo[ax] < box.min[ax] || lo[ax] > box.max[ax]) hit = false; continue; }
+                    float t1 = (box.min[ax] - lo[ax]) / ld[ax], t2 = (box.max[ax] - lo[ax]) / ld[ax];
+                    if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+                    tmin = Mathf.Max(tmin, t1); tmax = Mathf.Min(tmax, t2);
+                    if (tmin > tmax) hit = false;
+                }
+                if (hit && Mathf.Abs(tmin - dV) <= VerifyTolerance) ok++;
+            }
+        }
+        return tested == 0 || ok >= 0.9f * tested;
+    }
+
+    static void AddBoxCollider(Renderer r, string rule)
+    {
+        Bounds b = LocalBox(r, rule);
+        var bc = r.gameObject.AddComponent<BoxCollider>();
+        bc.center = b.center;
+        bc.size = b.size;
         Mark(r.gameObject, bc, rule);
+    }
+
+    // A box where a box matches the visible shape, otherwise the mesh itself. Returns true when a MeshCollider was used.
+    static bool AddFittedCollider(Renderer r, string rule)
+    {
+        if (BoxFits(r, LocalBox(r, rule))) { AddBoxCollider(r, rule); return false; }
+        AddMeshCollider(r, rule);
+        return true;
+    }
+
+    // Skinned door leaves have no MeshFilter: the box is the renderer's bounds brought into the leaf's own space.
+    static void AddSkinnedDoorBox(SkinnedMeshRenderer r)
+    {
+        Bounds wb = r.bounds;
+        Transform t = r.transform;
+        var lb = new Bounds(t.InverseTransformPoint(wb.center), Vector3.zero);
+        for (int i = 0; i < 8; i++)
+            lb.Encapsulate(t.InverseTransformPoint(wb.center + Vector3.Scale(wb.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1))));
+        Vector3 size = lb.size, ls = t.lossyScale;
+        for (int a = 0; a < 3; a++)
+        {
+            float minLocal = MinDoorThickness / Mathf.Max(Mathf.Abs(ls[a]), 1e-4f);
+            if (size[a] < minLocal) size[a] = minLocal;
+        }
+        var bc = r.gameObject.AddComponent<BoxCollider>();
+        bc.center = lb.center;
+        bc.size = size;
+        Mark(r.gameObject, bc, "Door");
     }
 
     // Enables or disables every collider with the "Door" rule (Map/Doors boxes and the EZ door leaves). Editor-only test helper.
@@ -335,44 +458,36 @@ public static class TimeTrapColliderGenerator
         Debug.Log("[Time Trap] Doors solid: enabled " + n + " door collider(s); " + en + " of " + total + " enabled.");
     }
 
-    // One box per door, fitted to all of its leaves (door-local space), never thinner than MinDoorThickness.
-    static bool AddDoorBox(Transform door)
+    // Rooms keep the colliders they came with, but one that reaches outside the room's visible geometry (a hidden
+    // or mis-scaled piece) blocks other parts of the map, so it is disabled.
+    static List<string> DisableRoomOutliers(Transform roomsRoot)
     {
-        bool any = false;
-        var lb = new Bounds();
-        foreach (var r in door.GetComponentsInChildren<Renderer>(true))
+        var disabled = new List<string>();
+        Physics.SyncTransforms();
+        foreach (Transform room in roomsRoot)
         {
-            if (!(r is MeshRenderer) && !(r is SkinnedMeshRenderer)) continue;
-            Vector3 c, e;
-            Matrix4x4 toWorld = Matrix4x4.identity;
-            var mf = r.GetComponent<MeshFilter>();
-            if (r is MeshRenderer && mf != null && mf.sharedMesh != null)
+            bool any = false;
+            var foot = new Bounds();
+            foreach (var r in room.GetComponentsInChildren<MeshRenderer>(false))
             {
-                c = mf.sharedMesh.bounds.center; e = mf.sharedMesh.bounds.extents; toWorld = r.transform.localToWorldMatrix;
+                if (!r.enabled) continue;
+                if (!any) { foot = r.bounds; any = true; } else foot.Encapsulate(r.bounds);
             }
-            else { c = r.bounds.center; e = r.bounds.extents; }
-            for (int i = 0; i < 8; i++)
+            if (!any) continue;
+            foreach (var c in room.GetComponentsInChildren<Collider>(false))
             {
-                Vector3 corner = c + new Vector3((i & 1) == 0 ? -e.x : e.x, (i & 2) == 0 ? -e.y : e.y, (i & 4) == 0 ? -e.z : e.z);
-                Vector3 world = toWorld.MultiplyPoint3x4(corner);
-                Vector3 local = door.InverseTransformPoint(world);
-                if (!any) { lb = new Bounds(local, Vector3.zero); any = true; } else lb.Encapsulate(local);
+                if (!c.enabled || c.isTrigger) continue;
+                Bounds cb = c.bounds;
+                if (cb.size == Vector3.zero) continue;
+                float over = 0f;
+                for (int a = 0; a < 3; a++) over = Mathf.Max(over, Mathf.Max(foot.min[a] - cb.min[a], cb.max[a] - foot.max[a]));
+                if (over <= RoomOutlierMargin) continue;
+                c.enabled = false;
+                EditorUtility.SetDirty(c);
+                disabled.Add(PathOf(c.transform, roomsRoot) + " (" + c.GetType().Name + ", " + V(cb.size) + " m, " + F(over) + " m outside the room)");
             }
         }
-        if (!any) return false;
-        Vector3 size = lb.size;
-        Vector3 ls = door.lossyScale;
-        float[] sc = { Mathf.Abs(ls.x), Mathf.Abs(ls.y), Mathf.Abs(ls.z) };
-        for (int a = 0; a < 3; a++)
-        {
-            float minLocal = MinDoorThickness / Mathf.Max(sc[a], 1e-4f);
-            if (size[a] < minLocal) size[a] = minLocal;
-        }
-        var bc = door.gameObject.AddComponent<BoxCollider>();
-        bc.center = lb.center;
-        bc.size = size;
-        Mark(door.gameObject, bc, "Door");
-        return true;
+        return disabled;
     }
 
     // ------------------------------------------------------------------ generate
@@ -383,6 +498,10 @@ public static class TimeTrapColliderGenerator
         var mapGo = GameObject.Find("Map");
         if (mapGo == null) { return "No 'Map' object in the open scene."; }
         Transform map = mapGo.transform;
+
+        // doors left passable for testing stay passable after the rebuild
+        int doorsOnBefore; int doorsBefore = CountDoorColliders(out doorsOnBefore);
+        bool keepDoorsPassable = doorsBefore > 0 && doorsOnBefore == 0;
 
         // 1. remove what this tool added before
         int clearedColliders, clearedMarkers;
@@ -417,7 +536,7 @@ public static class TimeTrapColliderGenerator
         var unsureSkipLarge = new Dictionary<string, string>();
         var unsureAncestor = new Dictionary<string, int>();
         var stairs = new List<string>();
-        int inactiveAdded = 0, stairsTooTall = 0;
+        int inactiveAdded = 0, stairsTooTall = 0, propMesh = 0, doorMesh = 0;
 
         CharacterController cc = Object.FindFirstObjectByType<CharacterController>();
         float sceneStep = cc != null ? cc.stepOffset : 0.3f;
@@ -473,25 +592,39 @@ public static class TimeTrapColliderGenerator
                 }
                 else if (info.kind == Kind.DoorLeaf)
                 {
-                    AddBoxCollider(r, "Door");
+                    if (AddFittedCollider(r, "Door")) doorMesh++;
                     if (!r.gameObject.activeInHierarchy) inactiveAdded++;
                     doorLeaves.Add(DoorLine(r, info));
                 }
                 else if (info.kind == Kind.Prop)
                 {
-                    AddBoxCollider(r, "Prop");
+                    if (PropNeedsMesh(r, info)) { AddMeshCollider(r, "Prop"); propMesh++; } else if (AddFittedCollider(r, "Prop")) propMesh++;
                     if (!r.gameObject.activeInHierarchy) inactiveAdded++;
                     if (info.Max < 0.6f) { string s = Stem(nm); unsureTabletop[s] = unsureTabletop.ContainsKey(s) ? unsureTabletop[s] + 1 : 1; }
                 }
             }
         }
 
-        // doors: one box per door root
+        // doors: one box per door piece, on the piece itself
         int doorBoxes = 0, doorsWithoutRenderers = 0;
         if (doorsRoot != null)
             foreach (Transform door in doorsRoot)
             {
-                if (AddDoorBox(door)) doorBoxes++; else doorsWithoutRenderers++;
+                int before = doorBoxes;
+                foreach (var r in door.GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    Info info = Classify(r, doorsRoot);
+                    if (info.kind == Kind.SkipNoMesh || info.Max < MinSize) continue;
+                    if (AddFittedCollider(r, "Door")) doorMesh++;
+                    doorBoxes++;
+                }
+                foreach (var r in door.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                {
+                    if (r.bounds.size.magnitude < MinSize) continue;
+                    AddSkinnedDoorBox(r);
+                    doorBoxes++;
+                }
+                if (doorBoxes == before) doorsWithoutRenderers++;
             }
 
         // UC rooms: existing colliders untouched, fill structural gaps only
@@ -513,6 +646,9 @@ public static class TimeTrapColliderGenerator
                 else roomsSkipped++;
             }
 
+        var roomOutliers = roomsRoot != null ? DisableRoomOutliers(roomsRoot) : new List<string>();
+        if (keepDoorsPassable) SetDoorColliders(false);
+
         Physics.SyncTransforms();
         MarkDirty();
 
@@ -531,16 +667,18 @@ public static class TimeTrapColliderGenerator
             Func(counts, a + "/" + Kind.SkipDebris, out int sd); Func(counts, a + "/" + Kind.SkipSmall, out int ss); Func(counts, a + "/" + Kind.SkipNoMesh, out int sm);
             Func(counts, a + "/" + Kind.DoorLeaf, out int dl);
             tStruct += st; tProp += pr;
-            sb.AppendLine(a + ": structural MeshCollider " + st + " | prop BoxCollider " + pr + " | door-leaf BoxCollider " + dl + " | skipped: light " + sl + ", name " + sn + ", Armory_Debris " + sd + ", <0.3 m " + ss + ", no mesh " + sm);
+            sb.AppendLine(a + ": structural MeshCollider " + st + " | prop " + pr + " | door-leaf BoxCollider " + dl + " | skipped: light " + sl + ", name " + sn + ", Armory_Debris " + sd + ", <0.3 m " + ss + ", no mesh " + sm);
         }
         sb.AppendLine("Map/Armory has no renderers of its own; the Armory geometry is Corridors/U_Corridor_blockout/Armory.");
-        sb.AppendLine("TOTAL structural MeshCollider (non-convex): " + tStruct + "   prop BoxCollider: " + tProp + "   door BoxCollider: " + (doorBoxes + doorLeaves.Count) + " (" + doorBoxes + " in Map/Doors + " + doorLeaves.Count + " EZ leaves)   ramps: 0   UC-room gap fills: " + gapFilled);
+        sb.AppendLine("TOTAL structural MeshCollider (non-convex): " + tStruct + "   props: " + tProp + " (" + (tProp - propMesh) + " BoxCollider, " + propMesh + " MeshCollider where a box did not fit)   door colliders: " + (doorBoxes + doorLeaves.Count) + " (" + doorBoxes + " in Map/Doors + " + doorLeaves.Count + " EZ leaves; " + doorMesh + " of them MeshCollider because a box did not fit)   ramps: 0   UC-room gap fills: " + gapFilled);
         sb.AppendLine("Colliders added on currently inactive objects (EZ_Intercom, Endoof.001): " + inactiveAdded);
         sb.Append("Skipped by name keyword: ");
         foreach (var kv in skipWordCounts) sb.Append(kv.Key + " " + kv.Value + ", ");
         sb.AppendLine();
         if (doorsWithoutRenderers > 0) sb.AppendLine("Doors without renderers (no box): " + doorsWithoutRenderers);
         sb.AppendLine("UC rooms (Map/Rooms): structural renderers already collidable " + roomsStructuralHaveCollider + ", gaps filled " + gapFilled + (gapNames.Count > 0 ? " (" + string.Join(", ", gapNames.ToArray()) + ")" : "") + "; non-structural renderers without collider left alone: " + roomPropGaps + "; skipped by rule " + roomsSkipped + ".");
+        sb.AppendLine("Room colliders disabled for reaching outside their room: " + roomOutliers.Count);
+        foreach (var l in roomOutliers) sb.AppendLine("    " + l);
         sb.AppendLine();
         sb.AppendLine("-- Stairs --");
         float runtimeStep = RuntimeStepOffset();
@@ -617,29 +755,92 @@ public static class TimeTrapColliderGenerator
 
     // ------------------------------------------------------------------ verification
 
+    const float VerifyTolerance = 0.05f; // a physics hit must be this close to the visible surface
+    const float VerifyStandoff = 0.25f;  // rays start this far off the surface, along its normal
+    const long VerifyTriBudget = 4000000L; // samples x triangles allowed per renderer
+
     class Zone
     {
         public string name, category;
+        public float density = 2f; // samples per m2 of visible surface
+        public int maxSamples = 200;
         public List<Renderer> sources = new List<Renderer>();
     }
 
-    class Miss { public string zone, kind, renderer; public Vector3 pos; }
+    class MeshData { public Vector3[] wv; public int[] idx; }
 
-    class ZoneResult { public Zone zone; public int floorTotal, floorMiss, floorCovered, wallTotal, wallMiss; }
+    class Fail { public string zone, renderer, collider, reason; public Vector3 pos; public float dev; }
 
-    static void AddZoneSources(Zone z, Transform root)
+    class ZoneResult { public Zone zone; public int total, pass, occluded, passableDoor; }
+
+    static readonly Dictionary<Renderer, MeshData> meshCache = new Dictionary<Renderer, MeshData>();
+
+    static MeshData GetMesh(Renderer r)
+    {
+        MeshData d;
+        if (meshCache.TryGetValue(r, out d)) return d;
+        d = null;
+        var mf = r.GetComponent<MeshFilter>();
+        if (mf != null && mf.sharedMesh != null)
+        {
+            d = new MeshData();
+            WorldMesh(r, out d.wv, out d.idx);
+            if (d.wv.Length == 0 || d.idx.Length == 0) d = null;
+        }
+        meshCache[r] = d;
+        return d;
+    }
+
+    // Nearest front-facing intersection of a ray with the visible mesh (the renderer's triangles, not its collider).
+    static bool RayMesh(Vector3 o, Vector3 d, MeshData m, float maxDist, out float dist)
+    {
+        dist = float.MaxValue;
+        Vector3[] wv = m.wv; int[] idx = m.idx;
+        for (int i = 0; i + 2 < idx.Length; i += 3)
+        {
+            Vector3 a = wv[idx[i]];
+            Vector3 e1 = wv[idx[i + 1]] - a, e2 = wv[idx[i + 2]] - a;
+            Vector3 p = Vector3.Cross(d, e2);
+            float det = Vector3.Dot(e1, p);
+            if (det < 1e-9f) continue; // back-facing or parallel
+            float inv = 1f / det;
+            Vector3 t = o - a;
+            float u = Vector3.Dot(t, p) * inv;
+            if (u < -1e-4f || u > 1.0001f) continue;
+            Vector3 q = Vector3.Cross(t, e1);
+            float v = Vector3.Dot(d, q) * inv;
+            if (v < -1e-4f || u + v > 1.0001f) continue;
+            float dd = Vector3.Dot(e2, q) * inv;
+            if (dd >= 0f && dd < dist) dist = dd;
+        }
+        return dist <= maxDist;
+    }
+
+    static float Halton(int i, int b)
+    {
+        float f = 1f, r = 0f;
+        i++;
+        while (i > 0) { f /= b; r += f * (i % b); i /= b; }
+        return r;
+    }
+
+    // A renderer is verified when it is expected to be solid: it has a collider, or the rules say it should have one.
+    static void AddZoneSources(Zone z, Transform root, Transform areaRoot, bool ownedArea)
     {
         foreach (var r in root.GetComponentsInChildren<MeshRenderer>(false))
         {
             if (!r.enabled) continue;
-            var info = Classify(r, root);
-            if (info.kind == Kind.Structural || (info.kind == Kind.Prop && info.Max >= 1f)) z.sources.Add(r);
+            var info = Classify(r, areaRoot);
+            if (info.kind == Kind.SkipNoMesh || info.Max < MinSize) continue;
+            bool has = r.GetComponent<Collider>() != null;
+            if (has || info.kind == Kind.Structural || info.kind == Kind.DoorLeaf || (ownedArea && info.kind == Kind.Prop)) z.sources.Add(r);
         }
     }
 
     static List<Zone> BuildZones(Transform map)
     {
         var zones = new List<Zone>();
+        var corridors = map.Find("Corridors");
         var ez = map.Find("Corridors/EZ");
         if (ez != null)
             foreach (Transform m in ez)
@@ -648,150 +849,147 @@ public static class TimeTrapColliderGenerator
                 string n = m.name;
                 var z = new Zone { name = "EZ/" + n };
                 z.category = n.Contains("Crossing") ? "crossing" : n.Contains("Straight") ? "corridor" : n.Contains("ThreeWay") ? "three-way" : "module/room";
-                AddZoneSources(z, m);
+                AddZoneSources(z, m, corridors, true);
                 zones.Add(z);
             }
         var uc = map.Find("Corridors/U_Corridor_blockout/U_Corridor");
-        if (uc != null) { var z = new Zone { name = "U corridor", category = "U corridor" }; AddZoneSources(z, uc); zones.Add(z); }
+        if (uc != null) { var z = new Zone { name = "U corridor", category = "U corridor" }; AddZoneSources(z, uc, corridors, true); zones.Add(z); }
         var arm = map.Find("Corridors/U_Corridor_blockout/Armory");
-        if (arm != null) { var z = new Zone { name = "Armory", category = "armory" }; AddZoneSources(z, arm); zones.Add(z); }
-        var lobbyShell = map.Find("Elevator/ElevatorRoom/Lobby_Shell");
-        var lobbyWall = map.Find("Elevator/ElevatorRoom/Lobby_Wall");
-        if (lobbyShell != null || lobbyWall != null)
+        if (arm != null) { var z = new Zone { name = "Armory", category = "armory" }; AddZoneSources(z, arm, corridors, true); zones.Add(z); }
+        var elevator = map.Find("Elevator");
+        if (elevator != null) { var z = new Zone { name = "Elevator", category = "elevator" }; AddZoneSources(z, elevator, elevator, true); zones.Add(z); }
+        var doors = map.Find(DoorsArea);
+        if (doors != null)
         {
-            var z = new Zone { name = "Elevator lobby", category = "lobby" };
-            if (lobbyShell != null) AddZoneSources(z, lobbyShell);
-            if (lobbyWall != null) AddZoneSources(z, lobbyWall);
+            var z = new Zone { name = "Map/Doors", category = "doors" };
+            foreach (var r in doors.GetComponentsInChildren<MeshRenderer>(false))
+                if (r.enabled && r.GetComponent<Collider>() != null) z.sources.Add(r);
             zones.Add(z);
         }
-        var car1 = map.Find("Elevator/ElevatorRoom/Elevator_Car");
-        if (car1 != null) { var z = new Zone { name = "Elevator car (lobby)", category = "car" }; AddZoneSources(z, car1); zones.Add(z); }
-        var car2 = map.Find("Elevator/Elevator_Car_Bio");
-        if (car2 != null) { var z = new Zone { name = "Elevator car (Bio)", category = "car" }; AddZoneSources(z, car2); zones.Add(z); }
+        var rooms = map.Find(GapFillArea);
+        if (rooms != null)
+            foreach (Transform room in rooms)
+            {
+                if (!room.gameObject.activeInHierarchy) continue;
+                var z = new Zone { name = "Rooms/" + room.name, category = "UC room", density = 0.5f, maxSamples = 40 };
+                AddZoneSources(z, room, rooms, false);
+                zones.Add(z);
+            }
         return zones;
     }
 
-    static long FloorKey(Vector3 p)
-    {
-        long ix = Mathf.FloorToInt(p.x) + 5000, iz = Mathf.FloorToInt(p.z) + 5000, iy = Mathf.RoundToInt(p.y * 10f) + 500;
-        return (ix * 10000L + iz) * 1000L + iy;
-    }
-
-    static void SampleTriangle(Vector3 a, Vector3 b, Vector3 c, float area, List<Vector3> pts)
-    {
-        float maxEdge = Mathf.Max((b - a).magnitude, Mathf.Max((c - b).magnitude, (a - c).magnitude));
-        int k = Mathf.Clamp(Mathf.CeilToInt(maxEdge), 1, 60);
-        if (k == 1 || area <= 1f) { pts.Add((a + b + c) / 3f); return; }
-        for (int i = 0; i < k; i++)
-            for (int j = 0; j < k - i; j++)
-                pts.Add(a + (b - a) * ((i + 1f / 3f) / k) + (c - a) * ((j + 1f / 3f) / k));
-    }
-
-    static ZoneResult VerifyZone(Zone z, List<Miss> misses)
+    // For each renderer: points spread evenly over its visible surface. From 0.25 m off each point, one ray against the
+    // renderer's own triangles gives where the visible surface is, and the same ray against physics gives where the
+    // player is stopped. The sample passes only when the two agree within VerifyTolerance.
+    static ZoneResult VerifyZone(Zone z, List<Fail> fails)
     {
         var res = new ZoneResult { zone = z };
-        var meshes = new List<Vector3[]>(); var idxs = new List<int[]>(); var owners = new List<string>();
         foreach (var r in z.sources)
         {
-            try { Vector3[] wv; int[] idx; WorldMesh(r, out wv, out idx); meshes.Add(wv); idxs.Add(idx); owners.Add(r.name); } catch { }
-        }
+            MeshData m = GetMesh(r);
+            if (m == null) continue;
+            var own = r.GetComponents<Collider>();
+            var gm = r.GetComponent<GeneratedCollider>();
+            bool doorOff = gm != null && gm.rule == "Door" && own.Length > 0;
+            if (doorOff) foreach (var c in own) if (c.enabled) doorOff = false;
+            string ownDesc = own.Length == 0 ? "no collider" : own[0].GetType().Name;
 
-        // pass 1: floors (up-facing triangles), sampled about once per square metre per level
-        var floorSeen = new Dictionary<long, bool>();
-        var floors = new List<Vector3>(); var floorOwner = new List<string>();
-        var levelCells = new Dictionary<int, int>();
-        var tmp = new List<Vector3>();
-        for (int m = 0; m < meshes.Count; m++)
-        {
-            Vector3[] wv = meshes[m]; int[] idx = idxs[m];
-            for (int i = 0; i + 2 < idx.Length; i += 3)
+            int triCount = m.idx.Length / 3;
+            var areas = new float[triCount];
+            float total = 0f;
+            for (int t = 0; t < triCount; t++)
             {
-                Vector3 a = wv[idx[i]], b = wv[idx[i + 1]], c = wv[idx[i + 2]];
-                Vector3 n = Vector3.Cross(b - a, c - a);
-                float ar = n.magnitude * 0.5f;
-                if (ar < 0.02f) continue;
-                n.Normalize();
-                if (n.y < 0.9f) continue;
-                tmp.Clear();
-                SampleTriangle(a, b, c, ar, tmp);
-                foreach (var p in tmp)
-                {
-                    long key = FloorKey(p);
-                    if (floorSeen.ContainsKey(key)) continue;
-                    floorSeen[key] = true;
-                    floors.Add(p); floorOwner.Add(owners[m]);
-                    int lv = Mathf.RoundToInt(p.y * 10f);
-                    levelCells[lv] = levelCells.ContainsKey(lv) ? levelCells[lv] + 1 : 1;
-                }
+                Vector3 a = m.wv[m.idx[t * 3]], b = m.wv[m.idx[t * 3 + 1]], c = m.wv[m.idx[t * 3 + 2]];
+                areas[t] = Vector3.Cross(b - a, c - a).magnitude * 0.5f;
+                total += areas[t];
             }
-        }
-        for (int i = 0; i < floors.Count; i++)
-        {
-            Vector3 p = floors[i];
-            // buried surfaces (a shelf under a tabletop, a ledge under the ceiling slab) have a collider within 1.7 m
-            // above them, so a down ray would hit the covering object; they are not walkable floor and are skipped
-            if (Physics.Raycast(p + Vector3.up * 0.02f, Vector3.up, 1.7f, ~0, QueryTriggerInteraction.Ignore)) { res.floorCovered++; continue; }
-            res.floorTotal++;
-            var hits = Physics.RaycastAll(new Ray(p + Vector3.up * 0.5f, Vector3.down), 1.0f, ~0, QueryTriggerInteraction.Ignore);
-            bool ok = false;
-            foreach (var h in hits) if (Mathf.Abs(h.point.y - p.y) <= 0.3f) { ok = true; break; }
-            // a sample inside a prop's box (chair seat, whiteboard) is inside a collider: rays starting there cannot hit it
-            if (!ok && Physics.CheckSphere(p, 0.05f, ~0, QueryTriggerInteraction.Ignore)) ok = true;
-            if (!ok) { res.floorMiss++; misses.Add(new Miss { zone = z.name, kind = "floor", renderer = floorOwner[i], pos = p }); }
-        }
-
-        // pass 2: walls at 1 m above each floor level (the lowest level plus every level with >= 20 m2)
-        var wallLevels = new List<int>();
-        int lowest = int.MaxValue;
-        foreach (var kv in levelCells) if (kv.Key < lowest) lowest = kv.Key;
-        if (lowest != int.MaxValue) wallLevels.Add(lowest);
-        foreach (var kv in levelCells) if (kv.Value >= 20 && kv.Key != lowest) wallLevels.Add(kv.Key);
-
-        var wallSeen = new Dictionary<long, bool>();
-        for (int m = 0; m < meshes.Count; m++)
-        {
-            Vector3[] wv = meshes[m]; int[] idx = idxs[m];
-            for (int i = 0; i + 2 < idx.Length; i += 3)
+            if (total < 1e-4f) continue;
+            int n = Mathf.Clamp(Mathf.CeilToInt(total * z.density), 6, z.maxSamples);
+            if ((long)n * triCount > VerifyTriBudget) n = Mathf.Max(4, (int)(VerifyTriBudget / triCount));
+            float step = total / n, next = step * 0.5f, acc = 0f;
+            int s = 0;
+            for (int t = 0; t < triCount && s < n; t++)
             {
-                Vector3 a = wv[idx[i]], b = wv[idx[i + 1]], c = wv[idx[i + 2]];
-                Vector3 n = Vector3.Cross(b - a, c - a);
-                float ar = n.magnitude * 0.5f;
-                if (ar < 0.05f) continue;
-                n.Normalize();
-                if (Mathf.Abs(n.y) > 0.05f) continue;
-                float minY = Mathf.Min(a.y, Mathf.Min(b.y, c.y)), maxY = Mathf.Max(a.y, Mathf.Max(b.y, c.y));
-                Vector3 nh = new Vector3(n.x, 0, n.z).normalized;
-                for (int li = 0; li < wallLevels.Count; li++)
+                acc += areas[t];
+                while (acc >= next && s < n)
                 {
-                    float h = wallLevels[li] / 10f + 1.0f;
-                    if (h <= minY || h >= maxY) continue;
-                    var cut = new List<Vector3>();
-                    Vector3[] e0 = { a, b, c }, e1 = { b, c, a };
-                    for (int e = 0; e < 3; e++)
+                    next += step; s++;
+                    if (areas[t] < 1e-6f) continue;
+                    Vector3 a = m.wv[m.idx[t * 3]], b = m.wv[m.idx[t * 3 + 1]], c = m.wv[m.idx[t * 3 + 2]];
+                    float u = Halton(s, 2), v = Halton(s, 3);
+                    if (u + v > 1f) { u = 1f - u; v = 1f - v; }
+                    Vector3 p = Vector3.Lerp(a + (b - a) * u + (c - a) * v, (a + b + c) / 3f, 0.1f);
+                    Vector3 nrm = Vector3.Cross(b - a, c - a).normalized;
+                    Vector3 o = p + nrm * VerifyStandoff, d = -nrm;
+
+                    if (doorOff) { res.passableDoor++; continue; }
+                    float dV;
+                    if (!RayMesh(o, d, m, VerifyStandoff + 0.01f, out dV)) dV = VerifyStandoff;
+                    res.total++;
+                    RaycastHit h;
+                    if (!Physics.Raycast(o, d, out h, VerifyStandoff + 0.3f, ~0, QueryTriggerInteraction.Ignore))
                     {
-                        float d0 = e0[e].y - h, d1 = e1[e].y - h;
-                        if (d0 * d1 < 0f) cut.Add(Vector3.Lerp(e0[e], e1[e], d0 / (d0 - d1)));
+                        fails.Add(new Fail { zone = z.name, renderer = r.name, collider = ownDesc, reason = "no collider at the surface", pos = p, dev = 0.3f });
+                        continue;
                     }
-                    if (cut.Count < 2) continue;
-                    float len = (cut[1] - cut[0]).magnitude;
-                    int cnt = Mathf.Max(1, Mathf.CeilToInt(len / 1.0f));
-                    int side = Mathf.Abs(nh.x) > Mathf.Abs(nh.z) ? (nh.x > 0 ? 0 : 1) : (nh.z > 0 ? 2 : 3);
-                    for (int s = 0; s < cnt; s++)
+                    float dev = h.distance - dV;
+                    if (Mathf.Abs(dev) <= VerifyTolerance) { res.pass++; continue; }
+                    string hitDesc = h.collider.GetType().Name + (h.collider.gameObject == r.gameObject ? "" : " of '" + h.collider.name + "'");
+                    if (dev < 0f)
                     {
-                        Vector3 p = Vector3.Lerp(cut[0], cut[1], (s + 0.5f) / cnt);
-                        long key = ((((long)(Mathf.FloorToInt(p.x) + 5000)) * 10000L + (Mathf.FloorToInt(p.z) + 5000)) * 10L + li) * 4L + side;
-                        if (wallSeen.ContainsKey(key)) continue;
-                        wallSeen[key] = true;
-                        res.wallTotal++;
-                        RaycastHit hit;
-                        bool ok = Physics.Raycast(p + nh * 0.4f, -nh, out hit, 0.6f, ~0, QueryTriggerInteraction.Ignore)
-                               || Physics.Raycast(p - nh * 0.4f, nh, out hit, 0.6f, ~0, QueryTriggerInteraction.Ignore);
-                        if (!ok) { res.wallMiss++; misses.Add(new Miss { zone = z.name, kind = "wall", renderer = owners[m], pos = p }); }
+                        // something else is in front: fine when that collider sits on its own visible surface
+                        var other = h.collider.GetComponent<Renderer>();
+                        if (other != null && other != r && other.enabled)
+                        {
+                            MeshData om = GetMesh(other);
+                            float dO;
+                            if (om != null && RayMesh(o, d, om, h.distance + VerifyTolerance, out dO) && Mathf.Abs(h.distance - dO) <= VerifyTolerance)
+                            {
+                                res.occluded++; res.pass++; continue;
+                            }
+                        }
+                        fails.Add(new Fail { zone = z.name, renderer = r.name, collider = hitDesc, reason = "collider in front of the surface", pos = p, dev = -dev });
                     }
+                    else fails.Add(new Fail { zone = z.name, renderer = r.name, collider = hitDesc, reason = "collider behind the surface", pos = p, dev = dev });
                 }
             }
         }
         return res;
+    }
+
+    // The reverse check: every enabled collider must belong to a visible renderer on its own GameObject and stay inside it.
+    static string PhantomReport(Transform map)
+    {
+        var sb = new StringBuilder();
+        int checkedCount = 0, bad = 0;
+        foreach (var c in map.GetComponentsInChildren<Collider>(false))
+        {
+            if (!c.enabled || c.isTrigger) continue;
+            checkedCount++;
+            var r = c.GetComponent<Renderer>();
+            string why = null;
+            if (r == null) why = "no renderer on its GameObject";
+            else if (!r.enabled) why = "its renderer is disabled";
+            else
+            {
+                Bounds cb = c.bounds, rb = r.bounds;
+                float over = 0f;
+                for (int a = 0; a < 3; a++) over = Mathf.Max(over, Mathf.Max(rb.min[a] - cb.min[a], cb.max[a] - rb.max[a]));
+                if (over > VerifyTolerance) why = "extends " + F(over) + " m beyond its renderer";
+            }
+            if (why == null) continue;
+            bad++;
+            if (bad <= 25) sb.AppendLine("  " + PathOf(c.transform, map) + " (" + c.GetType().Name + ", bounds " + V(c.bounds.size) + " at " + V(c.bounds.center) + "): " + why);
+        }
+        if (bad > 25) sb.AppendLine("  ...");
+        return "-- Colliders without a matching visible surface: " + bad + " of " + checkedCount + " enabled colliders --\n" + sb;
+    }
+
+    static string PathOf(Transform t, Transform stop)
+    {
+        string s = t.name;
+        while (t.parent != null && t.parent != stop) { t = t.parent; s = t.name + "/" + s; }
+        return s;
     }
 
     public static string VerifyReport()
@@ -800,43 +998,52 @@ public static class TimeTrapColliderGenerator
         var mapGo = GameObject.Find("Map");
         if (mapGo == null) return "No 'Map' object in the open scene.";
         Physics.SyncTransforms();
-        bool prevBack = Physics.queriesHitBackfaces;
+        meshCache.Clear();
 
         var zones = BuildZones(mapGo.transform);
         var results = new List<ZoneResult>();
-        var misses = new List<Miss>();
-        foreach (var z in zones) results.Add(VerifyZone(z, misses));
+        var fails = new List<Fail>();
+        foreach (var z in zones) results.Add(VerifyZone(z, fails));
+        meshCache.Clear();
 
-        sb.AppendLine("=== RAY VERIFICATION ===");
+        sb.AppendLine("=== SURFACE VERIFICATION ===");
         int doorsOn; int doorsAll = CountDoorColliders(out doorsOn);
-        sb.AppendLine("Door colliders enabled while verifying: " + doorsOn + " of " + doorsAll + (doorsOn == doorsAll ? " (doors solid)" : "  ** some doors are passable (test mode) - door leaves will show as misses or be skipped **"));
-        sb.AppendLine("Method: for each zone, down rays (from 0.5 m above) at ~1 sample per m2 on every up-facing floor surface of its structural/prop renderers, and horizontal rays at 1 m above each floor level toward ~1 sample per metre of wall surface (both sides, 0.6 m range). A sample is OK when a collider is hit at that spot.");
-        int fT = 0, fM = 0, fC = 0, wT = 0, wM = 0;
+        sb.AppendLine("Door colliders enabled while verifying: " + doorsOn + " of " + doorsAll + (doorsOn == doorsAll ? " (doors solid)" : "  (doors passable - test mode: door leaves are counted separately, not as failures)"));
+        sb.AppendLine("Method: points spread over the visible surface of every renderer that should be solid. From " + F(VerifyStandoff) + " m off each point, one ray against the renderer's triangles finds the visible surface and the same ray against physics finds the collider. A sample passes only when the two are within " + F(VerifyTolerance) + " m.");
+        int tT = 0, tP = 0, tO = 0, tD = 0;
         foreach (var r in results)
         {
-            fT += r.floorTotal; fM += r.floorMiss; fC += r.floorCovered; wT += r.wallTotal; wM += r.wallMiss;
-            sb.AppendLine(string.Format("{0,-34} [{1}]  floor {2}/{3} hit (+{4} buried skipped)   wall {5}/{6} hit", r.zone.name, r.zone.category, r.floorTotal - r.floorMiss, r.floorTotal, r.floorCovered, r.wallTotal - r.wallMiss, r.wallTotal));
+            tT += r.total; tP += r.pass; tO += r.occluded; tD += r.passableDoor;
+            sb.AppendLine(string.Format("{0,-40} [{1}]  {2}/{3} pass ({4} behind another verified surface){5}", r.zone.name, r.zone.category, r.pass, r.total, r.occluded, r.passableDoor > 0 ? ", " + r.passableDoor + " on passable doors" : ""));
         }
-        sb.AppendLine("TOTAL floor " + (fT - fM) + "/" + fT + " hit (" + fC + " buried samples skipped), wall " + (wT - wM) + "/" + wT + " hit, misses " + (fM + wM));
-        if (fT > 0 && fM == fT) sb.AppendLine("WARNING: every floor ray missed - physics queries may not be seeing the colliders (check Physics.SyncTransforms / collider cooking).");
+        sb.AppendLine("TOTAL " + tP + "/" + tT + " pass, " + (tT - tP) + " fail" + (tD > 0 ? ", " + tD + " samples on passable doors not counted" : ""));
+        if (tT > 0 && tP == 0) sb.AppendLine("WARNING: every sample failed - physics queries may not be seeing the colliders (check Physics.SyncTransforms / collider cooking).");
 
-        if (misses.Count > 0)
+        if (fails.Count > 0)
         {
-            var byRenderer = new Dictionary<string, int>();
-            foreach (var m in misses) { string k = m.zone + " | " + m.kind + " | " + Stem(m.renderer); byRenderer[k] = byRenderer.ContainsKey(k) ? byRenderer[k] + 1 : 1; }
-            sb.AppendLine("Misses grouped by zone | kind | renderer:");
-            int n = 0;
-            foreach (var kv in byRenderer)
+            var groups = new Dictionary<string, List<Fail>>();
+            foreach (var f in fails)
             {
-                if (n++ >= 40) { sb.AppendLine("  ..."); break; }
-                var first = misses.Find(x => (x.zone + " | " + x.kind + " | " + Stem(x.renderer)) == kv.Key);
-                sb.AppendLine("  " + kv.Key + " x" + kv.Value + "  e.g. at " + V(first.pos));
+                string k = f.zone + " | " + Stem(f.renderer) + " | " + f.reason + " (" + f.collider + ")";
+                if (!groups.ContainsKey(k)) groups[k] = new List<Fail>();
+                groups[k].Add(f);
+            }
+            var keys = new List<string>(groups.Keys);
+            keys.Sort((p, q) => groups[q].Count.CompareTo(groups[p].Count));
+            sb.AppendLine("Failures grouped by zone | renderer | reason:");
+            int n = 0;
+            foreach (var k in keys)
+            {
+                if (n++ >= 40) { sb.AppendLine("  ... " + (keys.Count - 40) + " more group(s)"); break; }
+                float worst = 0f; Fail w = groups[k][0];
+                foreach (var f in groups[k]) if (f.dev > worst) { worst = f.dev; w = f; }
+                sb.AppendLine("  " + k + " x" + groups[k].Count + "  worst " + F(worst) + " m at " + V(w.pos));
             }
         }
-        else sb.AppendLine("No missed floor or wall spots.");
+        else sb.AppendLine("No failed samples.");
 
+        sb.AppendLine(PhantomReport(mapGo.transform));
         sb.AppendLine(StairClimbTest(mapGo.transform));
-        Physics.queriesHitBackfaces = prevBack;
         return sb.ToString();
     }
 
