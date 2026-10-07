@@ -60,6 +60,8 @@ public class PlayerInventory : MonoBehaviour
         return true;
     }
 
+    public bool CanReload => hasPistol && magazineAmmo < MagazineSize && reserveAmmo > 0;
+
     // Tops the magazine up from the reserve. False if nothing was loaded.
     public bool Reload()
     {

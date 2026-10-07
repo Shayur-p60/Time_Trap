@@ -59,8 +59,10 @@ public class FlashlightController : MonoBehaviour
         Tick(Time.deltaTime);
     }
 
+    public bool IsOn => isOn;
+
     // F pressed: always allowed to switch off; switching on needs some charge.
-    void ToggleLight()
+    public void ToggleLight()
     {
         if (isOn)
             SetOn(false);

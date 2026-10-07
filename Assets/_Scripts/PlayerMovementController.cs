@@ -55,6 +55,14 @@ public class PlayerMovementController : MonoBehaviour
     [Tooltip("Speed of transition between animation states.")]
     [SerializeField] private float animationCrossfadeSpeed = 6f;
 
+    [Header("Pistol animation (blended in by PlayerWeaponState)")]
+    [Tooltip("Standing still with the pistol drawn.")]
+    [SerializeField] private AnimationClip pistolIdleClip;
+    [SerializeField] private AnimationClip pistolWalkForwardClip;
+    [SerializeField] private AnimationClip pistolWalkBackwardClip;
+    [SerializeField] private AnimationClip pistolStrafeLeftClip;
+    [SerializeField] private AnimationClip pistolStrafeRightClip;
+
     // Components and state
     private CharacterController characterController;
     private float cameraPitch = 0f;
@@ -68,13 +76,50 @@ public class PlayerMovementController : MonoBehaviour
     // Playables API state
     private PlayableGraph playableGraph;
     private AnimationMixerPlayable mixerPlayable;
-    private float currentIdleWeight = 1f;
-    private float currentWalkWeight = 0f;
-    private float currentRunWeight = 0f;
+
+    // Mixer inputs: 0 idle, 1 walk, 2 run (torch set), then the pistol set: 3 idle, 4 forward, 5 backward, 6 left, 7 right.
+    private const int ClipCount = 8;
+    private const int PistolFirst = 3;
+    private readonly float[] currentWeights = new float[ClipCount];
+    private readonly float[] targetWeights = new float[ClipCount];
+
+    // The clip playables, kept so a clip imported without Loop Time can be wrapped by hand.
+    private readonly AnimationClipPlayable[] clipPlayables = new AnimationClipPlayable[ClipCount];
+    private readonly AnimationClip[] playableClips = new AnimationClip[ClipCount];
+
+    // Animator Controller parameters driven from the ground speed, when the controller has them.
+    private bool hasSpeedParameter;
+    private readonly System.Collections.Generic.List<int> movingParameters = new System.Collections.Generic.List<int>();
+    private static readonly int SpeedParameter = Animator.StringToHash("Speed");
 
     public float CurrentGroundSpeed { get; private set; }
+    /// <summary>Horizontal velocity relative to the way the player faces (x = right, z = forward), in m/s.</summary>
+    public Vector3 LocalGroundVelocity { get; private set; }
+    public float WalkSpeed => moveSpeed;
+
+    /// <summary>False while the pistol is drawn: the sprint key is ignored and the player moves at walk speed.</summary>
+    public bool SprintAllowed { get; set; } = true;
+    /// <summary>The player is holding sprint and a movement key (and is not crouching), whether or not sprint is allowed.</summary>
+    public bool WantsSprint { get; private set; }
+    /// <summary>The player is sprinting right now.</summary>
+    public bool IsSprinting => WantsSprint && SprintAllowed;
+
+    /// <summary>0 = torch animation set (idle / walk / run), 1 = pistol set (idle / walk / strafe). Set by PlayerWeaponState.</summary>
+    public float PistolBlend { get; set; }
+
+    // For automated tests and scripted sequences: while Scripted Input is on, movement and sprint come from these
+    // two values instead of the keyboard. Mouse look, crouch and everything else are untouched.
+    [System.NonSerialized] public bool scriptedInput;
+    [System.NonSerialized] public Vector2 scriptedMove;   // x = strafe, y = forward, each -1..1
+    [System.NonSerialized] public bool scriptedSprint;
     /// <summary>Multiplier on walk, sprint and crouch speed (1 = normal). The Speed Boost power-up sets this.</summary>
     public float SpeedMultiplier { get; set; } = 1f;
+
+    /// <summary>Forgets the speed built up while falling. Call after teleporting the player (respawn).</summary>
+    public void ResetFall()
+    {
+        verticalVelocity = 0f;
+    }
     public bool IsCrouching => Input.GetKey(crouchKey);
 
     private void Awake()
@@ -226,8 +271,8 @@ public class PlayerMovementController : MonoBehaviour
         }
 
         // WASD Input
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float horizontal = scriptedInput ? Mathf.Clamp(scriptedMove.x, -1f, 1f) : Input.GetAxisRaw("Horizontal");
+        float vertical = scriptedInput ? Mathf.Clamp(scriptedMove.y, -1f, 1f) : Input.GetAxisRaw("Vertical");
 
         Vector3 moveDirection = (transform.forward * vertical + transform.right * horizontal);
         if (moveDirection.sqrMagnitude > 1f)
@@ -236,7 +281,9 @@ public class PlayerMovementController : MonoBehaviour
         }
 
         bool isCrouchHeld = Input.GetKey(crouchKey);
-        bool isSprinting = !isCrouchHeld && Input.GetKey(sprintKey);
+        bool sprintHeld = scriptedInput ? scriptedSprint : Input.GetKey(sprintKey);
+        WantsSprint = !isCrouchHeld && sprintHeld && moveDirection.sqrMagnitude > 0.01f;
+        bool isSprinting = WantsSprint && SprintAllowed;
         float targetSpeed = isCrouchHeld ? crouchSpeed : (isSprinting ? sprintSpeed : moveSpeed);
         targetSpeed *= SpeedMultiplier;
 
@@ -248,6 +295,7 @@ public class PlayerMovementController : MonoBehaviour
         // Update ground velocity for animation crossfading
         Vector3 horizontalVelocity = new Vector3(characterController.velocity.x, 0f, characterController.velocity.z);
         CurrentGroundSpeed = horizontalVelocity.magnitude;
+        LocalGroundVelocity = transform.InverseTransformDirection(horizontalVelocity);
     }
     #endregion
 
@@ -268,6 +316,8 @@ public class PlayerMovementController : MonoBehaviour
             return;
         }
 
+        CacheAnimatorParameters();
+
         if (idleClip == null && walkClip == null && runClip == null)
         {
             return;
@@ -276,33 +326,28 @@ public class PlayerMovementController : MonoBehaviour
         playableGraph = PlayableGraph.Create("PlayerMovementPlayableGraph");
         playableGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
 
-        mixerPlayable = AnimationMixerPlayable.Create(playableGraph, 3);
+        mixerPlayable = AnimationMixerPlayable.Create(playableGraph, ClipCount);
 
-        if (idleClip != null)
+        AnimationClip[] clips =
         {
-            var idlePlayable = AnimationClipPlayable.Create(playableGraph, idleClip);
-            playableGraph.Connect(idlePlayable, 0, mixerPlayable, 0);
+            idleClip, walkClip, runClip,
+            pistolIdleClip, pistolWalkForwardClip, pistolWalkBackwardClip, pistolStrafeLeftClip, pistolStrafeRightClip
+        };
+        for (int i = 0; i < ClipCount; i++)
+        {
+            if (clips[i] == null) continue;
+            var clipPlayable = AnimationClipPlayable.Create(playableGraph, clips[i]);
+            playableGraph.Connect(clipPlayable, 0, mixerPlayable, i);
+            clipPlayables[i] = clipPlayable;
+            playableClips[i] = clips[i];
         }
 
-        if (walkClip != null)
+        // Set initial weights: idle only
+        for (int i = 0; i < ClipCount; i++)
         {
-            var walkPlayable = AnimationClipPlayable.Create(playableGraph, walkClip);
-            playableGraph.Connect(walkPlayable, 0, mixerPlayable, 1);
+            currentWeights[i] = i == 0 ? 1f : 0f;
+            mixerPlayable.SetInputWeight(i, currentWeights[i]);
         }
-
-        if (runClip != null)
-        {
-            var runPlayable = AnimationClipPlayable.Create(playableGraph, runClip);
-            playableGraph.Connect(runPlayable, 0, mixerPlayable, 2);
-        }
-
-        // Set initial weights
-        currentIdleWeight = 1f;
-        currentWalkWeight = 0f;
-        currentRunWeight = 0f;
-        mixerPlayable.SetInputWeight(0, 1f);
-        mixerPlayable.SetInputWeight(1, 0f);
-        mixerPlayable.SetInputWeight(2, 0f);
 
         var playableOutput = AnimationPlayableOutput.Create(playableGraph, "Animation", animator);
         playableOutput.SetSourcePlayable(mixerPlayable);
@@ -310,9 +355,60 @@ public class PlayerMovementController : MonoBehaviour
         playableGraph.Play();
     }
 
+    // Finds the walk parameters the Animator Controller actually has: a float "Speed" and/or a bool
+    // "isWalking" / "IsWalking" / "isMoving" / "IsMoving". Parameters it does not have are never set.
+    private void CacheAnimatorParameters()
+    {
+        hasSpeedParameter = false;
+        movingParameters.Clear();
+        if (animator == null || animator.runtimeAnimatorController == null) return;
+
+        foreach (var parameter in animator.parameters)
+        {
+            if (parameter.type == AnimatorControllerParameterType.Float && parameter.name == "Speed")
+            {
+                hasSpeedParameter = true;
+            }
+            else if (parameter.type == AnimatorControllerParameterType.Bool &&
+                     (parameter.name == "isWalking" || parameter.name == "IsWalking" || parameter.name == "isMoving" || parameter.name == "IsMoving"))
+            {
+                movingParameters.Add(parameter.nameHash);
+            }
+        }
+    }
+
+    // Each frame: the CharacterController's horizontal speed goes to the controller's walk parameters.
+    private void DriveAnimatorParameters()
+    {
+        if (animator == null) return;
+        if (hasSpeedParameter) animator.SetFloat(SpeedParameter, CurrentGroundSpeed);
+        for (int i = 0; i < movingParameters.Count; i++)
+        {
+            animator.SetBool(movingParameters[i], CurrentGroundSpeed > 0.1f);
+        }
+    }
+
+    // A clip imported without Loop Time (the run) stops on its last frame and stays there. Start it again instead.
+    private void LoopNonLoopingClips()
+    {
+        for (int i = 0; i < clipPlayables.Length; i++)
+        {
+            if (playableClips[i] == null || playableClips[i].isLooping || !clipPlayables[i].IsValid()) continue;
+            double length = playableClips[i].length;
+            if (length > 0.01 && clipPlayables[i].GetTime() >= length)
+            {
+                clipPlayables[i].SetTime(clipPlayables[i].GetTime() % length);
+            }
+        }
+    }
+
     private void UpdateAnimationBlend()
     {
+        DriveAnimatorParameters();
+
         if (!playableGraph.IsValid()) return;
+
+        LoopNonLoopingClips();
 
         float targetIdle = 0f;
         float targetWalk = 0f;
@@ -322,38 +418,72 @@ public class PlayerMovementController : MonoBehaviour
         if (CurrentGroundSpeed <= 0.1f)
         {
             targetIdle = 1f;
-            targetWalk = 0f;
-            targetRun = 0f;
         }
         else if (CurrentGroundSpeed <= moveSpeed)
         {
             float t = Mathf.Clamp01(CurrentGroundSpeed / Mathf.Max(moveSpeed, 0.01f));
             targetIdle = 1f - t;
             targetWalk = t;
-            targetRun = 0f;
         }
         else
         {
             float speedRange = Mathf.Max(sprintSpeed - moveSpeed, 0.01f);
             float t = Mathf.Clamp01((CurrentGroundSpeed - moveSpeed) / speedRange);
-            targetIdle = 0f;
             targetWalk = 1f - t;
             targetRun = t;
         }
 
+        // The pistol set only takes part when its idle clip is there
+        float pistol = playableClips[PistolFirst] != null ? Mathf.Clamp01(PistolBlend) : 0f;
+        targetWeights[0] = targetIdle * (1f - pistol);
+        targetWeights[1] = targetWalk * (1f - pistol);
+        targetWeights[2] = targetRun * (1f - pistol);
+        SetPistolTargets(pistol);
+
         // Smoothly interpolate weights
         float step = animationCrossfadeSpeed * Time.deltaTime;
-        currentIdleWeight = Mathf.MoveTowards(currentIdleWeight, targetIdle, step);
-        currentWalkWeight = Mathf.MoveTowards(currentWalkWeight, targetWalk, step);
-        currentRunWeight = Mathf.MoveTowards(currentRunWeight, targetRun, step);
+        float totalWeight = 0f;
+        for (int i = 0; i < ClipCount; i++)
+        {
+            if (playableClips[i] == null) { currentWeights[i] = 0f; continue; }
+            currentWeights[i] = Mathf.MoveTowards(currentWeights[i], targetWeights[i], step);
+            totalWeight += currentWeights[i];
+        }
 
-        float totalWeight = currentIdleWeight + currentWalkWeight + currentRunWeight;
         if (totalWeight > 0.0001f)
         {
-            mixerPlayable.SetInputWeight(0, currentIdleWeight / totalWeight);
-            mixerPlayable.SetInputWeight(1, currentWalkWeight / totalWeight);
-            mixerPlayable.SetInputWeight(2, currentRunWeight / totalWeight);
+            for (int i = 0; i < ClipCount; i++)
+            {
+                mixerPlayable.SetInputWeight(i, currentWeights[i] / totalWeight);
+            }
         }
+    }
+
+    // Pistol set: idle when still; forward / backward / strafe by the direction of travel relative to facing.
+    // A direction whose clip is missing falls back to the pistol idle.
+    private void SetPistolTargets(float pistol)
+    {
+        float moving = CurrentGroundSpeed <= 0.1f ? 0f : Mathf.Clamp01(CurrentGroundSpeed / Mathf.Max(moveSpeed, 0.01f));
+        Vector3 local = LocalGroundVelocity;
+        float forward = Mathf.Max(0f, local.z);
+        float backward = Mathf.Max(0f, -local.z);
+        float left = Mathf.Max(0f, -local.x);
+        float right = Mathf.Max(0f, local.x);
+        float sum = forward + backward + left + right;
+
+        float idle = 1f - moving;
+        float[] directions = { forward, backward, left, right };
+        for (int i = 0; i < 4; i++)
+        {
+            float weight = sum > 0.0001f ? moving * directions[i] / sum : 0f;
+            if (playableClips[PistolFirst + 1 + i] == null)
+            {
+                idle += weight;
+                weight = 0f;
+            }
+            targetWeights[PistolFirst + 1 + i] = weight * pistol;
+        }
+        targetWeights[PistolFirst] = idle * pistol;
     }
     #endregion
 }
