@@ -417,16 +417,32 @@ public static class TimeTrapColliderGenerator
         Mark(r.gameObject, bc, "Door");
     }
 
-    // Enables or disables every collider with the "Door" rule (Map/Doors boxes and the EZ door leaves). Editor-only test helper.
-    static int SetDoorColliders(bool enabled)
+    // Every collider that closes a doorway: the generated ones with the "Door" rule (Map/Doors boxes and the EZ door
+    // leaves) plus the leaf colliders of every Door component. The second group covers the UC room doors
+    // (sm40_146_autodoorcommon...), which keep the colliders they came with and so carry no GeneratedCollider marker.
+    // They are deliberately not given a marker: Generate and Clear Generated destroy marked colliders.
+    static List<Collider> DoorColliders()
     {
-        int n = 0;
+        var found = new HashSet<Collider>();
         foreach (var m in Object.FindObjectsByType<GeneratedCollider>(FindObjectsInactive.Include))
         {
             if (m.rule != "Door" || m.colliders == null) continue;
-            foreach (var c in m.colliders)
-                if (c != null && c.enabled != enabled) { c.enabled = enabled; EditorUtility.SetDirty(c); n++; }
+            foreach (var c in m.colliders) if (c != null) found.Add(c);
         }
+        foreach (var door in Object.FindObjectsByType<Door>(FindObjectsInactive.Include))
+        {
+            if (door.leafColliders == null) continue;
+            foreach (var c in door.leafColliders) if (c != null) found.Add(c);
+        }
+        return new List<Collider>(found);
+    }
+
+    // Enables or disables every door collider. Editor-only test helper.
+    static int SetDoorColliders(bool enabled)
+    {
+        int n = 0;
+        foreach (var c in DoorColliders())
+            if (c.enabled != enabled) { c.enabled = enabled; EditorUtility.SetDirty(c); n++; }
         MarkDirty();
         return n;
     }
@@ -434,11 +450,7 @@ public static class TimeTrapColliderGenerator
     static int CountDoorColliders(out int enabledCount)
     {
         int total = 0; enabledCount = 0;
-        foreach (var m in Object.FindObjectsByType<GeneratedCollider>(FindObjectsInactive.Include))
-        {
-            if (m.rule != "Door" || m.colliders == null) continue;
-            foreach (var c in m.colliders) if (c != null) { total++; if (c.enabled) enabledCount++; }
-        }
+        foreach (var c in DoorColliders()) { total++; if (c.enabled) enabledCount++; }
         return total;
     }
 
