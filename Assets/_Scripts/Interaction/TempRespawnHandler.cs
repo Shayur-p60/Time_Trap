@@ -31,6 +31,8 @@ public class TempRespawnHandler : MonoBehaviour
 
     void HandleKilled(string cause)
     {
+        // fallback only: with a CheckpointManager in the scene, DeathZone respawns the player at the latest checkpoint
+        if (CheckpointManager.Instance != null) return;
         if (IsRespawning || respawnPoint == null) return;
         var player = GameObject.FindGameObjectWithTag("Player");
         if (player == null) return;

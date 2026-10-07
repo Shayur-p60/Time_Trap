@@ -13,4 +13,7 @@ public abstract class Interactable : MonoBehaviour
     public virtual bool CanInteract => true;
 
     public abstract void Interact();
+
+    // Called every frame E is held on this (after Interact on the first frame). For hold-to-use things.
+    public virtual void Hold(float deltaTime) { }
 }

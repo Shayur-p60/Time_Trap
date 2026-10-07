@@ -2,7 +2,7 @@ using UnityEngine;
 
 // A trigger volume that kills the player: entering it raises PlayerEvents.OnPlayerKilled with this zone's cause.
 // Besides the trigger message it also checks the player's position each frame, so a very fast fall (or a teleport)
-// cannot skip through it. It raises once per entry.
+// cannot skip through it. It raises once per entry, then sends the player back to the latest checkpoint.
 [RequireComponent(typeof(Collider))]
 public class DeathZone : MonoBehaviour
 {
@@ -50,6 +50,8 @@ public class DeathZone : MonoBehaviour
         if (playerInside) return;
         playerInside = true;
         PlayerEvents.RaisePlayerKilled(cause);
+        // back to the latest checkpoint. Without a CheckpointManager, TempRespawnHandler picks the event up instead.
+        if (CheckpointManager.Instance != null) CheckpointManager.Instance.RespawnAtCheckpoint();
     }
 
     void OnDrawGizmos()

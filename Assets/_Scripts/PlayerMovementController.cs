@@ -63,6 +63,14 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] private AnimationClip pistolStrafeLeftClip;
     [SerializeField] private AnimationClip pistolStrafeRightClip;
 
+    [Header("Flashlight animation (torch state; driven by PlayerWeaponState)")]
+    [Tooltip("Looping pose of the arm holding the torch. When set, it replaces idle / walk / run as the torch-state animation.")]
+    [SerializeField] private AnimationClip flashlightIdleClip;
+    [Tooltip("The torch arm going down out of view (sprint start, drawing the pistol). Plays once.")]
+    [SerializeField] private AnimationClip flashlightLowerClip;
+    [Tooltip("The torch arm coming back up (sprint stop, after holstering). Plays once.")]
+    [SerializeField] private AnimationClip flashlightRaiseClip;
+
     // Components and state
     private CharacterController characterController;
     private float cameraPitch = 0f;
@@ -77,9 +85,15 @@ public class PlayerMovementController : MonoBehaviour
     private PlayableGraph playableGraph;
     private AnimationMixerPlayable mixerPlayable;
 
-    // Mixer inputs: 0 idle, 1 walk, 2 run (torch set), then the pistol set: 3 idle, 4 forward, 5 backward, 6 left, 7 right.
-    private const int ClipCount = 8;
+    // Mixer inputs: 0 idle, 1 walk, 2 run (torch set), then the pistol set: 3 idle, 4 forward, 5 backward, 6 left, 7 right,
+    // then the flashlight set: 8 idle, 9 lower, 10 raise. The flashlight set shares one weight (kept in slot 8) and
+    // only one of its three clips shows at a time; lower and raise do not play by themselves, they are set to the
+    // time that matches Torch Lower.
+    private const int ClipCount = 11;
     private const int PistolFirst = 3;
+    private const int FlashlightFirst = 8;
+    private const int FlashlightLower = 9;
+    private const int FlashlightRaise = 10;
     private readonly float[] currentWeights = new float[ClipCount];
     private readonly float[] targetWeights = new float[ClipCount];
 
@@ -106,6 +120,17 @@ public class PlayerMovementController : MonoBehaviour
 
     /// <summary>0 = torch animation set (idle / walk / run), 1 = pistol set (idle / walk / strafe). Set by PlayerWeaponState.</summary>
     public float PistolBlend { get; set; }
+
+    /// <summary>The flashlight idle, lower and raise clips are all assigned.</summary>
+    public bool HasFlashlightClips => flashlightIdleClip != null && flashlightLowerClip != null && flashlightRaiseClip != null;
+    /// <summary>Length of the Lower clip in seconds (0 without one).</summary>
+    public float FlashlightLowerLength => flashlightLowerClip != null ? flashlightLowerClip.length : 0f;
+    /// <summary>Length of the Raise clip in seconds (0 without one).</summary>
+    public float FlashlightRaiseLength => flashlightRaiseClip != null ? flashlightRaiseClip.length : 0f;
+    /// <summary>0 = torch arm up (idle clip), 1 = fully lowered (end of the Lower clip). Set by PlayerWeaponState.</summary>
+    public float TorchLower { get; set; }
+    /// <summary>True while the arm is going down or held down (Lower clip), false while it comes up (Raise clip). Set by PlayerWeaponState.</summary>
+    public bool TorchLowering { get; set; }
 
     // For automated tests and scripted sequences: while Scripted Input is on, movement and sprint come from these
     // two values instead of the keyboard. Mouse look, crouch and everything else are untouched.
@@ -331,7 +356,8 @@ public class PlayerMovementController : MonoBehaviour
         AnimationClip[] clips =
         {
             idleClip, walkClip, runClip,
-            pistolIdleClip, pistolWalkForwardClip, pistolWalkBackwardClip, pistolStrafeLeftClip, pistolStrafeRightClip
+            pistolIdleClip, pistolWalkForwardClip, pistolWalkBackwardClip, pistolStrafeLeftClip, pistolStrafeRightClip,
+            flashlightIdleClip, flashlightLowerClip, flashlightRaiseClip
         };
         for (int i = 0; i < ClipCount; i++)
         {
@@ -340,12 +366,15 @@ public class PlayerMovementController : MonoBehaviour
             playableGraph.Connect(clipPlayable, 0, mixerPlayable, i);
             clipPlayables[i] = clipPlayable;
             playableClips[i] = clips[i];
+            // lower and raise are held at the time PlayerWeaponState asks for instead of running by themselves
+            if (i == FlashlightLower || i == FlashlightRaise) clipPlayable.SetSpeed(0);
         }
 
-        // Set initial weights: idle only
+        // Set initial weights: idle only (the flashlight idle when there is one)
+        int startClip = playableClips[FlashlightFirst] != null ? FlashlightFirst : 0;
         for (int i = 0; i < ClipCount; i++)
         {
-            currentWeights[i] = i == 0 ? 1f : 0f;
+            currentWeights[i] = i == startClip ? 1f : 0f;
             mixerPlayable.SetInputWeight(i, currentWeights[i]);
         }
 
@@ -393,6 +422,7 @@ public class PlayerMovementController : MonoBehaviour
     {
         for (int i = 0; i < clipPlayables.Length; i++)
         {
+            if (i == FlashlightLower || i == FlashlightRaise) continue;
             if (playableClips[i] == null || playableClips[i].isLooping || !clipPlayables[i].IsValid()) continue;
             double length = playableClips[i].length;
             if (length > 0.01 && clipPlayables[i].GetTime() >= length)
@@ -409,6 +439,7 @@ public class PlayerMovementController : MonoBehaviour
         if (!playableGraph.IsValid()) return;
 
         LoopNonLoopingClips();
+        int flashlightClip = ScrubFlashlightClips();
 
         float targetIdle = 0f;
         float targetWalk = 0f;
@@ -435,9 +466,12 @@ public class PlayerMovementController : MonoBehaviour
 
         // The pistol set only takes part when its idle clip is there
         float pistol = playableClips[PistolFirst] != null ? Mathf.Clamp01(PistolBlend) : 0f;
-        targetWeights[0] = targetIdle * (1f - pistol);
-        targetWeights[1] = targetWalk * (1f - pistol);
-        targetWeights[2] = targetRun * (1f - pistol);
+        // With a flashlight idle the torch state shows the flashlight set instead of idle / walk / run
+        float locomotion = flashlightClip >= 0 ? 0f : 1f - pistol;
+        targetWeights[0] = targetIdle * locomotion;
+        targetWeights[1] = targetWalk * locomotion;
+        targetWeights[2] = targetRun * locomotion;
+        targetWeights[FlashlightFirst] = flashlightClip >= 0 ? 1f - pistol : 0f;
         SetPistolTargets(pistol);
 
         // Smoothly interpolate weights
@@ -445,7 +479,7 @@ public class PlayerMovementController : MonoBehaviour
         float totalWeight = 0f;
         for (int i = 0; i < ClipCount; i++)
         {
-            if (playableClips[i] == null) { currentWeights[i] = 0f; continue; }
+            if (playableClips[i] == null || i == FlashlightLower || i == FlashlightRaise) { currentWeights[i] = 0f; continue; }
             currentWeights[i] = Mathf.MoveTowards(currentWeights[i], targetWeights[i], step);
             totalWeight += currentWeights[i];
         }
@@ -454,9 +488,28 @@ public class PlayerMovementController : MonoBehaviour
         {
             for (int i = 0; i < ClipCount; i++)
             {
-                mixerPlayable.SetInputWeight(i, currentWeights[i] / totalWeight);
+                float weight = currentWeights[i];
+                // the flashlight set's weight goes to whichever of its clips is showing; they meet at their ends, so no fade between them
+                if (i >= FlashlightFirst) weight = i == flashlightClip ? currentWeights[FlashlightFirst] : 0f;
+                mixerPlayable.SetInputWeight(i, weight / totalWeight);
             }
         }
+    }
+
+    // Puts the Lower and Raise clips at the time that matches Torch Lower and returns the mixer input of the
+    // flashlight clip to show: the idle while the arm is up, Lower on the way down, Raise on the way up.
+    // -1 without a flashlight idle clip.
+    private int ScrubFlashlightClips()
+    {
+        if (playableClips[FlashlightFirst] == null) return -1;
+
+        float lower = Mathf.Clamp01(TorchLower);
+        if (playableClips[FlashlightLower] != null) clipPlayables[FlashlightLower].SetTime(lower * playableClips[FlashlightLower].length);
+        if (playableClips[FlashlightRaise] != null) clipPlayables[FlashlightRaise].SetTime((1f - lower) * playableClips[FlashlightRaise].length);
+
+        if (lower <= 0f) return FlashlightFirst;
+        int moving = TorchLowering ? FlashlightLower : FlashlightRaise;
+        return playableClips[moving] != null ? moving : FlashlightFirst;
     }
 
     // Pistol set: idle when still; forward / backward / strafe by the direction of travel relative to facing.

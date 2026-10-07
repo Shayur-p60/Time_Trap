@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // The small screen-space HUD used by the interaction system: interaction prompt, short messages, crosshair, ammo counter,
-// compass arrow and the full-screen fade. The prompt and the messages sit on dark rounded panels with outlined text,
+// compass arrow, objective list, centre-screen banner, progress bar and the full-screen fade. The prompt and the messages sit on dark rounded panels with outlined text,
 // and the canvas is drawn over the finished frame (after bloom), so they stay readable over bright, glowing things. It builds itself the first time something needs it in Play mode, so no scene
 // setup is required. To restyle it, put a GameHUD component in the scene and assign a font.
 [DefaultExecutionOrder(-100)]
@@ -52,6 +52,12 @@ public class GameHUD : MonoBehaviour
     RectTransform compassArrow;
     Image fadeImage;
     float messageHideTime;
+    TextPanel objectivesPanel;
+    TextPanel bannerPanel;
+    float bannerHideTime;
+    GameObject progressBar;
+    RectTransform progressFill;
+    float shownProgress = -1f;
 
     // ------------------------------------------------------------------ static access
 
@@ -94,6 +100,39 @@ public class GameHUD : MonoBehaviour
         hud.messagePanel.Set(text);
         hud.messageHideTime = Time.unscaledTime + seconds;
     }
+
+    // The objective list in the top-left corner (rich text, one objective per line). Empty hides it.
+    public static void Objectives(string text)
+    {
+        var hud = Get(!string.IsNullOrEmpty(text));
+        if (hud != null && hud.objectivesPanel != null) hud.objectivesPanel.Set(text);
+    }
+
+    // A short, large message in the middle of the screen, for example "POWER RESTORED".
+    public static void Banner(string text, float seconds = 3f)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        var hud = Get(true);
+        if (hud == null || hud.bannerPanel == null) return;
+        hud.bannerPanel.Set(text);
+        hud.bannerHideTime = Time.unscaledTime + seconds;
+    }
+
+    // The bar under the prompt. fraction 0..1 shows it, negative hides it.
+    public static void Progress(float fraction)
+    {
+        bool visible = fraction >= 0f;
+        var hud = Get(visible);
+        if (hud == null || hud.progressBar == null) return;
+        hud.shownProgress = visible ? Mathf.Clamp01(fraction) : -1f;
+        hud.progressBar.SetActive(visible);
+        if (visible) hud.progressFill.anchorMax = new Vector2(hud.shownProgress, 1f);
+    }
+
+    // For tests: what the objective list and the banner show, and the bar's fill (-1 = hidden).
+    public static string ShownObjectives => instance != null && instance.objectivesPanel != null ? instance.objectivesPanel.Shown : "";
+    public static string ShownBanner => instance != null && instance.bannerPanel != null ? instance.bannerPanel.Shown : "";
+    public static float ShownProgress => instance != null ? instance.shownProgress : -1f;
 
     public static void Crosshair(bool visible)
     {
@@ -153,6 +192,8 @@ public class GameHUD : MonoBehaviour
     {
         if (messagePanel != null && messagePanel.Shown.Length > 0 && Time.unscaledTime >= messageHideTime)
             messagePanel.Set("");
+        if (bannerPanel != null && bannerPanel.Shown.Length > 0 && Time.unscaledTime >= bannerHideTime)
+            bannerPanel.Set("");
     }
 
     // ------------------------------------------------------------------ construction
@@ -197,6 +238,43 @@ public class GameHUD : MonoBehaviour
         compassArrow.gameObject.SetActive(false);
         compassLabel = MakeText("CompassLabel", transform, new Vector2(0.5f, 1f), new Vector2(0f, -145f), new Vector2(400f, 40f), 24f, TextAlignmentOptions.Center);
         compassLabel.gameObject.SetActive(false);
+
+        // objectives: top-left, small, grows down and right from the corner
+        objectivesPanel = MakePanel("Objectives", new Vector2(0f, 1f), new Vector2(28f, -28f), 22f, panelSprite);
+        objectivesPanel.rect.pivot = new Vector2(0f, 1f);
+        objectivesPanel.padding = new Vector2(40f, 28f);
+        objectivesPanel.label.alignment = TextAlignmentOptions.Left;
+        var objectivesText = (RectTransform)objectivesPanel.label.transform;
+        objectivesText.offsetMin = new Vector2(18f, 0f);
+        objectivesText.offsetMax = new Vector2(-18f, 0f);
+
+        // banner: above the crosshair, for the short objective messages
+        bannerPanel = MakePanel("Banner", centre, new Vector2(0f, 200f), 44f, panelSprite);
+        bannerPanel.padding = new Vector2(72f, 32f);
+
+        // progress bar: under the prompt
+        var bar = MakeRect("Progress", transform, centre, new Vector2(0f, -130f), new Vector2(340f, 22f));
+        var barBack = bar.gameObject.AddComponent<Image>();
+        barBack.sprite = panelSprite;
+        barBack.type = Image.Type.Sliced;
+        barBack.pixelsPerUnitMultiplier = 3f;
+        barBack.color = panelColour;
+        barBack.raycastTarget = false;
+        var fillArea = MakeRect("FillArea", bar, centre, Vector2.zero, Vector2.zero);
+        fillArea.anchorMin = Vector2.zero;
+        fillArea.anchorMax = Vector2.one;
+        fillArea.offsetMin = new Vector2(4f, 4f);
+        fillArea.offsetMax = new Vector2(-4f, -4f);
+        progressFill = MakeRect("Fill", fillArea, centre, Vector2.zero, Vector2.zero);
+        progressFill.anchorMin = Vector2.zero;
+        progressFill.anchorMax = new Vector2(0f, 1f);
+        progressFill.offsetMin = Vector2.zero;
+        progressFill.offsetMax = Vector2.zero;
+        var fillImage = progressFill.gameObject.AddComponent<Image>();
+        fillImage.color = keyColour;
+        fillImage.raycastTarget = false;
+        progressBar = bar.gameObject;
+        progressBar.SetActive(false);
 
         // fade: last, so it covers everything else
         var fade = MakeRect("Fade", transform, centre, Vector2.zero, Vector2.zero);

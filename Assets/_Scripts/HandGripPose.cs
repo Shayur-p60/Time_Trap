@@ -51,6 +51,8 @@ public class HandGripPose : MonoBehaviour
     // How many finger bones the avatar has mapped (15 when every joint is there).
     public int MappedFingerBones { get; private set; }
     public bool Built => built;
+    // Multiplies Weight. PlayerWeaponState lowers it while the torch is held with an animation that has its own grip.
+    public float Blend { get; set; } = 1f;
 
     void Awake()
     {
@@ -67,12 +69,13 @@ public class HandGripPose : MonoBehaviour
     {
         if (animator == null || !animator.isHuman) return;
         if (rebuild) Build();
-        if (!built || weight <= 0f) return;
+        float grip = weight * Mathf.Clamp01(Blend);
+        if (!built || grip <= 0f) return;
 
         for (int i = 0; i < bones.Length; i++)
         {
             if (bones[i] == null) continue;
-            bones[i].localRotation = weight >= 1f ? gripRotations[i] : Quaternion.Slerp(bones[i].localRotation, gripRotations[i], weight);
+            bones[i].localRotation = grip >= 1f ? gripRotations[i] : Quaternion.Slerp(bones[i].localRotation, gripRotations[i], grip);
         }
     }
 

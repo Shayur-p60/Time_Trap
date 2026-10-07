@@ -1,7 +1,7 @@
 using UnityEngine;
 
 // Goes on the player camera. Each frame it looks about 2.5 m ahead from the screen centre for an Interactable,
-// shows its prompt on the HUD and calls Interact() when E is pressed.
+// shows its prompt on the HUD, calls Interact() when E is pressed and Hold() while it stays down.
 // Aim is forgiving: a thin sphere is swept along the view line, so the crosshair only has to be near the target.
 // When several interactables are within reach of the sweep, the one closest to the screen centre wins.
 public class PlayerInteractor : MonoBehaviour
@@ -62,6 +62,9 @@ public class PlayerInteractor : MonoBehaviour
 
         if (Target != null && Target.CanInteract && Input.GetKeyDown(interactKey))
             Target.Interact();
+        // hold-to-use things (the data download): looking away or stepping out of reach drops the target, which pauses them
+        if (Target != null && Target.CanInteract && Input.GetKey(interactKey))
+            Target.Hold(Time.deltaTime);
     }
 
     // The interactable the player is aiming at, or null. Something solid in front of it (a wall, a closed door) hides it.
