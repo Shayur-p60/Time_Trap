@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -6,6 +7,9 @@ using UnityEngine;
 public class CheckpointManager : MonoBehaviour
 {
     public static CheckpointManager Instance { get; private set; }
+
+    // The player has just been put on a checkpoint: (where). Raised while the screen is still black.
+    public static event Action<Vector3> OnPlayerRespawned;
 
     [Tooltip("Seconds for each fade (out, then in).")]
     public float fadeTime = 0.5f;
@@ -157,5 +161,13 @@ public class CheckpointManager : MonoBehaviour
 
         var movement = p.GetComponent<PlayerMovementController>();
         if (movement != null) movement.ResetFall();
+
+        OnPlayerRespawned?.Invoke(CheckpointPosition);
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetForNewPlaySession()
+    {
+        OnPlayerRespawned = null;
     }
 }

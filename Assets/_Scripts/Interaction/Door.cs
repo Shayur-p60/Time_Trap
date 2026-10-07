@@ -54,6 +54,8 @@ public class Door : Interactable
     public event Action<Door, bool> OnDoorMoved; // (door, opening)
 
     bool targetOpen;
+    // who last moved the door: its noise (and the auto-close that follows) is marked with this
+    NoiseKind moverKind = NoiseKind.World;
     float openAmount; // 0 closed .. 1 open
     float openTimer;
     float nextClearCheck;
@@ -95,7 +97,9 @@ public class Door : Interactable
 
     public override void Interact()
     {
-        if (CanInteract) Toggle();
+        if (!CanInteract) return;
+        moverKind = NoiseKind.World;
+        Toggle();
     }
 
     // ------------------------------------------------------------------ control
@@ -103,6 +107,13 @@ public class Door : Interactable
     public void Open() => SetOpen(true);
     public void Close() => SetOpen(false);
     public void Toggle() => SetOpen(!targetOpen);
+
+    // Opens the door on behalf of a zombie (or anything else that is not the player): the noise is marked with that kind.
+    public void OpenBy(NoiseKind kind)
+    {
+        moverKind = kind;
+        SetOpen(true);
+    }
 
     public void SetOpen(bool open)
     {
@@ -113,7 +124,7 @@ public class Door : Interactable
         nextClearCheck = 0f;
         // passable as soon as it starts opening, solid as soon as it starts closing
         SetCollidersEnabled(!open);
-        NoiseSystem.MakeNoise(DoorwayPosition, noiseRadius);
+        NoiseSystem.MakeNoise(DoorwayPosition, noiseRadius, moverKind);
         OnDoorMoved?.Invoke(this, open);
     }
 

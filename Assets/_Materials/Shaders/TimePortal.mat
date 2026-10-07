@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TimePortal
+  m_Shader: {fileID: 4800000, guid: 80b504c800a4645a0a4ce35fb38b7239, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: a4ddc285efe2d45db8483c3cd78e82ef, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Activate: 1
+    - _BreatheAmount: 0.04
+    - _BreatheSpeed: 1.2
+    - _CorePower: 3.5
+    - _FlowSpeed: 0.3
+    - _FresnelPower: 2
+    - _Refraction: 0.08
+    - _RingWidth: 0.16
+    - _RippleAmp: 0.05
+    - _RippleFreq: 14
+    - _RippleSpeed: 3
+    - _SceneBoost: 3
+    - _SceneTint: 0.35
+    - _SpinSpeed: 0.5
+    - _Twist: 5
+    m_Colors:
+    - _Color: {r: 0.04, g: 0.5, b: 0.85, a: 1}
+    - _CoreColor: {r: 1.1, g: 1.7, b: 1.8, a: 1}
+    - _NoiseTiling: {r: 3, g: 1.2, b: 0, a: 0}
+    - _RingColor: {r: 0.15, g: 1, b: 1.4, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
