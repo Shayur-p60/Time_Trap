@@ -19,7 +19,7 @@ public class PlayerMovementController : MonoBehaviour
 
     [Header("Movement")]
     [Tooltip("Walking speed in units per second.")]
-    [SerializeField] private float moveSpeed = 3.5f;
+    [SerializeField] private float moveSpeed = 5.5f;
     [Tooltip("Sprinting speed in units per second.")]
     [SerializeField] private float sprintSpeed = 6.0f;
     [Tooltip("Key to hold for sprinting.")]
