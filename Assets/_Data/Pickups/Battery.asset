@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5ba031d3779f4fd3b946c896235af64, type: 3}
+  m_Name: Battery
+  m_EditorClassIdentifier: Assembly-CSharp::PickupDefinition
+  displayName: Battery
+  promptText: '[E] Take battery'
+  visualPrefab: {fileID: 6785100598563194904, guid: 3257d4b4de1c44900a35f9ef831e8ea0, type: 3}
+  icon: {fileID: 0}
+  glowColour: {r: 1, g: 0.9, b: 0.1, a: 1}
+  idleSpinBob: 0
+  reward:
+    kind: 1
+    ammoAmount: 8
+    batteryAmount: 35
+    powerUp: 0
+    chestRewards: []

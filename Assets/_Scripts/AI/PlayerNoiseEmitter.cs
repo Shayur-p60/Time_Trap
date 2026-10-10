@@ -1,44 +1,50 @@
 using UnityEngine;
 
-/// <summary>
-/// Turns player movement into noise the zombies can hear. Attach to the same
-/// object as your FirstPersonController (the one tagged Player).
-///
-/// Sprinting makes you loud, walking makes you quiet, crouching or standing
-/// still makes you effectively silent. This is what feeds the Investigate state.
-/// </summary>
+// Turns the player's movement into noise the zombies can hear. Goes on the FirstPersonController.
+// Sprinting is loud, walking is quiet, crouching or standing still is silent.
 public class PlayerNoiseEmitter : MonoBehaviour
 {
     [Header("Noise radius by movement speed")]
-    [Tooltip("Below this speed you make no noise at all.")]
+    [Tooltip("Below this speed the player makes no noise at all.")]
     public float silentSpeedThreshold = 0.6f;
     public float walkNoiseRadius = 6f;
     public float sprintNoiseRadius = 16f;
-    [Tooltip("Speed at which sprintNoiseRadius is reached.")]
+    [Tooltip("Speed at which Sprint Noise Radius is reached.")]
     public float sprintSpeed = 6f;
+    public bool crouchIsSilent = true;
 
     [Header("Timing")]
-    [Tooltip("How often a footstep noise is emitted, in seconds.")]
+    [Tooltip("Seconds between footstep noises.")]
     public float emitInterval = 0.45f;
 
-    private Vector3 lastPosition;
-    private float emitTimer;
+    public int NoisesMade { get; private set; }
+    public float LastRadius { get; private set; }
 
-    private void Start()
+    PlayerMovementController movement;
+    Vector3 lastPosition;
+    float emitTimer;
+
+    void Awake()
+    {
+        movement = GetComponent<PlayerMovementController>();
+    }
+
+    void Start()
     {
         lastPosition = transform.position;
     }
 
-    private void Update()
+    void Update()
     {
-        // Measure speed from position delta so this works with a CharacterController,
-        // a Rigidbody, or anything else driving the player.
+        // speed from the position change, so a teleport or respawn is not a footstep
         Vector3 delta = transform.position - lastPosition;
         delta.y = 0f;
-        float speed = delta.magnitude / Mathf.Max(Time.deltaTime, 0.0001f);
         lastPosition = transform.position;
+        float speed = delta.magnitude / Mathf.Max(Time.deltaTime, 0.0001f);
+        if (speed > sprintSpeed * 3f) speed = 0f;
 
-        if (speed < silentSpeedThreshold)
+        bool silent = speed < silentSpeedThreshold || (crouchIsSilent && movement != null && movement.IsCrouching);
+        if (silent)
         {
             emitTimer = 0f;
             return;
@@ -49,14 +55,14 @@ public class PlayerNoiseEmitter : MonoBehaviour
         emitTimer = 0f;
 
         float t = Mathf.InverseLerp(silentSpeedThreshold, sprintSpeed, speed);
-        float radius = Mathf.Lerp(walkNoiseRadius, sprintNoiseRadius, t);
-
-        NoiseEvent.Emit(transform.position, radius, transform);
+        EmitOneShot(Mathf.Lerp(walkNoiseRadius, sprintNoiseRadius, t));
     }
 
-    /// <summary>Call this for one-off loud events: a door slam, a dropped item, a gunshot.</summary>
+    // A one-off noise at the player's position.
     public void EmitOneShot(float radius)
     {
-        NoiseEvent.Emit(transform.position, radius, transform);
+        NoisesMade++;
+        LastRadius = radius;
+        NoiseSystem.MakeNoise(transform.position, radius, NoiseKind.Player, transform);
     }
 }

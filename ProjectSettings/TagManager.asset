@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - Enemy
+  - Light_Emergency
+  - Light_Powered
   layers:
   - Default
   - TransparentFX
@@ -18,7 +20,7 @@ TagManager:
   - Environment
   - Player
   - Decorative
-  - 
+  - Interactable
   - 
   - 
   - 

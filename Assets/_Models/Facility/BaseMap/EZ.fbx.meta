@@ -93,12 +93,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: EZ_WALLS
-    second: {fileID: 2100000, guid: efde56728c22344488a853756d29333d, type: 2}
+    second: {fileID: 2100000, guid: bcdbaa088831d4b9daee3e034ca8b3c7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: EZ_WHITE
-    second: {fileID: 2100000, guid: 81282c52f234944a69952b9e4d09821c, type: 2}
+    second: {fileID: 2100000, guid: bcdbaa088831d4b9daee3e034ca8b3c7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -373,7 +373,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: whitewall
-    second: {fileID: 2100000, guid: 9bbd4ffc73b684015b1147b0fb28d5d6, type: 2}
+    second: {fileID: 2100000, guid: bcdbaa088831d4b9daee3e034ca8b3c7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
