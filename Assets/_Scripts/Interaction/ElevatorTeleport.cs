@@ -41,7 +41,7 @@ public class ElevatorTeleport : Interactable
     public static bool IsRiding => riding;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         riding = false;
     }

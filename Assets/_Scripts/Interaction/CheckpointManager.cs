@@ -11,6 +11,9 @@ public class CheckpointManager : MonoBehaviour
     // The player has just been put on a checkpoint: (where). Raised while the screen is still black.
     public static event Action<Vector3> OnPlayerRespawned;
 
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int RespawnedListenerCount => OnPlayerRespawned != null ? OnPlayerRespawned.GetInvocationList().Length : 0;
+
     [Tooltip("Seconds for each fade (out, then in).")]
     public float fadeTime = 0.5f;
 
@@ -166,7 +169,7 @@ public class CheckpointManager : MonoBehaviour
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         OnPlayerRespawned = null;
     }

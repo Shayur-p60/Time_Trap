@@ -229,14 +229,14 @@ public class GameHUD : MonoBehaviour
         messagePanel = MakePanel("Message", new Vector2(0.5f, 0f), new Vector2(0f, 220f), 28f, panelSprite);
         ammoLabel = MakeText("Ammo", transform, new Vector2(1f, 0f), new Vector2(-170f, 70f), new Vector2(300f, 50f), 34f, TextAlignmentOptions.Right);
 
-        // compass: arrow at the top of the screen with a distance label under it
-        compassArrow = MakeRect("CompassArrow", transform, new Vector2(0.5f, 1f), new Vector2(0f, -90f), new Vector2(56f, 56f));
+        // compass: arrow at the top of the screen (under the game manager's timer) with a distance label under it
+        compassArrow = MakeRect("CompassArrow", transform, new Vector2(0.5f, 1f), new Vector2(0f, -116f), new Vector2(56f, 56f));
         var arrowImage = compassArrow.gameObject.AddComponent<Image>();
         arrowImage.sprite = MakeArrowSprite();
         arrowImage.color = new Color(0.75f, 0.45f, 1f, 0.95f);
         arrowImage.raycastTarget = false;
         compassArrow.gameObject.SetActive(false);
-        compassLabel = MakeText("CompassLabel", transform, new Vector2(0.5f, 1f), new Vector2(0f, -145f), new Vector2(400f, 40f), 24f, TextAlignmentOptions.Center);
+        compassLabel = MakeText("CompassLabel", transform, new Vector2(0.5f, 1f), new Vector2(0f, -171f), new Vector2(400f, 40f), 24f, TextAlignmentOptions.Center);
         compassLabel.gameObject.SetActive(false);
 
         // objectives: top-left, small, grows down and right from the corner
@@ -346,7 +346,7 @@ public class GameHUD : MonoBehaviour
     }
 
     // A white rounded rectangle, 9-sliced so the corners keep their shape at any panel size.
-    static Sprite MakePanelSprite()
+    public static Sprite MakePanelSprite()
     {
         const int size = 48;
         const float radius = 14f;

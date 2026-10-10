@@ -7,13 +7,16 @@ public static class PlayerEvents
     // The player died. cause: "Fall" (the Bioreactors pit), "OutOfBounds" (fell out of the map), ...
     public static event Action<string> OnPlayerKilled;
 
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int KilledListenerCount => OnPlayerKilled != null ? OnPlayerKilled.GetInvocationList().Length : 0;
+
     public static void RaisePlayerKilled(string cause)
     {
         OnPlayerKilled?.Invoke(cause);
     }
 
     [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         OnPlayerKilled = null;
     }

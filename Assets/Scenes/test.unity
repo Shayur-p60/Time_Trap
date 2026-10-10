@@ -1280,6 +1280,73 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &66930038
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 66930039}
+  - component: {fileID: 66930040}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &66930039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 66930038}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1208426597}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &66930040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 66930038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0cbcb5d2edad46909b9d44554d0b8f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  startSeconds: 300
+  lowTimeSeconds: 60
+  startLives: 3
+  catchPenaltySeconds: 10
+  fallPenaltySeconds: 10
+  fallCostsLife: 1
+  pauseKey: 27
+  winTitle: CONTAINMENT SUCCESSFUL
+  winText: The outbreak never left the facility.
+  portalFailureTitle: PORTAL FAILURE
+  portalFailureText: The portal collapsed. History repeats itself.
+  infectionTitle: INFECTED
+  infectionText: You became what you were sent to stop.
+  fallTitle: LOST IN THE DARK
+  fallText: Your timeline ends here.
+  font: {fileID: 0}
+  panelColour: {r: 0, g: 0, b: 0, a: 0.7}
+  textColour: {r: 1, g: 1, b: 1, a: 1}
+  lowTimeColour: {r: 1, g: 0.22, b: 0.18, a: 1}
+  lifeColour: {r: 0.92, g: 0.2, b: 0.2, a: 1}
+  lifeLostColour: {r: 0.3, g: 0.34, b: 0.3, a: 0.55}
+  winColour: {r: 0.45, g: 0.9, b: 0.5, a: 1}
+  lossColour: {r: 1, g: 0.22, b: 0.18, a: 1}
 --- !u!1 &67346099
 GameObject:
   m_ObjectHideFlags: 0
@@ -35247,6 +35314,85 @@ MonoBehaviour:
   - {fileID: 1634878656}
   - {fileID: 1840279662}
   links: []
+--- !u!1 &1111657277
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1111657280}
+  - component: {fileID: 1111657279}
+  - component: {fileID: 1111657278}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1111657278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1111657277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
+--- !u!114 &1111657279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1111657277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &1111657280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1111657277}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1112215664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37355,6 +37501,7 @@ Transform:
   - {fileID: 332037895}
   - {fileID: 1235501139}
   - {fileID: 503973876}
+  - {fileID: 66930039}
   m_Father: {fileID: 1274742017}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1208426598
@@ -37375,22 +37522,26 @@ MonoBehaviour:
     definitions:
     - {fileID: 11400000, guid: e16f2d867bda543dc95ebc613371d556, type: 2}
     count: 5
+    noDuplicates: 0
   - label: Power-ups
     definitions:
     - {fileID: 11400000, guid: 53c6d836bf4d14f44be8c8eb36ab0917, type: 2}
     - {fileID: 11400000, guid: 4fe6102349a55443099869277bf0c106, type: 2}
     - {fileID: 11400000, guid: fbfa66219de5f488bb081e534986a5c9, type: 2}
     count: 3
+    noDuplicates: 1
   - label: Batteries
     definitions:
     - {fileID: 11400000, guid: a1b2a7cff95514e3cb890bbaa7b7d9bc, type: 2}
     count: 2
+    noDuplicates: 0
   - label: Ammo
     definitions:
     - {fileID: 11400000, guid: 43522856941144c86b66da68cd9f83d6, type: 2}
     count: 2
-  useFixedSeed: 1
-  seed: 1
+    noDuplicates: 0
+  useFixedSeed: 0
+  fixedSeed: 1
   markerRoot: {fileID: 887381453}
   spawnOnStart: 1
 --- !u!114 &1208426599
@@ -70394,3 +70545,4 @@ SceneRoots:
   - {fileID: 1522427161}
   - {fileID: 1276148452}
   - {fileID: 1274742017}
+  - {fileID: 1111657280}

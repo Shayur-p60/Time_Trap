@@ -12,12 +12,15 @@ public static class PlayerCatch
     public static float invulnerableTime = 2f;
     // Zombies within this distance of the respawn point are removed; the rest forget the player.
     public static float clearRadius = 12f;
-    // TEMPORARY: the catch itself calls CheckpointManager.RespawnAtCheckpoint. Switch off when the game manager
-    // handles lives, the penalty and the respawn from OnPlayerKilled.
+    // The catch itself calls CheckpointManager.RespawnAtCheckpoint. The game manager takes the life and the time
+    // penalty from OnPlayerKilled, and switches this off when the catch ends the run (no respawn).
     public static bool respawnOnCatch = true;
 
     // A zombie caught the player: (which one). Raised once per catch, after OnPlayerKilled.
     public static event Action<ZombieAI> OnPlayerCaught;
+
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int CaughtListenerCount => OnPlayerCaught != null ? OnPlayerCaught.GetInvocationList().Length : 0;
 
     public static int CatchCount { get; private set; }
     public static float InvulnerableUntil { get; private set; }
@@ -91,7 +94,7 @@ public static class PlayerCatch
 
     // After SubsystemRegistration, where CheckpointManager drops its listeners.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void StartPlaySession()
+    public static void StartPlaySession()
     {
         OnPlayerCaught = null;
         CatchCount = 0;

@@ -101,6 +101,8 @@ public class Pistol : MonoBehaviour
             else if (Time.time >= reloadEndTime) FinishReload();
         }
 
+        if (GameManager.InputBlocked) return;
+
         // a click while the cursor is free only re-locks it (PlayerMovementController); it does not fire
         if (Input.GetMouseButtonDown(0) && Cursor.lockState == CursorLockMode.Locked)
             Fire();

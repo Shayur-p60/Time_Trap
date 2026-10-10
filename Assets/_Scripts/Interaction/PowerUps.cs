@@ -15,6 +15,11 @@ public static class PowerUps
     public static event Action<float> OnZombieFreeze;
     public static event Action OnZombieFreezeEnded;
 
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int FlashPulseListenerCount => OnFlashPulse != null ? OnFlashPulse.GetInvocationList().Length : 0;
+    public static int ZombieFreezeListenerCount => OnZombieFreeze != null ? OnZombieFreeze.GetInvocationList().Length : 0;
+    public static int ZombieFreezeEndedListenerCount => OnZombieFreezeEnded != null ? OnZombieFreezeEnded.GetInvocationList().Length : 0;
+
     // Time.time at which the current freeze ends.
     public static float FreezeEndTime { get; private set; }
     public static bool ZombiesFrozen => Application.isPlaying && Time.time < FreezeEndTime;
@@ -70,7 +75,7 @@ public static class PowerUps
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         OnFlashPulse = null;
         OnZombieFreeze = null;

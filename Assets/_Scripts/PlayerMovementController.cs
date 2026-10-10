@@ -180,6 +180,9 @@ public class PlayerMovementController : MonoBehaviour
 
     private void Update()
     {
+        // paused or on an end screen: the game manager owns the cursor, and the view must not turn
+        if (GameManager.InputBlocked) return;
+
         HandleCursorToggle();
         HandleMouseLook();
         HandleCrouch();

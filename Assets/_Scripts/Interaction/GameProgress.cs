@@ -23,6 +23,12 @@ public class GameProgress : MonoBehaviour
     // Raised by ResetProgress, so the sample, the download and the checkpoints can go back to their start state.
     public static event Action OnProgressReset;
 
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int StageChangedListenerCount => OnStageChanged != null ? OnStageChanged.GetInvocationList().Length : 0;
+    public static int ObjectiveCompletedListenerCount => OnObjectiveCompleted != null ? OnObjectiveCompleted.GetInvocationList().Length : 0;
+    public static int PlayerEscapedListenerCount => OnPlayerEscaped != null ? OnPlayerEscaped.GetInvocationList().Length : 0;
+    public static int ProgressResetListenerCount => OnProgressReset != null ? OnProgressReset.GetInvocationList().Length : 0;
+
     public bool HasPower { get; private set; }
     public bool HasPathogen { get; private set; }
     public bool HasData { get; private set; }
@@ -137,7 +143,7 @@ public class GameProgress : MonoBehaviour
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         Instance = null;
         OnStageChanged = null;

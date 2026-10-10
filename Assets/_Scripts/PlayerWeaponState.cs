@@ -104,7 +104,7 @@ public class PlayerWeaponState : MonoBehaviour
         if (hasPistol && !hadPistol) Draw();
         hadPistol = hasPistol;
 
-        if (Input.GetKeyDown(drawKey)) ToggleDraw();
+        if (Input.GetKeyDown(drawKey) && !GameManager.InputBlocked) ToggleDraw();
 
         bool wantsSprint = movement != null && movement.WantsSprint;
         // sprint with the gun out: put it away first

@@ -17,6 +17,9 @@ public static class PowerState
     // Raised every time SetPowered is called (even with the same value, so a preview can force a refresh).
     public static event Action<bool> OnPowerChanged;
 
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int PowerChangedListenerCount => OnPowerChanged != null ? OnPowerChanged.GetInvocationList().Length : 0;
+
     public static bool IsPowered
     {
         get
@@ -42,7 +45,7 @@ public static class PowerState
 
     // The game always starts without power (Stage 1), and listeners from a previous play session are dropped.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         OnPowerChanged = null;
 #if UNITY_EDITOR

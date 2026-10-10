@@ -21,6 +21,10 @@ public static class NoiseSystem
     // The same noise with its kind and source.
     public static event Action<NoiseInfo> OnNoiseDetailed;
 
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int NoiseListenerCount => OnNoise != null ? OnNoise.GetInvocationList().Length : 0;
+    public static int NoiseDetailedListenerCount => OnNoiseDetailed != null ? OnNoiseDetailed.GetInvocationList().Length : 0;
+
     public static void MakeNoise(Vector3 position, float radius, NoiseKind kind = NoiseKind.World, Transform source = null)
     {
         if (radius <= 0f) return;
@@ -29,7 +33,7 @@ public static class NoiseSystem
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         OnNoise = null;
         OnNoiseDetailed = null;

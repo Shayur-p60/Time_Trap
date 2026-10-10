@@ -50,6 +50,8 @@ public class DeathZone : MonoBehaviour
         if (playerInside) return;
         playerInside = true;
         PlayerEvents.RaisePlayerKilled(cause);
+        // the penalty for this death ended the run: no respawn
+        if (GameManager.IsGameOver) return;
         // back to the latest checkpoint. Without a CheckpointManager, TempRespawnHandler picks the event up instead.
         if (CheckpointManager.Instance != null) CheckpointManager.Instance.RespawnAtCheckpoint();
     }

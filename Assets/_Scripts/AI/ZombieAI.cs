@@ -30,6 +30,9 @@ public class ZombieAI : MonoBehaviour
     // Any zombie has started dying.
     public static event System.Action<ZombieAI> OnAnyDeathStarted;
 
+    // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
+    public static int AnyDeathStartedListenerCount => OnAnyDeathStarted != null ? OnAnyDeathStarted.GetInvocationList().Length : 0;
+
     // This zombie has started dying. A dissolve effect can hook in here (and switch Sink On Death off).
     public event System.Action<ZombieAI> OnDeathStarted;
 
@@ -1065,7 +1068,7 @@ public class ZombieAI : MonoBehaviour
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetForNewPlaySession()
+    public static void ResetForNewPlaySession()
     {
         All.Clear();
         OnAnyDeathStarted = null;

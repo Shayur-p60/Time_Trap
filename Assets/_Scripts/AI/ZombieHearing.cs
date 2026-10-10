@@ -48,7 +48,7 @@ public static class ZombieHearing
 
     // After SubsystemRegistration, where NoiseSystem drops its listeners.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void StartPlaySession()
+    public static void StartPlaySession()
     {
         maxResponders = 3;
         NoisesHeard = 0;

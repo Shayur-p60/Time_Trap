@@ -2,23 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 // Fills the PickupSpawnPoint markers at game start.
 //   Groups are placed in order on randomly chosen markers: by default 5 chests and 3 power-ups first, then 2 batteries
 //   and 2 ammo pickups on the markers that are left. Each item of a group is drawn at random from that group's
-//   definitions (duplicates allowed), so adding a pickup type is just adding a definition asset to a group.
+//   definitions, so adding a pickup type is just adding a definition asset to a group. Duplicates are allowed unless
+//   the group has No Duplicates on (the power-ups: a run always gets different ones).
 //   Guarantees: at least one battery source (battery or chest) on a Stage1 marker and at least one ammo source
 //   (ammo or chest) on a Stage2Only marker. Items are swapped between markers when the random layout misses one.
-//   Use Fixed Seed makes the layout (and the chest contents) identical every run.
+//   Every run (a restart included) gets a new random seed, taken from the clock, and logs it to the Console. To
+//   replay a layout, copy that seed into Fixed Seed and switch Use Fixed Seed on: the layout (and the chest contents)
+//   are then identical every run.
 public class PickupSpawner : MonoBehaviour
 {
     [Serializable]
     public class SpawnGroup
     {
         public string label;
-        [Tooltip("Each item in the group is one of these, drawn at random (duplicates allowed).")]
+        [Tooltip("Each item in the group is one of these, drawn at random.")]
         public PickupDefinition[] definitions = new PickupDefinition[0];
         public int count;
+        [Tooltip("On: drawn without replacement, so no definition repeats in a run (as long as Count is not more than the number of definitions). Off: duplicates allowed.")]
+        public bool noDuplicates;
     }
 
     public struct Assignment
@@ -33,9 +39,11 @@ public class PickupSpawner : MonoBehaviour
     public SpawnGroup[] groups = new SpawnGroup[0];
 
     [Header("Seed")]
-    [Tooltip("On: the same layout every run (for demos and testing).")]
+    [Tooltip("Off: a new random layout every run, restarts included. On: the layout of Fixed Seed every run (for recording demos).")]
     public bool useFixedSeed;
-    public int seed = 1;
+    [Tooltip("Used while Use Fixed Seed is on. Each run logs its seed to the Console: copy one here to replay that layout.")]
+    [FormerlySerializedAs("seed")]
+    public int fixedSeed = 1;
 
     [Header("Markers")]
     [Tooltip("Markers are read from under this object. Left empty, every PickupSpawnPoint in the scene is used.")]
@@ -55,12 +63,20 @@ public class PickupSpawner : MonoBehaviour
 
     public void Spawn()
     {
-        Spawn(useFixedSeed ? seed : Environment.TickCount);
+        Spawn(useFixedSeed ? fixedSeed : NewRandomSeed());
+    }
+
+    // A positive seed from the system clock, so no two runs (or restarts) share one.
+    public static int NewRandomSeed()
+    {
+        int seed = unchecked((int)DateTime.UtcNow.Ticks ^ (Environment.TickCount * 486187739)) & int.MaxValue;
+        return seed != 0 ? seed : 1;
     }
 
     public void Spawn(int layoutSeed)
     {
         var layout = ComputeLayout(layoutSeed, out string problems);
+        Debug.Log("[Time Trap] PickupSpawner seed " + layoutSeed + (useFixedSeed ? " (fixed)." : " (random). To replay this layout, put it in Fixed Seed and switch Use Fixed Seed on."), this);
         if (!string.IsNullOrEmpty(problems)) Debug.LogWarning("[Time Trap] PickupSpawner (seed " + layoutSeed + "): " + problems, this);
 
         // chest contents come from the same seed, in marker order
@@ -106,7 +122,23 @@ public class PickupSpawner : MonoBehaviour
                 if (group.count > 0) warn.Append("group '" + group.label + "' has no definitions. ");
                 continue;
             }
-            for (int i = 0; i < group.count; i++) items.Add(options[rng.Next(options.Count)]);
+            if (!group.noDuplicates)
+            {
+                for (int i = 0; i < group.count; i++) items.Add(options[rng.Next(options.Count)]);
+                continue;
+            }
+
+            // without replacement: each draw comes out of the pool
+            if (group.count > options.Count)
+                warn.Append("group '" + group.label + "' wants " + group.count + " different items but has only " + options.Count + " definitions: some repeat. ");
+            var pool = new List<PickupDefinition>(options);
+            for (int i = 0; i < group.count; i++)
+            {
+                if (pool.Count == 0) pool.AddRange(options);
+                int pick = rng.Next(pool.Count);
+                items.Add(pool[pick]);
+                pool.RemoveAt(pick);
+            }
         }
 
         // random marker order (Fisher-Yates), then item i goes on marker i
@@ -191,7 +223,7 @@ public class PickupSpawner : MonoBehaviour
     [ContextMenu("Preview Layout")]
     public string PreviewLayout()
     {
-        return PreviewLayout(useFixedSeed ? seed : Environment.TickCount);
+        return PreviewLayout(useFixedSeed ? fixedSeed : NewRandomSeed());
     }
 
     public string PreviewLayout(int layoutSeed)

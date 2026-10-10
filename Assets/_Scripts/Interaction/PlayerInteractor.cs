@@ -57,6 +57,8 @@ public class PlayerInteractor : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.InputBlocked) return;
+
         Target = FindTarget();
         GameHUD.Prompt(Target != null ? Target.PromptText : "");
 
