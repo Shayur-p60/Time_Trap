@@ -44,6 +44,8 @@ public class Pistol : MonoBehaviour
     public float ReloadProgress => IsReloading && reloadTime > 0f ? Mathf.Clamp01(1f - (reloadEndTime - Time.time) / reloadTime) : 0f;
 
     public event Action OnFired;
+    // The trigger was pulled on an empty magazine.
+    public event Action OnDryFire;
     public event Action OnReloadStarted;
     public event Action OnReloadFinished;
 
@@ -116,7 +118,11 @@ public class Pistol : MonoBehaviour
     public bool Fire()
     {
         if (inventory == null || !Ready || IsReloading || Time.time < nextFireTime) return false;
-        if (!inventory.TryUseRound()) return false;
+        if (!inventory.TryUseRound())
+        {
+            OnDryFire?.Invoke();
+            return false;
+        }
         nextFireTime = Time.time + fireInterval;
         ShotsFired++;
 

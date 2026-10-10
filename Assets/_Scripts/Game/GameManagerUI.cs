@@ -333,6 +333,7 @@ public class GameManagerUI : MonoBehaviour
         colours.colorMultiplier = 1f;
         colours.fadeDuration = 0.05f;
         button.colors = colours;
+        button.onClick.AddListener(GameAudio.UiClick);
         button.onClick.AddListener(action);
         return button;
     }

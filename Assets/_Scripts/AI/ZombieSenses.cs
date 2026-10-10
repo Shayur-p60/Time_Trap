@@ -127,10 +127,13 @@ public class ZombieSenses : MonoBehaviour
         return HasClearLine(target);
     }
 
-    // True when nothing solid is between the eyes and the point.
+    // True when nothing solid is between the eyes and the point. Much of the level is one-sided mesh colliders, which
+    // a line only hits from the front, so a line that finds nothing is checked again from the other end.
     public bool HasClearLine(Vector3 point)
     {
-        return !Physics.Linecast(EyePosition, point, obstructionMask, QueryTriggerInteraction.Ignore);
+        Vector3 eye = EyePosition;
+        if (Physics.Linecast(eye, point, obstructionMask, QueryTriggerInteraction.Ignore)) return false;
+        return !Physics.Linecast(point, eye, obstructionMask, QueryTriggerInteraction.Ignore);
     }
 
     // The zombie was told where the player is (it was shot, for example) without seeing them.

@@ -308,6 +308,7 @@ GameObject:
   - component: {fileID: 3072419326453327514}
   - component: {fileID: 8012737152273271300}
   - component: {fileID: 8963741518508597418}
+  - component: {fileID: 8342894693027161413}
   m_Layer: 2
   m_Name: FirstPersonController
   m_TagString: Player
@@ -386,6 +387,106 @@ MonoBehaviour:
   walkClip: {fileID: -203655887218126122, guid: 4cc7a4f96d6e5468681a761db16d2203, type: 3}
   runClip: {fileID: -203655887218126122, guid: 06b40f5469851427490b9b79cd7eca44, type: 3}
   animationCrossfadeSpeed: 6
+  pistolIdleClip: {fileID: 0}
+  pistolWalkForwardClip: {fileID: 0}
+  pistolWalkBackwardClip: {fileID: 0}
+  pistolStrafeLeftClip: {fileID: 0}
+  pistolStrafeRightClip: {fileID: 0}
+  flashlightIdleClip: {fileID: 0}
+  flashlightLowerClip: {fileID: 0}
+  flashlightRaiseClip: {fileID: 0}
+--- !u!114 &8342894693027161413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9198968080264174244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5223b41c9a6a64f438360c8a15f31232, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAudio
+  headBob: {fileID: 0}
+  controller: {fileID: 8012737152273271300}
+  movement: {fileID: 8963741518508597418}
+  pistol: {fileID: 0}
+  torch: {fileID: 0}
+  footsteps:
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    start: 0.27
+    length: 0.32
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    start: 1.63
+    length: 0.32
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    start: 3.15
+    length: 0.32
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    start: 3.67
+    length: 0.32
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    start: 4.11
+    length: 0.32
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    start: 4.55
+    length: 0.32
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 1
+    pitch: {x: 0.95, y: 1.05}
+    start: 6.07
+    length: 0.32
+    fadeOut: 0.06
+  walkVolume: 0.3
+  sprintVolume: 0.5
+  sprintPitch: 1.08
+  groundedGrace: 0.1
+  gunshot:
+    clip: {fileID: 8300000, guid: 95b03b3047575415bace01b03586999d, type: 3}
+    volume: 1
+    pitch: {x: 0.96, y: 1.04}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  reload:
+    clip: {fileID: 8300000, guid: 902730ca5861e46289566c0908ad150b, type: 3}
+    volume: 0.35
+    pitch: {x: 1, y: 1}
+    start: 0.5
+    length: 1.5
+    fadeOut: 0.1
+  emptyClick:
+    clip: {fileID: 8300000, guid: cbba4fb8779124e52bc7897c953a3511, type: 3}
+    volume: 0.35
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  torchClick:
+    clip: {fileID: 8300000, guid: 77daf4f773c01418fb612b9ce9fdd958, type: 3}
+    volume: 1
+    pitch: {x: 1, y: 1}
+    start: 0.19
+    length: 0.33
+    fadeOut: 0.03
 --- !u!1001 &2520075330890985783
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -809,13 +910,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89929cb697ca7492a917903b58afc78a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmSway
-  idleSwaySpeed: 2
-  idleSwayAmount: 0.01
-  walkSwaySpeed: 4
-  walkSwayAmount: 0.03
-  sprintSwaySpeed: 7
-  sprintSwayAmount: 0.06
   playerController: {fileID: 8012737152273271300}
+  lookSwayPosition: 0.00008
+  lookSwayMaxPosition: 0.02
+  lookSwayRotation: 0.012
+  lookSwayMaxRotation: 2.5
+  bobHeight: 0.012
+  bobSide: 0.008
+  stepDistance: 0.9
+  referenceSpeed: 3.5
+  smoothing: 9
 --- !u!4 &8383126167796867816 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2412161367050800168, guid: ba4cdcd58ceb9462abc5a12a07e29738, type: 3}

@@ -400,6 +400,8 @@ public class GameManager : MonoBehaviour
         ElevatorTeleport.ResetForNewPlaySession();  // riding
         ScreenFX.ResetForNewPlaySession();          // low-time value, Instance, and the full-screen shader's global properties
         PickupHighlight.ResetForNewPlaySession();   // SharedMaterial (PickupHighlightConfig sets it again on load)
+        GameAudio.ResetForNewPlaySession();         // Instance, the cached listener, Played
+        ZombieAudio.ResetForNewPlaySession();       // the groaning list and its counters
 
         // BeforeSceneLoad
         PlayerCatch.StartPlaySession();             // OnPlayerCaught, CatchCount, InvulnerableUntil, pending, player, respawnOnCatch; listens to OnPlayerRespawned again

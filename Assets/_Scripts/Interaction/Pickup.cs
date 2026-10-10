@@ -38,8 +38,14 @@ public abstract class Pickup : Interactable
         GameHUD.Message(message);
         if (!given) return;
         collected = true;
+        PlayCollectSound();
         PickupHighlight.Collect(gameObject);   // the outline fades out by itself, even if this object is destroyed now
         OnCollected();
+    }
+
+    protected virtual void PlayCollectSound()
+    {
+        GameAudio.Pickup();
     }
 
     // Give the reward. Return false to leave the pickup where it is (for example "Ammo full").

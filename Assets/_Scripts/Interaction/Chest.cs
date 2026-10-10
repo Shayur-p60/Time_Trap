@@ -55,6 +55,11 @@ public class Chest : Pickup
         return true;
     }
 
+    protected override void PlayCollectSound()
+    {
+        GameAudio.ChestOpen(transform.position);
+    }
+
     protected override void OnCollected()
     {
         // stays where it is, but goes dark so an opened chest is easy to tell from a closed one

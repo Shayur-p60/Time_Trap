@@ -61,13 +61,18 @@ public class FlashlightController : MonoBehaviour
 
     public bool IsOn => isOn;
 
+    // The switch was pressed and the light changed: (now on). Not raised when the battery runs flat.
+    public event System.Action<bool> OnToggled;
+
     // F pressed: always allowed to switch off; switching on needs some charge.
     public void ToggleLight()
     {
+        bool wasOn = isOn;
         if (isOn)
             SetOn(false);
         else if (currentBattery > 0f && currentBattery >= Mathf.Min(minBatteryToSwitchOn, maxBattery))
             SetOn(true);
+        if (isOn != wasOn) OnToggled?.Invoke(isOn);
     }
 
     // One frame of battery and flicker logic.

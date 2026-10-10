@@ -2804,6 +2804,221 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 131572808}
   m_Mesh: {fileID: 4300000, guid: e5df8617dc71545e9abd61c6dc22ee03, type: 2}
+--- !u!1 &134752090
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 134752091}
+  - component: {fileID: 134752092}
+  m_Layer: 0
+  m_Name: GameAudio
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &134752091
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134752090}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1208426597}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &134752092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134752090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2ea6d8a502354bfeb250d5b7b5b0e34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameAudio
+  zombiesGroup: {fileID: 243000010, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  sfxGroup: {fileID: 243000020, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  ambienceGroup: {fileID: 243000030, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  musicGroup: {fileID: 243000040, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  uiGroup: {fileID: 243000050, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  heartbeatGroup: {fileID: 243000060, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  boostGroup: {fileID: 243000070, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  generatorSurge:
+    clip: {fileID: 8300000, guid: 6e7ac9fcf832d48d399aa7d646e396c8, type: 3}
+    volume: 0.35
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  powerClunk:
+    clip: {fileID: 8300000, guid: b94d84c2964c546bba3c9d57204fcc68, type: 3}
+    volume: 0.45
+    pitch: {x: 1, y: 1}
+    start: 3.38
+    length: 0.32
+    fadeOut: 0.08
+  generatorLoop:
+    clip: {fileID: 8300000, guid: b94d84c2964c546bba3c9d57204fcc68, type: 3}
+    volume: 0.25
+    pitch: 1
+    start: 6.5
+    length: 22
+    overlap: 2
+  generatorLoopFadeIn: 4
+  doorOpen:
+    clip: {fileID: 8300000, guid: c0cf8cbb645d54dfba51ced2bdb6f6da, type: 3}
+    volume: 0.42
+    pitch: {x: 0.97, y: 1.03}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  doorClose:
+    clip: {fileID: 8300000, guid: 85223700633874819afcf2d455e5cd58, type: 3}
+    volume: 0.42
+    pitch: {x: 0.97, y: 1.03}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  elevatorMotor:
+    clip: {fileID: 8300000, guid: 044b23d9688fe443da7ffdac080073d5, type: 3}
+    volume: 0.65
+    pitch: 1
+    start: 2.5
+    length: 10
+    overlap: 1
+  elevatorDing:
+    clip: {fileID: 8300000, guid: 5621d13ad693a486293052411a8e3e14, type: 3}
+    volume: 0.35
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  downloadBeep:
+    clip: {fileID: 8300000, guid: e1872995ee5d24dfeb14b392c13e1232, type: 3}
+    volume: 0.2
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0.53
+    fadeOut: 0.03
+  downloadLoop:
+    clip: {fileID: 8300000, guid: f6b563fcc481d4f5cb0af9c87cf0cd9d, type: 3}
+    volume: 0.18
+    pitch: 1
+    start: 0
+    length: 0
+    overlap: 0.5
+  portalHum:
+    clip: {fileID: 8300000, guid: 2675c1bca2ddc4ad48320c1971ee7031, type: 3}
+    volume: 0.4
+    pitch: 1
+    start: 0
+    length: 1.75
+    overlap: 0.6
+  portalMinDistance: 2.5
+  portalMaxDistance: 30
+  pickup:
+    clip: {fileID: 8300000, guid: 08238afff1f194a70aa0619dcc9b6cc2, type: 3}
+    volume: 0.48
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  objectiveComplete:
+    clip: {fileID: 8300000, guid: 3efd87ebe08724d5c9d32bf54d64472f, type: 3}
+    volume: 0.8
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  chestOpen:
+    clip: {fileID: 8300000, guid: ad9b96e2dfc444f2db144e6a5d96485c, type: 3}
+    volume: 0.4
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  drone:
+    clip: {fileID: 8300000, guid: 2eac83b2ab694436991f3d32415238db, type: 3}
+    volume: 0.8
+    pitch: 1
+    start: 0
+    length: 0
+    overlap: 0.5
+  stage2Hum:
+    clip: {fileID: 8300000, guid: c675b2ff2b1214f03915790982e357a5, type: 3}
+    volume: 0.12
+    pitch: 1
+    start: 0
+    length: 0
+    overlap: 0.5
+  stage2Bed:
+    clip: {fileID: 8300000, guid: 9c5ec9a49ac714215aa269f427c90021, type: 3}
+    volume: 0.2
+    pitch: 1
+    start: 0
+    length: 0
+    overlap: 0.5
+  ambienceFade: 2.5
+  heartbeat:
+    clip: {fileID: 8300000, guid: 8523b517cc8204de0ba265ba9d186983, type: 3}
+    volume: 0.11
+    pitch: 1
+    start: 0.3
+    length: 20.65
+    overlap: 0.05
+  heartbeatPitch: {x: 1, y: 1.6}
+  clockTick:
+    clip: {fileID: 8300000, guid: 112742e8e0e0d4ea189ff54bfbce19bd, type: 3}
+    volume: 0.6
+    pitch: {x: 1, y: 1}
+    start: 7.59
+    length: 0.35
+    fadeOut: 0.2
+  tickInterval: {x: 1, y: 0.3}
+  catchSting:
+    clip: {fileID: 8300000, guid: 10545b387036c489da42a2755fcd3ce6, type: 3}
+    volume: 0.35
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 2.5
+    fadeOut: 1
+  winSting:
+    clip: {fileID: 8300000, guid: c2ac29458c82e43d196374995695cbd3, type: 3}
+    volume: 0.6
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 5.5
+    fadeOut: 1.2
+  loseSting:
+    clip: {fileID: 8300000, guid: 10545b387036c489da42a2755fcd3ce6, type: 3}
+    volume: 0.7
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  uiClick:
+    clip: {fileID: 8300000, guid: e7e8bfe31c47143db8573e3649e0ee8c, type: 3}
+    volume: 0.9
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  endFade: 1.5
+  worldMinDistance: 2
+  worldMaxDistance: 22
+  voiceCount: 14
 --- !u!1 &135430008
 GameObject:
   m_ObjectHideFlags: 0
@@ -41377,6 +41592,7 @@ Transform:
   - {fileID: 66930039}
   - {fileID: 1576641147}
   - {fileID: 1410553908}
+  - {fileID: 134752091}
   m_Father: {fileID: 1274742017}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1208426598
