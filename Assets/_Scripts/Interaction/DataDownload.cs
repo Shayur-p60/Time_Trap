@@ -59,6 +59,7 @@ public class DataDownload : Interactable
             progress = downloadTime;
             IsComplete = true;
             ShowBar(false);
+            PickupHighlight.Collect(gameObject);
             if (GameProgress.Instance != null) GameProgress.Instance.Complete(Objective.Data);
             else Debug.LogWarning("[DataDownload] Finished, but there is no GameProgress in the scene to record it.");
             return;
@@ -80,6 +81,7 @@ public class DataDownload : Interactable
     void OnEnable()
     {
         GameProgress.OnProgressReset += HandleReset;
+        if (!IsComplete) PickupHighlight.Ensure(gameObject);
     }
 
     void OnDisable()
@@ -95,6 +97,7 @@ public class DataDownload : Interactable
         NoisePulses = 0;
         IsComplete = false;
         lastHoldFrame = -10;
+        PickupHighlight.Restore(gameObject);
         if (barShown) ShowBar(false);
     }
 }

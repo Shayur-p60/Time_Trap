@@ -16,6 +16,7 @@ public class PathogenSample : Interactable
     void Awake()
     {
         GameProgress.OnProgressReset += HandleReset;
+        PickupHighlight.Ensure(gameObject);
     }
 
     void OnDestroy()
@@ -27,6 +28,7 @@ public class PathogenSample : Interactable
     {
         if (Taken) return;
         Taken = true;
+        PickupHighlight.Collect(gameObject);
         if (GameProgress.Instance != null) GameProgress.Instance.Complete(Objective.Pathogen);
         else Debug.LogWarning("[PathogenSample] Taken, but there is no GameProgress in the scene to record it.");
         (visual != null ? visual : gameObject).SetActive(false);
@@ -36,5 +38,6 @@ public class PathogenSample : Interactable
     {
         Taken = false;
         (visual != null ? visual : gameObject).SetActive(true);
+        PickupHighlight.Restore(gameObject);
     }
 }

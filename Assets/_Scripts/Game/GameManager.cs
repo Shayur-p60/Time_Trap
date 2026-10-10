@@ -398,6 +398,8 @@ public class GameManager : MonoBehaviour
         PowerUps.ResetForNewPlaySession();          // OnFlashPulse, OnZombieFreeze, OnZombieFreezeEnded, FreezeEndTime (the zombie-freeze flag), CompassTargets
         ZombieAI.ResetForNewPlaySession();          // All, OnAnyDeathStarted, sceneDoors
         ElevatorTeleport.ResetForNewPlaySession();  // riding
+        ScreenFX.ResetForNewPlaySession();          // low-time value, Instance, and the full-screen shader's global properties
+        PickupHighlight.ResetForNewPlaySession();   // SharedMaterial (PickupHighlightConfig sets it again on load)
 
         // BeforeSceneLoad
         PlayerCatch.StartPlaySession();             // OnPlayerCaught, CatchCount, InvulnerableUntil, pending, player, respawnOnCatch; listens to OnPlayerRespawned again

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TimeDistortionFullscreen
+  m_Shader: {fileID: 4800000, guid: bd6958c77879d4767b83be48d3b8b376, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: a4ddc285efe2d45db8483c3cd78e82ef, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _DangerDarken: 0.5
+    - _DangerDesaturate: 0.4
+    - _FrostReach: 0.2
+    - _GlitchScanlines: 0.35
+    - _GlitchSliceShift: 0.07
+    - _GlitchSlices: 26
+    - _GlitchSplit: 0.012
+    - _PulseBarrel: 0.1
+    m_Colors:
+    - _FrostColor: {r: 0.62, g: 0.86, b: 1, a: 1}
+    - _PulseColor: {r: 0.85, g: 0.04, b: 0.02, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -38,6 +38,7 @@ public abstract class Pickup : Interactable
         GameHUD.Message(message);
         if (!given) return;
         collected = true;
+        PickupHighlight.Collect(gameObject);   // the outline fades out by itself, even if this object is destroyed now
         OnCollected();
     }
 
@@ -99,6 +100,9 @@ public abstract class Pickup : Interactable
             idle.target = visual;
             idle.enabled = definition.idleSpinBob && visual != null;
         }
+
+        // the outline (shaders part B); does nothing outside Play mode
+        if (!collected) PickupHighlight.Ensure(gameObject);
     }
 
     // ------------------------------------------------------------------ creation by definition

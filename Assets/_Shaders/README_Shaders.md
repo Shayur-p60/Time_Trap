@@ -1,6 +1,6 @@
-# Time Trap – custom shaders (part A)
+# Time Trap – custom shaders (parts A and B)
 
-Four hand-written HLSL shaders for URP 17.5 (Unity 6, Forward+). No Shader Graph. Each one includes URP's
+Seven hand-written HLSL shaders for URP 17.5 (Unity 6, Forward+). No Shader Graph. Each one includes URP's
 `Core.hlsl` (and `Lighting.hlsl` where it needs lights) for the matrices and light data, and does its own maths.
 
 | Shader | File | Used on | Driver script |
@@ -9,22 +9,26 @@ Four hand-written HLSL shaders for URP 17.5 (Unity 6, Forward+). No Shader Graph
 | `TimeTrap/FlashlightBeam` | `FlashlightBeam.shader` | `FlashlightBeamPivot/BeamCone` | `FlashlightBeamCone`, `TorchShaderGlobals` |
 | `TimeTrap/DustParticles` | `DustParticles.shader` | `Camera/DustMotes`, `Map/ShaderFX/Spores_*` | `TorchShaderGlobals` |
 | `TimeTrap/TimePortal` | `TimePortal.shader` | `EscapePortal_GateB/Visual/Disc` | `EscapePortal` |
+| `TimeTrap/TimeDistortionFullscreen` | `TimeDistortionFullscreen.shader` | Full Screen Pass feature on `PC_Renderer` | `ScreenFX` |
+| `TimeTrap/BioreactorFluid` | `BioreactorFluid.shader` | `Map/ShaderFX/BioreactorFluid` (pit pool, tank strips) | none |
+| `TimeTrap/PickupHighlight` | `PickupHighlight.shader` | every pickup and objective item, added at runtime | `PickupHighlight`, `PickupHighlightConfig` |
 
 Materials are in `Assets/_Materials/Shaders/`. Scripts are in `Assets/_Scripts/Shaders/`.
 `Textures/TT_Noise.png` is a generated, tileable noise texture (R and G hold two different noise patterns); the
-dissolve, the beam and the portal all read it.
+dissolve, the beam, the portal, the frost and the fluid all read it.
 
-**Things that apply to all four**
+**Things that apply to all seven**
 
 - **SRP Batcher:** every per-material property is declared once inside `CBUFFER_START(UnityPerMaterial)`, and the
   buffer is identical in every pass of a shader (in `ZombieSurface` it sits in an `HLSLINCLUDE` block shared by all
   four passes). Values set from scripts as globals (`_TorchPositionWS` and friends) are deliberately outside it.
 - **Forward+:** in URP 17 the keyword is `_CLUSTER_LIGHT_LOOP` (older versions called it `_FORWARD_PLUS`).
-  `ZombieSurface` declares it and loops over lights with `LIGHT_LOOP_BEGIN` / `LIGHT_LOOP_END`.
+  `ZombieSurface` and `BioreactorFluid` declare it and loop over lights with `LIGHT_LOOP_BEGIN` / `LIGHT_LOOP_END`.
 - **Before/after:** press **F9** in Play mode (`ShaderDevToggle`, editor and development builds only). Zombies swap to
   plain URP Lit with the same textures, the portal swaps to its old placeholder material, and the beam and dust are
-  hidden (they have no URP Lit equivalent). F9 again switches back. The runner's red tint is not carried over to the
-  plain version.
+  hidden (they have no URP Lit equivalent). The pit pool becomes a flat URP Lit surface, the tank strips and the
+  pickup outlines are hidden, and the full-screen effect is switched off. F9 again switches back. The runner's red
+  tint is not carried over to the plain version.
 
 ---
 
@@ -287,12 +291,209 @@ half3 scene = SampleSceneColor(screenUV + push);
 
 ---
 
+## 5. TimeTrap/TimeDistortionFullscreen
+
+**What it does.** One full-screen post-processing shader with five states: a time-rewind glitch when the player is
+caught or respawns, a red heartbeat vignette as time runs out, frost during Zombie Freeze, a white bloom-out for
+Flash Pulse, and a subtle darkening when a zombie is chasing close by.
+
+**How it is drawn.** A URP **Full Screen Pass Renderer Feature** on `PC_Renderer` (named `TimeDistortionFullscreen`),
+injected *after* URP's post-processing, so it sits on top of the `TT_PostFX` volume without touching it, and before
+the UI, so the HUD and menus are never distorted. The feature gives the shader the finished frame as `_BlitTexture`.
+
+**Techniques**
+
+- *Reading the frame back and moving the read position*: every effect is a change to *where* the frame is sampled
+  (distortion) or to the colour that comes back.
+- *RGB split (chromatic aberration)*: red, green and blue are read from three slightly different places.
+- *Row slicing*: the screen is cut into rows and a pseudo-random half of them slide sideways; a hash function
+  re-rolls them 24 times a second.
+- *Scanlines*: a sine wave down the screen dims alternate pixel rows.
+- *Desaturation*: blend toward the pixel's grey value (its luminance).
+- *Vignette*: a mask that is 0 in the middle of the screen and 1 at the corners.
+- *Heartbeat*: a sine wave raised to a power gives a short sharp beat; the script advances its phase faster as
+  time runs out.
+- *Barrel distortion*: pixels are read from closer to the centre the further out they are.
+- *Frost*: two noise lookups at different sizes and angles are multiplied (so the texture's repeat does not show)
+  and creep in from the screen's border.
+- *Bloom-out*: the frame is multiplied up so bright areas clip first, then the whole screen goes white.
+
+**States and their drivers (`ScreenFX`, on `Map/Gameplay/ScreenFX`)**
+
+| Global property | Trigger | Timing |
+|---|---|---|
+| `_Glitch` | `PlayerEvents.OnPlayerKilled`, `CheckpointManager.OnPlayerRespawned` | 1 → 0 over 0.6 s, on real time |
+| `_Pulse` (+ `_PulsePhase`) | `ScreenFX.SetLowTime(0–1)`, called by `GameManager` over the last 60 s | follows the value; 1.1 → 3.2 beats per second |
+| `_Frost` | `PowerUps.OnZombieFreeze` … `OnZombieFreezeEnded` | fades over 0.4 s, on for the whole freeze |
+| `_Flash` | `PowerUps.OnFlashPulse` | 1 → 0 over 0.2 s, on real time |
+| `_Danger` | nearest zombie in Chase or Attack within 8 m | 0 at 8 m, rising as it closes in |
+
+- **Idle cost is zero.** While all five are 0, `ScreenFX` switches the renderer feature off and URP skips the pass.
+  The feature is saved switched off in `PC_Renderer`; `ScreenFX` switches it off again when it is disabled, so a
+  Play session leaves the asset unchanged.
+- **Pause** (`timeScale` 0): the glitch and flash run on unscaled time, so they always finish. Pulse, frost and
+  danger keep their values and the animation clock stops, so the picture is frozen with the game.
+- **End screens**: everything fades to 0 in 0.3 s (unscaled) once the run is won or lost.
+- **Restart**: `GameManager.ResetAllStatics()` calls `ScreenFX.ResetForNewPlaySession()`.
+- **F9** turns the whole effect off.
+
+**Module concepts shown:** post-processing (a custom full-screen pass), texture/UV mapping (distorting screen UVs,
+noise), colour operations (desaturation, tint, vignette), global shader properties driven by gameplay.
+
+**Key lines for a slide**
+
+```hlsl
+// RGB split: read red, green and blue from three different places
+float split = _GlitchSplit * _Glitch;
+colour.r = SampleScreen(uv + float2(split, 0.0)).r;
+colour.g = SampleScreen(uv).g;
+colour.b = SampleScreen(uv - float2(split, 0.0)).b;
+```
+
+```hlsl
+// glitch: cut the screen into rows and slide about half of them sideways
+float tick = floor(_ScreenFxClock.y * 24.0);
+float row = floor(uv.y * _GlitchSlices);
+float moved = step(0.55, Hash(float2(tick, row * 1.7)));
+uv.x += (Hash(float2(row, tick)) - 0.5) * moved * _GlitchSliceShift * _Glitch;
+```
+
+```hlsl
+// low time: a heartbeat, a barrel distortion and a red vignette
+half beat = pow(saturate(0.5 + 0.5 * sin(_PulsePhase)), 4.0);
+half pulse = _Pulse * (0.35 + 0.65 * beat);
+uv = 0.5 + fromCentre * (1.0 - _PulseBarrel * pulse * dot(fromCentre, fromCentre) * 4.0);
+colour = lerp(colour, _PulseColor.rgb * (grey * 0.6 + 0.3), redVignette * pulse);
+```
+
+---
+
+## 6. TimeTrap/BioreactorFluid
+
+**What it does.** The toxic green liquid in the Bioreactors room: a pool on the pit floor, and the liquid seen
+through the sight-glass strip on every culture tank.
+
+**Geometry.** The room came with no liquid meshes (the tanks are opaque), so two kinds were added under
+`Map/ShaderFX/BioreactorFluid`. Neither has a collider, and the pit death zone is untouched.
+
+- `PitPool`: a flat 38 × 36 m grid (`PitFluidPlane.asset`, 76 × 72 cells so the waves have vertices to move) at
+  y = −15.3, about 0.8 m above the lowest floor. The tank platforms stay dry.
+- 84 `TankFluid_*` strips: a copy of each tank's sight-glass sub-mesh, pushed 4 mm outward so it sits just in front
+  of the original. The UC pack's renderers and materials are not changed.
+
+Two materials: `BioreactorFluid_Pit` (waves, depth colour, foam) and `BioreactorFluid_Tank` (no waves, opaque,
+more bubbles).
+
+**Techniques**
+
+- *Sum-of-sines waves (vertex)*: three sine waves with different directions, wavelengths and heights are added.
+- *Normals from derivatives (vertex)*: the slope of each wave is its cosine; the normal of a surface `y = h(x, z)`
+  is `(-dh/dx, 1, -dh/dz)`.
+- *Depth-based colour*: scene depth minus the surface's depth gives the thickness of liquid; colour and opacity
+  follow Beer's law (`1 - exp(-thickness × density)`), so thicker reads darker.
+- *Foam line (depth intersection)*: where the thickness is nearly zero the surface is touching a wall or a machine.
+- *Blinn-Phong specular* from the main light and all additional lights through the Forward+ light loop.
+- *Fresnel reflection*: at grazing angles the reflection replaces the liquid's own colour.
+- *Bubbles*: two noise layers multiplied; they scroll upward on vertical faces (tanks) and drift on the pool.
+- *Emissive glow*, dimmer where the liquid is thick, so the pool and its depth read in Stage 1 darkness.
+- *Blending*: transparent, alpha blended, no depth write (it must not be in the depth texture it reads).
+
+**F9:** the pool becomes a flat URP Lit surface (`BioreactorFluid_Plain`); the tank strips are hidden, showing the
+original sight glass.
+
+**Module concepts shown:** vertex animation, lighting models (Blinn-Phong, fresnel), depth (depth texture, soft
+intersection), blending, texture/UV mapping (scrolling noise), emission.
+
+**Key lines for a slide**
+
+```hlsl
+// vertex: one sine wave adds its height and its slope
+float phase = dot(direction, xz) * k + _Time.y * _WaveSpeed * k;
+height += amplitude * sin(phase);
+slope  += direction * (amplitude * k * cos(phase));    // derivative of sin is cos
+...
+// normal of the surface y = h(x, z)
+half3 waveNormalWS = normalize(half3(-slope.x, 1.0, -slope.y));
+```
+
+```hlsl
+// depth colour: how much liquid is between the surface and what is behind it?
+float thickness = max(sceneEyeDepth - input.eyeDepth, 0.0);
+half depth01 = 1.0 - exp(-thickness * _DepthDensity);          // Beer's law
+half3 body = lerp(_ShallowColor.rgb, _DeepColor.rgb, depth01);
+```
+
+```hlsl
+// foam: where the liquid is thinner than the foam width, it is touching something
+half foamEdge = thickness + (rippleB - 0.5) * _FoamWidth * 0.9;
+half foam = (1.0 - smoothstep(0.0, _FoamWidth, foamEdge)) * upness * _FoamAmount;
+```
+
+---
+
+## 7. TimeTrap/PickupHighlight
+
+**What it does.** A pulsing cyan outline, with a faint glow on the item itself, on everything the player can take
+or use: pistol, ammo, batteries, power-ups, chests, the vaccine case and the data processor.
+
+**Techniques**
+
+- *Inverted hull outline*: the mesh is drawn a second time, every vertex pushed outward along its normal, with only
+  back faces drawn (`Cull Front`). The item hides the middle of this shell, so only a rim is left.
+- *Screen-space-constant width*: the push is done in clip space and multiplied by `positionCS.w`, which cancels
+  the perspective divide. The outline is 4 pixels wide at any distance.
+- *Fresnel glow*: a second pass on the item's front faces, brighter toward the silhouette.
+- *Two passes in URP*: URP draws one pass per LightMode tag, so the outline uses `SRPDefaultUnlit` and the glow
+  uses `UniversalForward`.
+- *Visibility in the vertex shader*: shown when the item's pivot is within 6 m of the camera (fading out to 7.5 m),
+  or inside the torch cone and within 18 m, using the global torch properties from part A. Hidden items collapse
+  to a single point, so no pixels are drawn.
+- *Blending*: additive, no depth write.
+
+**Script side.** `PickupHighlight` is added at runtime by `Pickup` (which covers `Chest` and every spawned pickup),
+`PathogenSample` and `DataDownload`. It makes a child object per mesh that draws the mesh again with the highlight
+material; the item's own materials are untouched. Because the shader decides visibility, no script runs per frame.
+On collection the shells are detached and `_Fade` goes 1 → 0 over 0.4 s, so the outline fades out even though the
+item has already been destroyed. `PickupHighlightConfig` (on `Map/Gameplay`) holds the material, since pickups
+created by `PickupSpawner` cannot carry a reference of their own.
+
+**Module concepts shown:** vertex manipulation (extrusion along normals, clip-space maths), culling, blending,
+fresnel, global shader properties shared between shaders.
+
+**Key lines for a slide**
+
+```hlsl
+// outline: push the vertex outward by _OutlineWidth pixels, whatever the distance
+float2 normalOnScreen = mul((float3x3)UNITY_MATRIX_VP, normalWS).xy;
+normalOnScreen = normalize(normalOnScreen + float2(0.00001, 0.0));
+positionCS.xy += normalOnScreen * (_OutlineWidth * 2.0 / _ScreenParams.xy) * positionCS.w;
+```
+
+```hlsl
+Cull Front         // back faces only: the shell is seen from the inside
+ZTest LEqual       // the item itself hides the shell's middle
+Blend One One      // additive
+```
+
+```hlsl
+// visible when near the player, or when the torch beam points at it
+half nearby = 1.0 - smoothstep(_NearDistance, _NearDistance + _NearFade, cameraDistance);
+half inCone = smoothstep(_TorchParams.x, _TorchParams.y, cosAngle);
+half inBeam = inCone * step(torchDistance, min(_TorchParams.z, _TorchReach)) * _TorchParams.w;
+return max(nearby, inBeam) * _Fade;
+```
+
+---
+
 ## URP settings these shaders rely on
 
-`Assets/Settings/PC_RPAsset.asset` already had both switched on; nothing was changed.
+`Assets/Settings/PC_RPAsset.asset` already had both textures switched on; nothing was changed there.
 
-- **Depth Texture**: beam, dust and spores.
+- **Depth Texture**: beam, dust and spores, fluid (depth colour and foam).
 - **Opaque Texture**: portal refraction.
+- **`PC_Renderer`**: one renderer feature was added, a Full Screen Pass named `TimeDistortionFullscreen` (injection
+  point After Rendering Post Processing, Fetch Color Buffer on, material `TimeDistortionFullscreen`). It is saved
+  switched off; `ScreenFX` switches it on only while an effect is showing.
 
 ## Performance
 
@@ -311,8 +512,26 @@ The beam is the most expensive of the four because it runs a loop for every pixe
 of the screen. 12 steps looked the same as 16 in the corridor test, so it ships at 12 (`#define STEPS` in
 `FlashlightBeam.shader`). The portal was not measured separately.
 
+**Part B**, same machine and method, 270 renders per figure. These views are heavier (13–18 ms a render in Stage 2),
+and the figures moved by about ±0.4 ms between runs, so treat them as rough.
+
+| Setup | ms per render | Cost |
+|---|---|---|
+| Bioreactors bridge, neither full-screen pass nor fluid | 16.81 | |
+| Full-screen pass only (an effect showing) | 17.64 | about 0.8 ms |
+| Fluid only (pool and 84 tank strips) | 17.78 | about 1.0 ms |
+| Both | 17.76 | about 1.0 ms together (within the noise of either alone) |
+| Chest at 3 m, with / without the 40 outline shells | 12.92 / 13.23 | too small to measure |
+
+The full-screen pass costs nothing while no effect is showing, because the renderer feature is switched off.
+
 ## Screenshots
 
 `Screenshots/ShaderReview/`, each in Stage 1 and Stage 2 lighting: zombie in the torch, hit flash, frozen,
 mid-dissolve, beam in a corridor, beam at a close wall, dust in the beam, spores in the Shelter, portal activating,
 portal open, plus the F9 before/after pair. Files ending `_beam_hidden` and `_refraction_off` are comparison shots.
+
+`Screenshots/ShaderReviewB/` (part B): each full-screen state (pulse at 0.5 and 1.0, frost, flash, glitch, danger),
+the paused and loss-screen checks, the pit pool and tanks in Stage 1 and Stage 2, a close-up of the waves and foam,
+a pickup outlined at 4 m and not at 10 m, the outline fading after collection, a chest, and the F9 pair. The glitch,
+flash and collection fade were slowed down to capture them; files ending `_zoomed` use a narrow field of view.

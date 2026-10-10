@@ -4,7 +4,8 @@ using UnityEngine;
 // Dev tool for the presentation: F9 swaps everything drawn with a TimeTrap/ shader to plain URP Lit, and back.
 //   - opaque custom materials (the zombies) become a URP Lit material with the same textures
 //   - materials listed under Overrides become the plain material given there (the portal -> its old placeholder)
-//   - any other transparent custom material (the beam, the dust) has no "plain" look, so it is hidden
+//   - any other transparent custom material (the beam, the dust, the pickup outline) has no "plain" look, so it is hidden
+//   - the full-screen effect is switched off as well (ScreenFX checks Plain)
 // Editor and development builds only; in a release build this script does nothing.
 public class ShaderDevToggle : MonoBehaviour
 {
