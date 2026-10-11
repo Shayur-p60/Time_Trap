@@ -309,6 +309,7 @@ GameObject:
   - component: {fileID: 8012737152273271300}
   - component: {fileID: 8963741518508597418}
   - component: {fileID: 8342894693027161413}
+  - component: {fileID: 6506433576460895971}
   m_Layer: 2
   m_Name: FirstPersonController
   m_TagString: Player
@@ -412,52 +413,145 @@ MonoBehaviour:
   movement: {fileID: 8963741518508597418}
   pistol: {fileID: 0}
   torch: {fileID: 0}
+  stamina: {fileID: 6506433576460895971}
   footsteps:
   - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
-    volume: 1
-    pitch: {x: 0.95, y: 1.05}
-    start: 0.27
-    length: 0.32
+    volume: 0.7751938
+    pitch: {x: 0.96, y: 1.04}
+    start: 0.3005
+    length: 0.25
     fadeOut: 0.06
   - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
     volume: 1
-    pitch: {x: 0.95, y: 1.05}
-    start: 1.63
-    length: 0.32
+    pitch: {x: 0.96, y: 1.04}
+    start: 1.6406
+    length: 0.25
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 0.5494506
+    pitch: {x: 0.96, y: 1.04}
+    start: 3.1928
+    length: 0.25
     fadeOut: 0.06
   - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
     volume: 1
-    pitch: {x: 0.95, y: 1.05}
-    start: 3.15
-    length: 0.32
+    pitch: {x: 0.96, y: 1.04}
+    start: 3.685
+    length: 0.25
+    fadeOut: 0.06
+  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    volume: 0.91463417
+    pitch: {x: 0.96, y: 1.04}
+    start: 4.1388
+    length: 0.25
     fadeOut: 0.06
   - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
     volume: 1
-    pitch: {x: 0.95, y: 1.05}
-    start: 3.67
-    length: 0.32
+    pitch: {x: 0.96, y: 1.04}
+    start: 4.5718
+    length: 0.25
     fadeOut: 0.06
   - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
-    volume: 1
-    pitch: {x: 0.95, y: 1.05}
-    start: 4.11
-    length: 0.32
+    volume: 0.99337757
+    pitch: {x: 0.96, y: 1.04}
+    start: 6.0895
+    length: 0.25
     fadeOut: 0.06
-  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+  runFootsteps:
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.9677419
+    pitch: {x: 0.96, y: 1.04}
+    start: 0.3043
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.6726457
+    pitch: {x: 0.96, y: 1.04}
+    start: 0.8696
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.9782608
+    pitch: {x: 0.96, y: 1.04}
+    start: 1.1399
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
     volume: 1
-    pitch: {x: 0.95, y: 1.05}
-    start: 4.55
-    length: 0.32
-    fadeOut: 0.06
-  - clip: {fileID: 8300000, guid: 0def80ee3da6c4ecfbc0d1f7b9ab0133, type: 3}
+    pitch: {x: 0.96, y: 1.04}
+    start: 1.4293
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.7020281
+    pitch: {x: 0.96, y: 1.04}
+    start: 1.7301
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
     volume: 1
-    pitch: {x: 0.95, y: 1.05}
-    start: 6.07
-    length: 0.32
-    fadeOut: 0.06
-  walkVolume: 0.3
-  sprintVolume: 0.5
-  sprintPitch: 1.08
+    pitch: {x: 0.96, y: 1.04}
+    start: 2.0026
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.5992011
+    pitch: {x: 0.96, y: 1.04}
+    start: 2.2954
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.9656652
+    pitch: {x: 0.96, y: 1.04}
+    start: 2.8202
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.5603985
+    pitch: {x: 0.96, y: 1.04}
+    start: 3.0928
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.72347265
+    pitch: {x: 0.96, y: 1.04}
+    start: 3.369
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 1
+    pitch: {x: 0.96, y: 1.04}
+    start: 3.6386
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 0.7692308
+    pitch: {x: 0.96, y: 1.04}
+    start: 4.1941
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 1
+    pitch: {x: 0.96, y: 1.04}
+    start: 4.7436
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 1
+    pitch: {x: 0.96, y: 1.04}
+    start: 5.5865
+    length: 0.2
+    fadeOut: 0.05
+  - clip: {fileID: 8300000, guid: 3ddd4ac1555394c1ab7e71530fb38d3c, type: 3}
+    volume: 1
+    pitch: {x: 0.96, y: 1.04}
+    start: 6.4815
+    length: 0.2
+    fadeOut: 0.05
+  walkVolume: 0.21
+  runVolume: 0.18
+  stepVolumeVariation: 0.1
+  stepPhaseOffset: 0.75
   groundedGrace: 0.1
   gunshot:
     clip: {fileID: 8300000, guid: 95b03b3047575415bace01b03586999d, type: 3}
@@ -487,6 +581,35 @@ MonoBehaviour:
     start: 0.19
     length: 0.33
     fadeOut: 0.03
+  pantStart: 0.8
+  pantVolume: {x: 0.1, y: 0.4}
+  pantFade: 0.5
+  gasp:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  pantNoiseInterval: 1.5
+  pantNoiseRadius: 5
+--- !u!114 &6506433576460895971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9198968080264174244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f12bab9501fd4c9a9955125f5c87c07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStamina
+  drainTime: 5
+  rechargeDelay: 1.5
+  rechargeTime: 4
+  resumeThreshold: 0.25
+  minMoveSpeed: 0.5
 --- !u!1001 &2520075330890985783
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -911,6 +1034,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArmSway
   playerController: {fileID: 8012737152273271300}
+  headBob: {fileID: 0}
   lookSwayPosition: 0.00008
   lookSwayMaxPosition: 0.02
   lookSwayRotation: 0.012

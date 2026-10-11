@@ -110,9 +110,12 @@ public class PlayerMovementController : MonoBehaviour
     /// <summary>Horizontal velocity relative to the way the player faces (x = right, z = forward), in m/s.</summary>
     public Vector3 LocalGroundVelocity { get; private set; }
     public float WalkSpeed => moveSpeed;
+    public float SprintSpeed => sprintSpeed;
 
     /// <summary>False while the pistol is drawn: the sprint key is ignored and the player moves at walk speed.</summary>
     public bool SprintAllowed { get; set; } = true;
+    /// <summary>True while the player is exhausted (PlayerStamina): the sprint key does nothing, so there is no sprint, no auto-holster and no lowered torch.</summary>
+    public bool SprintBlocked { get; set; }
     /// <summary>The player is holding sprint and a movement key (and is not crouching), whether or not sprint is allowed.</summary>
     public bool WantsSprint { get; private set; }
     /// <summary>The player is sprinting right now.</summary>
@@ -310,7 +313,7 @@ public class PlayerMovementController : MonoBehaviour
 
         bool isCrouchHeld = Input.GetKey(crouchKey);
         bool sprintHeld = scriptedInput ? scriptedSprint : Input.GetKey(sprintKey);
-        WantsSprint = !isCrouchHeld && sprintHeld && moveDirection.sqrMagnitude > 0.01f;
+        WantsSprint = !isCrouchHeld && sprintHeld && !SprintBlocked && moveDirection.sqrMagnitude > 0.01f;
         bool isSprinting = WantsSprint && SprintAllowed;
         float targetSpeed = isCrouchHeld ? crouchSpeed : (isSprinting ? sprintSpeed : moveSpeed);
         targetSpeed *= SpeedMultiplier;

@@ -22,7 +22,9 @@ source information: fill those in before release.
 | `Player/Player_Reload.mp3` | Not recorded | Pistol reload |
 | `Player/Player_EmptyClick.mp3` | freesound_community, Pixabay ("empty-gun-shot") | Trigger pulled on an empty magazine |
 | `Player/Player_TorchClick.mp3` | Downloaded from Google Drive, original source not recorded | Torch and weapon-light switch |
-| `Player/Player_Footsteps_Concrete.mp3` | freesound_community, Pixabay ("concrete-footsteps-1") | Player footsteps (seven steps cut from the file) |
+| `Player/Player_Footsteps_Concrete.mp3` | freesound_community, Pixabay ("concrete-footsteps-1") | Walking footsteps (seven steps cut from the file) |
+| `Player/Player_Run_Concrete_01.mp3` | freeeverythingxx, Pixabay ("running-on-concrete") | Sprinting footsteps (fifteen steps cut from the file) |
+| `Player/Player_Pant_01.mp3` | freesound_community, Pixabay ("panting") | Panting as stamina runs down (first 12.5 s, looped) |
 
 ## World
 
@@ -47,7 +49,7 @@ source information: fill those in before release.
 | --- | --- | --- |
 | `UI/Ambience_DarkDrone_Loop.mp3` | Not recorded | Facility drone, from the start |
 | `UI/Ambience_Industrial_Loop.mp3` | Not recorded | Machinery bed, from Stage 2 |
-| `UI/UI_Clock_Chime.mp3` | Not recorded | Clock tick in the last minute (one chime strike) |
+| `UI/UI_Clock_Chime.mp3` | Not recorded | Not used (the low-time chime was removed) |
 | `UI/UI_Sting_Horror.mp3` | Downloaded from Google Drive, original source not recorded | Catch sting (opening) and the lose sting (whole) |
 | `UI/UI_Sting_Win.mp3` | alexzavesa, Pixabay ("epic-piano-cinematic-sadness-opener") | Win sting |
 | `UI/UI_Heartbeat_Loop.mp3` | dragon-studio, Pixabay ("heartbeat-sound") | Heartbeat when a chasing zombie is close |
@@ -56,3 +58,9 @@ source information: fill those in before release.
 | `UI/UI_Collect.mp3` | Downloaded from Google Drive, original source not recorded | Objective completed (power, pathogen, data) |
 
 Pixabay sounds are used under the Pixabay Content License.
+
+## Third-party assets
+
+| Asset | Source | Licence | Used for |
+| --- | --- | --- | --- |
+| Low Poly Shooter Pack - Free Sample, by Infima Games | Unity Asset Store | Standard Unity Asset Store EULA | Handgun model only (`SK_Handgun_03`, with its 4 materials and 6 textures, in `Assets/_ThirdParty/LowPolyShooter/`). The materials were converted to URP Lit. No scripts, animations or other content from the pack are used. |

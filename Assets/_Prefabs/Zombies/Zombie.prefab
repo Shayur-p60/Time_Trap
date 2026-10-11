@@ -390,6 +390,7 @@ MonoBehaviour:
     length: 1
     fadeOut: 0.1
   output: {fileID: 243000010, guid: a2e9204277102424bae462eda1df72a5, type: 2}
+  attackOutput: {fileID: 243000080, guid: a2e9204277102424bae462eda1df72a5, type: 2}
   minDistance: 4
   maxDistance: 20
   groanInterval: {x: 4, y: 9}
@@ -403,7 +404,11 @@ MonoBehaviour:
   stepSeconds: {x: 0.5, y: 0.26}
   chaseStepPitch: 1.2
   screamVolume: 0.8
-  attackVolume: 0.8
+  attackVolume: 1
+  attackNearBlend: 0.5
+  attackNearDistance: 3
+  fullVolumeSnarls: 2
+  crowdedSnarlVolume: 0.35
   hitVolume: 0.7
   deathVolume: 0.7
   doorBangVolume: 0.8

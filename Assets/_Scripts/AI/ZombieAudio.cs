@@ -8,6 +8,9 @@ using UnityEngine.Audio;
 //
 //   3D        every sound is fully 3D with a logarithmic rolloff and is gone by Max Distance (about 20 m).
 //   Voice     one mouth: a scream, snarl, grunt or death sound cuts off a groan.
+//   Snarl     the attack wind-up is the player's warning: its own mixer group (louder, with a presence lift), partly
+//             2D within Attack Near Distance so it cuts through small speakers, and turned down for the third and
+//             later zombie snarling in the same moment so a crowd cannot clip.
 //   Groans    at most Max Groaners zombies groan at once, the nearest ones to the listener.
 //   Steps     one per stride of distance walked: a short stride and slow shuffle while wandering, a long stride while
 //             chasing, and never closer together than Min Step Gap.
@@ -27,6 +30,8 @@ public class ZombieAudio : MonoBehaviour
 
     [Tooltip("The Zombies group of TimeTrapMixer.")]
     public AudioMixerGroup output;
+    [Tooltip("Zombies/Attack: extra gain and a presence lift for the attack snarl. Empty = the group above.")]
+    public AudioMixerGroup attackOutput;
 
     [Header("3D")]
     public float minDistance = 2f;
@@ -55,7 +60,14 @@ public class ZombieAudio : MonoBehaviour
 
     [Header("One-shots")]
     [Range(0f, 1f)] public float screamVolume = 0.9f;
-    [Range(0f, 1f)] public float attackVolume = 0.95f;
+    [Range(0f, 1f)] public float attackVolume = 1f;
+    [Tooltip("The attack snarl is this much 3D right next to the listener (the rest is 2D, so it cuts through small speakers)...")]
+    [Range(0f, 1f)] public float attackNearBlend = 0.5f;
+    [Tooltip("...and fully 3D from this distance outwards (metres).")]
+    public float attackNearDistance = 3f;
+    [Tooltip("This many zombies may snarl at full volume at the same moment; any more are turned down, so a crowd cannot clip.")]
+    public int fullVolumeSnarls = 2;
+    [Range(0f, 1f)] public float crowdedSnarlVolume = 0.55f;
     [Range(0f, 1f)] public float hitVolume = 0.7f;
     [Range(0f, 1f)] public float deathVolume = 0.7f;
     [Range(0f, 1f)] public float doorBangVolume = 0.8f;
@@ -104,10 +116,22 @@ public class ZombieAudio : MonoBehaviour
     public static int GroansHeldBack { get; private set; }
     public static int OcclusionChecks { get; private set; }
 
-    const int KindGroan = 1, KindOther = 2;
+    const int KindGroan = 1, KindOther = 2, KindAttack = 3;
     const float FilterOpen = 22000f;
 
     static readonly List<ZombieAudio> groaners = new List<ZombieAudio>();
+    static readonly List<ZombieAudio> snarlers = new List<ZombieAudio>();
+
+    // Zombies snarling (attack wind-up) right now.
+    public static int ActiveSnarlers
+    {
+        get
+        {
+            for (int i = snarlers.Count - 1; i >= 0; i--)
+                if (snarlers[i] == null || snarlers[i].voice == null || !snarlers[i].voice.Active || snarlers[i].voice.tag != KindAttack) snarlers.RemoveAt(i);
+            return snarlers.Count;
+        }
+    }
 
     ZombieAI ai;
     ZombieSenses senses;
@@ -124,6 +148,7 @@ public class ZombieAudio : MonoBehaviour
     float occlusionTarget;
     float listenerDistance;
     bool deathPending;
+    bool attackRouted;
     int lastGroan = -1;
     int lastHit = -1;
 
@@ -160,6 +185,7 @@ public class ZombieAudio : MonoBehaviour
     void OnDisable()
     {
         groaners.Remove(this);
+        snarlers.Remove(this);
         if (voice != null) voice.Stop();
         if (feet != null) feet.Stop();
     }
@@ -249,6 +275,7 @@ public class ZombieAudio : MonoBehaviour
         ScheduleGroan();
         GroanCount++;
         Sfx groan = Sfx.Pick(groans, ref lastGroan);
+        SetAttackRouting(false);
         GameAudio.Note("Zombie/Groan", voice.source, groan);
         if (!voice.Play(groan, groanVolume, basePitch)) return;
         voice.tag = KindGroan;
@@ -273,7 +300,9 @@ public class ZombieAudio : MonoBehaviour
     {
         AttackCount++;
         ScheduleGroan();
-        PlayVoice("Zombie/Attack", Sfx.Pick(attacks), attackVolume);
+        // several zombies winding up in the same moment: the first few at full volume, the rest lower
+        float volume = ActiveSnarlers >= Mathf.Max(1, fullVolumeSnarls) ? attackVolume * crowdedSnarlVolume : attackVolume;
+        if (PlayVoice("Zombie/Attack", Sfx.Pick(attacks), volume, true)) snarlers.Add(this);
     }
 
     public void PlayHit()
@@ -306,12 +335,26 @@ public class ZombieAudio : MonoBehaviour
         if (Audible) feet.Play(bang, doorBangVolume, basePitch);
     }
 
-    void PlayVoice(string role, Sfx sfx, float volume)
+    bool PlayVoice(string role, Sfx sfx, float volume, bool attack = false)
     {
+        SetAttackRouting(attack);
         GameAudio.Note(role, voice.source, sfx);
         groaners.Remove(this);
-        if (!voice.Play(sfx, volume, basePitch)) return;
-        voice.tag = KindOther;
+        snarlers.Remove(this);
+        if (!voice.Play(sfx, volume, basePitch)) return false;
+        voice.tag = attack ? KindAttack : KindOther;
+        return true;
+    }
+
+    // The attack snarl goes through its own mixer group and is partly 2D close up; everything else is plain 3D.
+    void SetAttackRouting(bool attack)
+    {
+        if (attack == attackRouted) return;
+        attackRouted = attack;
+        AudioSource source = voice.source;
+        source.outputAudioMixerGroup = attack && attackOutput != null ? attackOutput : output;
+        if (attack) Sfx3D.ApplyNearBlend(source, attackNearBlend, attackNearDistance);
+        else source.spatialBlend = 1f;
     }
 
     // Close enough to the listener to be heard at all.
@@ -373,6 +416,7 @@ public class ZombieAudio : MonoBehaviour
     public static void ResetForNewPlaySession()
     {
         groaners.Clear();
+        snarlers.Clear();
         GroansHeldBack = 0;
         OcclusionChecks = 0;
     }

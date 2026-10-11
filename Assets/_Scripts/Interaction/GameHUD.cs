@@ -16,6 +16,8 @@ public class GameHUD : MonoBehaviour
     public Color keyColour = new Color(1f, 0.7f, 0.1f, 1f);
     [Tooltip("Panel behind the prompt and the messages, so they stay readable over bright or glowing things.")]
     public Color panelColour = new Color(0f, 0f, 0f, 0.7f);
+    [Tooltip("The stamina bar while the player is exhausted.")]
+    public Color staminaExhaustedColour = new Color(1f, 0.22f, 0.18f, 1f);
     public Color crosshairColour = new Color(1f, 1f, 1f, 0.8f);
 
     static GameHUD instance;
@@ -58,6 +60,11 @@ public class GameHUD : MonoBehaviour
     GameObject progressBar;
     RectTransform progressFill;
     float shownProgress = -1f;
+    GameObject staminaBar;
+    RectTransform staminaFill;
+    Image staminaImage;
+    float shownStamina = -1f;
+    bool shownExhausted;
 
     // ------------------------------------------------------------------ static access
 
@@ -130,6 +137,26 @@ public class GameHUD : MonoBehaviour
     }
 
     // For tests: what the objective list and the banner show, and the bar's fill (-1 = hidden).
+    // The thin stamina bar at the bottom centre. fraction 0..1 shows it, negative hides it; red while exhausted.
+    public static void Stamina(float fraction, bool exhausted)
+    {
+        bool visible = fraction >= 0f;
+        var hud = Get(visible);
+        if (hud == null || hud.staminaBar == null) return;
+        float value = visible ? Mathf.Clamp01(fraction) : -1f;
+        if (value == hud.shownStamina && exhausted == hud.shownExhausted) return;
+        hud.shownStamina = value;
+        hud.shownExhausted = exhausted;
+        if (hud.staminaBar.activeSelf != visible) hud.staminaBar.SetActive(visible);
+        if (!visible) return;
+        hud.staminaFill.anchorMax = new Vector2(value, 1f);
+        hud.staminaImage.color = exhausted ? hud.staminaExhaustedColour : hud.keyColour;
+    }
+
+    public static float ShownStamina => instance != null ? instance.shownStamina : -1f;
+    public static bool ShownStaminaExhausted => instance != null && instance.shownStamina >= 0f && instance.shownExhausted;
+    public static Color ShownStaminaColour => instance != null && instance.staminaImage != null ? instance.staminaImage.color : Color.clear;
+
     public static string ShownObjectives => instance != null && instance.objectivesPanel != null ? instance.objectivesPanel.Shown : "";
     public static string ShownBanner => instance != null && instance.bannerPanel != null ? instance.bannerPanel.Shown : "";
     public static float ShownProgress => instance != null ? instance.shownProgress : -1f;
@@ -275,6 +302,30 @@ public class GameHUD : MonoBehaviour
         fillImage.raycastTarget = false;
         progressBar = bar.gameObject;
         progressBar.SetActive(false);
+
+        // stamina bar: thin, bottom centre, only shown while stamina is not full
+        var stamina = MakeRect("Stamina", transform, new Vector2(0.5f, 0f), new Vector2(0f, 64f), new Vector2(300f, 14f));
+        var staminaBack = stamina.gameObject.AddComponent<Image>();
+        staminaBack.sprite = panelSprite;
+        staminaBack.type = Image.Type.Sliced;
+        staminaBack.pixelsPerUnitMultiplier = 4f;
+        staminaBack.color = panelColour;
+        staminaBack.raycastTarget = false;
+        var staminaArea = MakeRect("FillArea", stamina, centre, Vector2.zero, Vector2.zero);
+        staminaArea.anchorMin = Vector2.zero;
+        staminaArea.anchorMax = Vector2.one;
+        staminaArea.offsetMin = new Vector2(3f, 3f);
+        staminaArea.offsetMax = new Vector2(-3f, -3f);
+        staminaFill = MakeRect("Fill", staminaArea, centre, Vector2.zero, Vector2.zero);
+        staminaFill.anchorMin = Vector2.zero;
+        staminaFill.anchorMax = new Vector2(1f, 1f);
+        staminaFill.offsetMin = Vector2.zero;
+        staminaFill.offsetMax = Vector2.zero;
+        staminaImage = staminaFill.gameObject.AddComponent<Image>();
+        staminaImage.color = keyColour;
+        staminaImage.raycastTarget = false;
+        staminaBar = stamina.gameObject;
+        staminaBar.SetActive(false);
 
         // fade: last, so it covers everything else
         var fade = MakeRect("Fade", transform, centre, Vector2.zero, Vector2.zero);

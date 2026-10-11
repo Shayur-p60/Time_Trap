@@ -9,6 +9,8 @@ public class ArmSway : MonoBehaviour
 {
     [Header("References")]
     public CharacterController playerController; // for speed and the turn (yaw); found on a parent when empty
+    [Tooltip("Found on a parent when empty. With one, the arms bob on its step phase, so camera, arms and footsteps keep one rhythm.")]
+    public HeadBob headBob;
 
     [Header("Look sway")]
     [Tooltip("Metres the arms trail per degree-per-second of turning or looking.")]
@@ -25,7 +27,7 @@ public class ArmSway : MonoBehaviour
     public float bobHeight = 0.012f;
     [Tooltip("Side-to-side bob at walking speed (metres, each way).")]
     public float bobSide = 0.008f;
-    [Tooltip("Metres walked per step.")]
+    [Tooltip("Metres walked per step. Only used without a HeadBob.")]
     public float stepDistance = 0.9f;
     [Tooltip("Speed (m/s) at which the bob is at its set size. Faster makes it a little bigger, up to 1.5 times.")]
     public float referenceSpeed = 3.5f;
@@ -52,6 +54,7 @@ public class ArmSway : MonoBehaviour
     {
         CaptureRest();
         if (playerController == null) playerController = GetComponentInParent<CharacterController>();
+        if (headBob == null) headBob = GetComponentInParent<HeadBob>();
     }
 
     void OnEnable()
@@ -125,7 +128,9 @@ public class ArmSway : MonoBehaviour
         }
         bool walking = grounded && speed > 0.3f;
         bobWeight = Mathf.MoveTowards(bobWeight, walking ? 1f : 0f, dt * 4f);
-        if (walking) stepPhase = Mathf.Repeat(stepPhase + speed * dt / Mathf.Max(0.1f, stepDistance), 2f);
+        // the camera's step counter when there is one (its stride lengthens for a sprint); otherwise our own
+        if (headBob != null && headBob.isActiveAndEnabled) stepPhase = headBob.StepPhase;
+        else if (walking) stepPhase = Mathf.Repeat(stepPhase + speed * dt / Mathf.Max(0.1f, stepDistance), 2f);
         float size = bobWeight * Mathf.Clamp(speed / Mathf.Max(0.1f, referenceSpeed), 0.4f, 1.5f);
         targetPosition.x += Mathf.Sin(stepPhase * Mathf.PI) * bobSide * size;
         targetPosition.y += Mathf.Sin(stepPhase * Mathf.PI * 2f) * bobHeight * size;

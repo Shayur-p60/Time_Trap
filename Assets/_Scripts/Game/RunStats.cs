@@ -29,6 +29,9 @@ public class RunStats
     // Shots that hit a zombie (anything IDamageable).
     public int shotsHit;
 
+    // Times the player ran their stamina down to nothing.
+    public int timesExhausted;
+
     public int objectivesCompleted;
     public bool escaped;
 

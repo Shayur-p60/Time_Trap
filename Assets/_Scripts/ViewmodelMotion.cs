@@ -4,7 +4,7 @@ using UnityEngine;
 // hand IK. Moving this target moves the gun and both hands, so this is where the gun's motion is made:
 //   Look sway:  the gun trails a little behind the view when the player turns or looks up and down.
 //   Walk bob:   a small bob in step with the head bob (it reads HeadBob's step phase).
-//   Recoil:     a kick back and up on every shot, which springs back.
+//   Recoil:     a kick back and up on every shot, which springs back. The gun's slide (when set) jumps back too.
 //   Reload dip: the gun drops and tilts while reloading, and comes back up at the end.
 // Every frame the pose is the recorded rest pose plus these offsets, so nothing can build up.
 public class ViewmodelMotion : MonoBehaviour
@@ -50,6 +50,14 @@ public class ViewmodelMotion : MonoBehaviour
     [Tooltip("The kick never builds beyond this many shots' worth when firing fast.")]
     public float recoilMaxShots = 2f;
 
+    [Header("Slide (optional)")]
+    [Tooltip("The gun model's slide bone. Left empty, nothing moves.")]
+    public Transform slide;
+    [Tooltip("Where the slide goes on a shot, from its rest position, in its parent's space (metres).")]
+    public Vector3 slideTravel = new Vector3(0f, 0f, -0.02f);
+    [Tooltip("How quickly the slide comes forward again (per second).")]
+    public float slideReturn = 30f;
+
     [Header("Reload dip")]
     [Tooltip("How far the gun drops while reloading (metres).")]
     public float reloadDrop = 0.09f;
@@ -66,6 +74,8 @@ public class ViewmodelMotion : MonoBehaviour
     Vector3 recoilTargetPosition, recoilTargetRotation;
     Vector3 recoilPosition, recoilRotation;    // what is applied
     float lastYaw, lastPitch;
+    Transform slideCaptured;                   // the slide whose rest position is recorded
+    Vector3 slideRest;
     Pistol subscribedTo;
 
     // For the Inspector and tests.
@@ -76,6 +86,8 @@ public class ViewmodelMotion : MonoBehaviour
     // 0 = up, 1 = fully dipped for the reload.
     public float ReloadDip { get; private set; }
     public Vector3 BobOffset { get; private set; }
+    // 0 = slide forward, 1 = fully back.
+    public float SlideBack { get; private set; }
 
     void Awake()
     {
@@ -99,6 +111,8 @@ public class ViewmodelMotion : MonoBehaviour
     {
         if (subscribedTo != null) subscribedTo.OnFired -= Kick;
         subscribedTo = null;
+        SlideBack = 0f;
+        if (slideCaptured != null) slideCaptured.localPosition = slideRest;
         if (restCaptured)
         {
             transform.localPosition = restPosition;
@@ -125,6 +139,8 @@ public class ViewmodelMotion : MonoBehaviour
         recoilTargetPosition.z = Mathf.Max(recoilTargetPosition.z, -recoilBack * most);
         recoilTargetRotation.x = Mathf.Max(recoilTargetRotation.x, -recoilPitch * most);
         recoilTargetRotation.y = Mathf.Clamp(recoilTargetRotation.y, -recoilYaw * most, recoilYaw * most);
+
+        SlideBack = 1f;
     }
 
     void ReadLook(out float yaw, out float pitch)
@@ -178,6 +194,20 @@ public class ViewmodelMotion : MonoBehaviour
         float snap = 1f - Mathf.Exp(-recoilSnap * dt);
         recoilPosition = Vector3.Lerp(recoilPosition, recoilTargetPosition, snap);
         recoilRotation = Vector3.Lerp(recoilRotation, recoilTargetRotation, snap);
+
+        // --- slide: fully back on the frame of the shot, then forward again
+        if (slide != slideCaptured)
+        {
+            if (slideCaptured != null) slideCaptured.localPosition = slideRest;
+            slideCaptured = slide;
+            if (slide != null) slideRest = slide.localPosition;
+        }
+        if (slideCaptured != null)
+        {
+            slideCaptured.localPosition = slideRest + slideTravel * SlideBack;
+            SlideBack = Mathf.Lerp(SlideBack, 0f, 1f - Mathf.Exp(-slideReturn * dt));
+            if (SlideBack < 0.001f) SlideBack = 0f;
+        }
 
         // --- reload dip: down at the start, held, back up at the end
         float dip = 0f;

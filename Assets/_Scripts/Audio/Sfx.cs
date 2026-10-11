@@ -209,6 +209,20 @@ public static class Sfx3D
         source.outputAudioMixerGroup = group;
     }
 
+    // Partly 2D close up, fully 3D from Near Distance outwards: a sound that must cut through small speakers when
+    // its source is next to the listener, and still comes from the right direction.
+    public static void ApplyNearBlend(AudioSource source, float nearBlend, float nearDistance)
+    {
+        float max = Mathf.Max(0.1f, source.maxDistance);
+        float near = Mathf.Clamp(nearDistance, 0.1f, max) / max;
+        nearBlend = Mathf.Clamp01(nearBlend);
+        source.SetCustomCurve(AudioSourceCurveType.SpatialBlend, new AnimationCurve(
+            new Keyframe(0f, nearBlend, 0f, 0f),
+            new Keyframe(near * 0.35f, nearBlend, 0f, 0f),
+            new Keyframe(near, 1f, 0f, 0f),
+            new Keyframe(1f, 1f, 0f, 0f)));
+    }
+
     public static void Apply2D(AudioSource source, AudioMixerGroup group)
     {
         source.playOnAwake = false;

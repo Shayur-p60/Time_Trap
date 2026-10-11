@@ -81,6 +81,10 @@ public class GameAudio : MonoBehaviour
 
     [Header("Tension (2D)")]
     public SfxLoop heartbeat = new SfxLoop();
+    [Tooltip("The player's panting. PlayerAudio sets its level from the stamina.")]
+    public SfxLoop panting = new SfxLoop();
+    [Tooltip("SFX/Panting: make-up gain for the quiet breathing recording. Empty = SFX.")]
+    public AudioMixerGroup pantingGroup;
     [Tooltip("Heartbeat pitch (and so its rate) with danger just starting (x) and at its worst (y).")]
     public Vector2 heartbeatPitch = new Vector2(1f, 1.6f);
     public Sfx clockTick = new Sfx();
@@ -122,6 +126,9 @@ public class GameAudio : MonoBehaviour
     public float Stage2Level => humLayer != null ? humLayer.Level : 0f;
     public float PortalLevel => portalLayer != null ? portalLayer.Level : 0f;
     public float GeneratorLevel => generatorLayer != null ? generatorLayer.Level : 0f;
+    // The panting loop's volume right now (0-1, before the mixer).
+    public float PantingLevel => pantingLayer != null ? pantingLayer.Level : 0f;
+    public AudioSource PantingSource => pantingLayer != null ? pantingLayer.Source : null;
 
     static Transform listener;
 
@@ -141,7 +148,8 @@ public class GameAudio : MonoBehaviour
 
     readonly List<SfxVoice> voices = new List<SfxVoice>();
     readonly List<LoopLayer> layers = new List<LoopLayer>();
-    LoopLayer droneLayer, humLayer, bedLayer, heartbeatLayer, generatorLayer, portalLayer, downloadLayer, motorLayer;
+    LoopLayer droneLayer, humLayer, bedLayer, heartbeatLayer, generatorLayer, portalLayer, downloadLayer, motorLayer, pantingLayer;
+    bool pantingOn;
 
     GameManager manager;
     GeneratorConsole generator;
@@ -183,6 +191,7 @@ public class GameAudio : MonoBehaviour
         humLayer = AddLayer("Stage2Hum", stage2Hum, ambienceGroup, false);
         bedLayer = AddLayer("Stage2Bed", stage2Bed, ambienceGroup, false);
         heartbeatLayer = AddLayer("Heartbeat", heartbeat, heartbeatGroup != null ? heartbeatGroup : sfxGroup, false);
+        pantingLayer = AddLayer("Panting", panting, pantingGroup != null ? pantingGroup : sfxGroup, false);
         motorLayer = AddLayer("ElevatorMotor", elevatorMotor, sfxGroup, true, 1.5f, 14f);
         generatorLayer = AddLayer("GeneratorLoop", generatorLoop, sfxGroup, true);
         downloadLayer = AddLayer("DownloadLoop", downloadLoop, sfxGroup, true);
@@ -413,6 +422,7 @@ public class GameAudio : MonoBehaviour
         humLayer.FadeOutThroughPause(endFade);
         bedLayer.FadeOutThroughPause(endFade);
         heartbeatLayer.FadeOutThroughPause(endFade);
+        pantingLayer.SetTarget(0f, 0.1f);
         foreach (var voice in voices)
             if (voice.Active && !voice.source.ignoreListenerPause) voice.Stop();
 
@@ -431,6 +441,16 @@ public class GameAudio : MonoBehaviour
     public static void ChestOpen(Vector3 position)
     {
         if (Instance != null) Instance.PlayAt("World/ChestOpen", Instance.chestOpen, position);
+    }
+
+    // The player's panting: level is its volume (0-1), reached over fadeSeconds. PlayerAudio calls this every frame.
+    public void SetPanting(float level, float fadeSeconds)
+    {
+        if (ended) level = 0f;
+        bool on = level > 0f;
+        if (on && !pantingOn) Note("Player/Panting", pantingLayer.Source, panting.clip);
+        pantingOn = on;
+        pantingLayer.SetTarget(level, fadeSeconds);
     }
 
     // Menu buttons: heard while the game is paused.

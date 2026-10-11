@@ -1,8 +1,9 @@
 using UnityEngine;
 
 // Goes on the player camera. A small up-and-down bob with a tiny side sway while walking on the ground, so movement
-// reads as steps instead of gliding. It is driven by distance walked, so it speeds up with sprint and Speed Boost and
-// slows with crouch, and it eases back to rest when the player stops or leaves the ground.
+// reads as steps instead of gliding. It is driven by distance walked, so it speeds up with Speed Boost and slows with
+// crouch, and it eases back to rest when the player stops or leaves the ground. Sprinting takes a longer stride
+// (Sprint Step Distance), so its rhythm is a run, not a faster walk.
 //
 // It only ever adds an offset on top of the camera's own position and takes that offset off again before the
 // movement script runs (this component updates first), so crouch height and anything else that moves the camera
@@ -21,6 +22,10 @@ public class HeadBob : MonoBehaviour
     public float sideSway = 0.008f;
     [Tooltip("Metres walked per step at walking speed.")]
     public float stepDistance = 0.9f;
+    [Tooltip("Metres run per step at sprint speed: a longer stride, so sprinting is about 3.6 steps a second instead of a blur. Between walk and sprint speed the stride is blended.")]
+    public float sprintStepDistance = 1.67f;
+    [Tooltip("How quickly the stride changes when the speed does (metres of stride per second), so the rhythm never jumps.")]
+    public float strideChangeSpeed = 2.5f;
     [Tooltip("Speed (m/s) at which the bob is at its set size.")]
     public float referenceSpeed = 3.5f;
     [Tooltip("The bob grows with speed (sprint, Speed Boost) up to this many times its set size.")]
@@ -46,6 +51,20 @@ public class HeadBob : MonoBehaviour
     public float Weight => weight;
     // Counts steps: goes 0 to 2 and round again, whole numbers are footfalls. Other scripts (the gun bob) read this to stay in step.
     public float StepPhase => stepPhase;
+    // Metres per step right now. ArmSway and the footsteps read the phase above, so everything keeps this one rhythm.
+    public float CurrentStride => stride > 0f ? stride : stepDistance;
+
+    float stride;
+
+    // The stride for a ground speed: Step Distance up to walk speed, Sprint Step Distance at sprint speed, eased
+    // between. Speed Boost makes the player faster, not longer-legged: its multiplier is taken out first.
+    public float StrideFor(float speed)
+    {
+        if (movement == null) return stepDistance;
+        float multiplier = Mathf.Max(0.01f, movement.SpeedMultiplier);
+        float t = Mathf.InverseLerp(movement.WalkSpeed, movement.SprintSpeed, speed / multiplier);
+        return Mathf.Lerp(stepDistance, sprintStepDistance, Mathf.SmoothStep(0f, 1f, t));
+    }
 
     void Awake()
     {
@@ -87,7 +106,9 @@ public class HeadBob : MonoBehaviour
         bool walking = onGround && speed > minSpeed;
 
         weight = Mathf.MoveTowards(weight, walking ? 1f : 0f, dt * easeSpeed);
-        if (walking) stepPhase = Mathf.Repeat(stepPhase + speed * dt / Mathf.Max(0.1f, stepDistance), 2f);
+        float targetStride = StrideFor(speed);
+        stride = stride <= 0f ? targetStride : Mathf.MoveTowards(stride, targetStride, strideChangeSpeed * dt);
+        if (walking) stepPhase = Mathf.Repeat(stepPhase + speed * dt / Mathf.Max(0.1f, stride), 2f);
 
         float size = weight * Mathf.Clamp(speed / Mathf.Max(0.1f, referenceSpeed), 0f, maxSpeedScale);
         if (movement != null && movement.IsCrouching) size *= crouchScale;
