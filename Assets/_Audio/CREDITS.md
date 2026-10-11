@@ -1,9 +1,11 @@
-# Sound credits
+# Credits
+
+## Sound
 
 Sources are taken from each file's download metadata where it was recorded. "Not recorded" means the file carried no
 source information: fill those in before release.
 
-## Zombies
+### Zombies
 
 | File | Source | Role |
 | --- | --- | --- |
@@ -14,7 +16,7 @@ source information: fill those in before release.
 | `Zombies/Zombie_Snarls_01.mp3` | voicebosch, Pixabay ("snarls-and-growls") | Hit grunts (three short parts) and the death sound (one long part, pitched down) |
 | `Zombies/Zombie_Footsteps_Shuffle.mp3` | freesound_community, Pixabay ("shuffling-1-front") | Zombie footsteps, wandering and chasing |
 
-## Player
+### Player
 
 | File | Source | Role |
 | --- | --- | --- |
@@ -26,7 +28,7 @@ source information: fill those in before release.
 | `Player/Player_Run_Concrete_01.mp3` | freeeverythingxx, Pixabay ("running-on-concrete") | Sprinting footsteps (fifteen steps cut from the file) |
 | `Player/Player_Pant_01.mp3` | freesound_community, Pixabay ("panting") | Panting as stamina runs down (first 12.5 s, looped) |
 
-## World
+### World
 
 | File | Source | Role |
 | --- | --- | --- |
@@ -43,7 +45,7 @@ source information: fill those in before release.
 | `World/World_Portal_Hum.mp3` | Not recorded | Escape portal hum |
 | `World/World_Elevator_Motor.mp3` | Downloaded from Google Drive, original source not recorded | Elevator motor during the ride |
 
-## Ambience, tension and UI
+### Ambience, tension and UI
 
 | File | Source | Role |
 | --- | --- | --- |
@@ -58,6 +60,17 @@ source information: fill those in before release.
 | `UI/UI_Collect.mp3` | Downloaded from Google Drive, original source not recorded | Objective completed (power, pathogen, data) |
 
 Pixabay sounds are used under the Pixabay Content License.
+
+## Models
+
+Paths are under `Assets/_Models/Characters/Zombies/`.
+
+| Model | Source | Licence | Used for |
+| --- | --- | --- | --- |
+| `Ch10_nonPBR.fbx` | Mixamo (Adobe) | Free for use | Stage 3 runner body |
+| `Warzombie F Pedroso.fbx` | Mixamo (Adobe) | Free for use | Regular zombie body |
+| `Zombie_Tier1/ZombieTier1_for_Mixamo.fbx` | **[TODO: model name]** by **[TODO: creator]** (**[TODO: link]**) | CC BY 4.0, rigged via Mixamo auto-rigger | Regular zombie body |
+| `bloater/Bloater_for_Mixamo.fbx` | Rigged via Mixamo auto-rigger. **[TODO: original model source not recorded]** | **[TODO]** | Stage 3 brute body |
 
 ## Third-party assets
 

@@ -5,7 +5,7 @@ Seven hand-written HLSL shaders for URP 17.5 (Unity 6, Forward+). No Shader Grap
 
 | Shader | File | Used on | Driver script |
 |---|---|---|---|
-| `TimeTrap/ZombieSurface` | `ZombieSurface.shader` | all zombie bodies (4 materials) | `ZombieShaderFX` |
+| `TimeTrap/ZombieSurface` | `ZombieSurface.shader` | all zombie bodies (13 materials) | `ZombieShaderFX` |
 | `TimeTrap/FlashlightBeam` | `FlashlightBeam.shader` | `FlashlightBeamPivot/BeamCone` | `FlashlightBeamCone`, `TorchShaderGlobals` |
 | `TimeTrap/DustParticles` | `DustParticles.shader` | `Camera/DustMotes`, `Map/ShaderFX/Spores_*` | `TorchShaderGlobals` |
 | `TimeTrap/TimePortal` | `TimePortal.shader` | `EscapePortal_GateB/Visual/Disc` | `EscapePortal` |
@@ -27,8 +27,8 @@ dissolve, the beam, the portal, the frost and the fluid all read it.
 - **Before/after:** press **F9** in Play mode (`ShaderDevToggle`, editor and development builds only). Zombies swap to
   plain URP Lit with the same textures, the portal swaps to its old placeholder material, and the beam and dust are
   hidden (they have no URP Lit equivalent). The pit pool becomes a flat URP Lit surface, the tank strips and the
-  pickup outlines are hidden, and the full-screen effect is switched off. F9 again switches back. The runner's red
-  tint is not carried over to the plain version.
+  pickup outlines are hidden, and the full-screen effect is switched off. F9 again switches back. A role tint
+  (`_Tint`, no role uses one for now beyond the regulars' slight variations) is not carried over to the plain version.
 
 ---
 
@@ -114,7 +114,7 @@ dissolve finishes.
 
 **SRP Batcher and the MaterialPropertyBlock.** The shader is SRP Batcher compatible, but a renderer that has a
 MaterialPropertyBlock is not batched by the SRP Batcher: Unity draws it with its own draw call so that it can have
-its own values. That is the price of every zombie sharing four materials while still dissolving, flashing and
+its own values. That is the price of every zombie sharing the same materials while still dissolving, flashing and
 freezing on its own. It is acceptable here because at most 10 zombies are alive at once (the spawner's Stage 3
 cap), each with 1–3 skinned renderers, so it costs a few dozen draw calls at worst. The alternative, one material
 instance per zombie, would keep the batcher but create and destroy materials on every spawn.

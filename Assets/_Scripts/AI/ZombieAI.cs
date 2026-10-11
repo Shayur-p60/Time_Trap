@@ -70,6 +70,8 @@ public class ZombieAI : MonoBehaviour
     public float attackRange = 1.7f;
     [Tooltip("Seconds between the start of the attack and the strike.")]
     public float windUpTime = 0.8f;
+    [Tooltip("The wind-up the attack animation is timed for. A zombie with a longer wind-up plays it slower, so the swing still lands on the strike.")]
+    public float attackAnimationWindUp = 0.8f;
     [Tooltip("During the wind-up it keeps closing in at this fraction of its chase speed.")]
     [Range(0f, 1f)] public float windUpMoveFactor = 0.4f;
     [Tooltip("The strike catches the player if they are still within this distance...")]
@@ -127,6 +129,8 @@ public class ZombieAI : MonoBehaviour
     public bool IsFrozen { get; private set; }
     // Set by the spawner.
     public bool IsRunner { get; set; }
+    // Set by the spawner: the big, slow, tough Stage 3 type.
+    public bool IsBrute { get; set; }
     // Seconds since it last did anything but wander.
     public float CalmTime { get; private set; }
     public ZombieSenses Senses => senses;
@@ -229,6 +233,7 @@ public class ZombieAI : MonoBehaviour
     static readonly int LocomotionRateParam = Animator.StringToHash("LocomotionRate");
     static readonly int VariantParam = Animator.StringToHash("Variant");
     static readonly int AttackParam = Animator.StringToHash("Attack");
+    static readonly int AttackRateParam = Animator.StringToHash("AttackRate");
     static readonly int ScreamParam = Animator.StringToHash("Scream");
     static readonly int HitParam = Animator.StringToHash("Hit");
     static readonly int DieParam = Animator.StringToHash("Die");
@@ -591,6 +596,7 @@ public class ZombieAI : MonoBehaviour
         if (agent.velocity.magnitude > agent.speed) agent.velocity = agent.velocity.normalized * agent.speed;
         struck = false;
         AttacksStarted++;
+        SetFloat(AttackRateParam, attackAnimationWindUp / Mathf.Max(0.1f, windUpTime));
         SetTrigger(AttackParam);
         if (sfx != null) sfx.PlayAttack();
     }

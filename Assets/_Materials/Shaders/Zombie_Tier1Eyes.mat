@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Zombie_Tier1Eyes
+  m_Shader: {fileID: 4800000, guid: 96e4d57638adc4ec683c37ddf9ebd1c6, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: e198a6d3989eb4a919f9009999b34c31, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 17c72f963f405403786994e365a6417f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: a4ddc285efe2d45db8483c3cd78e82ef, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cull: 2
+    - _Cutoff: 0
+    - _Dissolve: 0
+    - _EdgeWidth: 0.09
+    - _Freeze: 0
+    - _HitFlash: 0
+    - _NoiseScale: 3
+    - _RimPower: 3
+    - _RimStrength: 0.2
+    - _Smoothness: 0.6
+    - _SpecStrength: 0.5
+    - _Stun: 0
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EdgeColor: {r: 2.2, g: 5, b: 5.5, a: 1}
+    - _EdgeColorOuter: {r: 0.05, g: 0.35, b: 2.2, a: 1}
+    - _FreezeColor: {r: 0.45, g: 0.8, b: 1.4, a: 1}
+    - _HitColor: {r: 1.1, g: 0.1, b: 0.06, a: 1}
+    - _RimColor: {r: 0.75, g: 0.9, b: 0.8, a: 1}
+    - _SpecColor: {r: 0.8, g: 0.9, b: 0.75, a: 1}
+    - _Tint: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -190,6 +190,12 @@ public class ZombieAudio : MonoBehaviour
         if (feet != null) feet.Stop();
     }
 
+    // Lowers or raises this zombie's whole voice (the brute's is deeper), on top of its random pitch.
+    public void ScalePitch(float factor)
+    {
+        basePitch *= factor;
+    }
+
     void ScheduleGroan()
     {
         nextGroan = Time.time + Random.Range(groanInterval.x, groanInterval.y);

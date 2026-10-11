@@ -8,7 +8,8 @@ using Random = UnityEngine.Random;
 // Keeps the facility populated with zombies, by stage. One per scene; nothing is spawned until Play.
 //   Stage 1  a few slow wanderers.
 //   Stage 2  more of them; the generator starting up makes a noise that draws the nearest ones in.
-//   Stage 3  the most, with keener senses, runners placed toward the escape, and regular pushes toward the player.
+//   Stage 3  the most, with keener senses, runners placed toward the escape, one brute, and regular pushes toward
+//            the player.
 // Rules a spawn never breaks: not within Min Player Distance of the player, not where the player can see it, on the
 // NavMesh, and never above the stage's Max Alive. When no spawn point passes, the spawner waits and tries again.
 // For the first Opening Grace Time of a run nothing spawns within Opening Grace Distance of the player.
@@ -33,6 +34,23 @@ public class ZombieSpawner : MonoBehaviour
         public Color[] tints = new Color[0];
         [Range(0f, 1f)] public float screamChance = 1f;
         public float health = 75f;
+
+        [Header("Optional: 0 keeps the Zombie prefab's value")]
+        [Tooltip("Damage multiplier of a head shot.")]
+        public float headshotMultiplier = 0f;
+        [Tooltip("Seconds between the start of the attack and the strike.")]
+        public float windUpTime = 0f;
+        [Tooltip("Seconds it is held up by a shot.")]
+        public float staggerTime = 0f;
+        [Tooltip("Pitch of its whole voice relative to other zombies (0.85 = 15% lower).")]
+        public float voicePitch = 0f;
+        [Tooltip("Radius and height of the body collider. The NavMeshAgent keeps its own radius, so the zombie still fits wherever the NavMesh goes.")]
+        public float bodyRadius = 0f;
+        public float bodyHeight = 0f;
+        [Tooltip("Radius of the head hitbox.")]
+        public float headRadius = 0f;
+        [Tooltip("Never spawns closer to the escape point than this (metres).")]
+        public float minEscapeDistance = 0f;
     }
 
     [Serializable]
@@ -46,6 +64,8 @@ public class ZombieSpawner : MonoBehaviour
         public float spawnInterval = 12f;
         [Tooltip("How many of the alive zombies may be runners.")]
         public int maxRunners = 0;
+        [Tooltip("How many of the alive zombies may be brutes. They count toward Max Alive like any other.")]
+        public int maxBrutes = 0;
         [Tooltip("Multiplier on every zombie's sight range.")]
         public float sightMultiplier = 1f;
         [Tooltip("How many zombies at most react to one noise.")]
@@ -77,12 +97,30 @@ public class ZombieSpawner : MonoBehaviour
         screamChance = 0.4f
     };
 
+    public Role brute = new Role
+    {
+        name = "Brute",
+        wanderSpeed = new Vector2(0.45f, 0.55f),
+        chaseSpeed = new Vector2(3.1f, 3.3f),
+        scale = new Vector2(1f, 1f),
+        health = 190f,
+        headshotMultiplier = 4f,
+        windUpTime = 1f,
+        staggerTime = 0.25f,
+        voicePitch = 0.85f,
+        bodyRadius = 0.42f,
+        // lower than the head, or the collider swallows head shots when it leans back
+        bodyHeight = 1.55f,
+        headRadius = 0.2f,
+        minEscapeDistance = 20f
+    };
+
     [Header("Stages")]
     public StageSettings stage1 = new StageSettings { maxAlive = 4, startAlive = 3, spawnInterval = 15f, noiseResponders = 2 };
     public StageSettings stage2 = new StageSettings { maxAlive = 6, startAlive = 5, spawnInterval = 10f, noiseResponders = 3 };
     public StageSettings stage3 = new StageSettings
     {
-        maxAlive = 10, startAlive = 8, spawnInterval = 5f, maxRunners = 3, sightMultiplier = 1.3f,
+        maxAlive = 10, startAlive = 8, spawnInterval = 5f, maxRunners = 3, maxBrutes = 1, sightMultiplier = 1.3f,
         noiseResponders = 4, investigateSpeed = 2.2f, huntInterval = 15f
     };
 
@@ -108,6 +146,10 @@ public class ZombieSpawner : MonoBehaviour
     public LayerMask viewBlockMask;
     [Tooltip("Seconds between attempts while no spawn point passes the rules, and between the spawns of a stage's opening group.")]
     public float retryInterval = 1f;
+
+    [Header("Brute")]
+    [Tooltip("After a brute is killed, no new brute spawns for this many seconds. Its slot can go to a regular zombie meanwhile.")]
+    public float bruteRespawnDelay = 60f;
 
     [Header("Power on (Stage 2)")]
     [Tooltip("How far the generator starting up carries. 0 = silent.")]
@@ -140,6 +182,8 @@ public class ZombieSpawner : MonoBehaviour
     public bool InOpeningGrace => Time.time - RunStartTime < openingGraceTime;
     // The distance from the player inside which nothing may spawn right now.
     public float CurrentMinPlayerDistance => InOpeningGrace ? Mathf.Max(minPlayerDistance, openingGraceDistance) : minPlayerDistance;
+    // Seconds until a brute may spawn again (0 = now).
+    public float BruteReadyIn => Mathf.Max(0f, nextBruteTime - Time.time);
     public int HuntCount { get; private set; }
     public Vector3 LastHuntPoint { get; private set; }
     public string LastSkipReason { get; private set; } = "";
@@ -150,6 +194,7 @@ public class ZombieSpawner : MonoBehaviour
     float huntTimer;
     float recycleTimer;
     float nextRecycleTime;
+    float nextBruteTime;
     // replacements for recycled zombies: these spawn at the nearest free point instead of a random one
     int nearSpawnsOwed;
     // zombies still owed to the current stage's opening group
@@ -185,6 +230,17 @@ public class ZombieSpawner : MonoBehaviour
         }
     }
 
+    public int AliveBrutes
+    {
+        get
+        {
+            int n = 0;
+            foreach (var z in ZombieAI.All)
+                if (z != null && !z.IsDead && z.IsBrute) n++;
+            return n;
+        }
+    }
+
     // ------------------------------------------------------------------ lifecycle
 
     void Awake()
@@ -197,12 +253,21 @@ public class ZombieSpawner : MonoBehaviour
     {
         GameProgress.OnStageChanged += HandleStageChanged;
         GameProgress.OnProgressReset += HandleProgressReset;
+        ZombieAI.OnAnyDeathStarted += HandleZombieDeath;
     }
 
     void OnDisable()
     {
         GameProgress.OnStageChanged -= HandleStageChanged;
         GameProgress.OnProgressReset -= HandleProgressReset;
+        ZombieAI.OnAnyDeathStarted -= HandleZombieDeath;
+    }
+
+    // A killed brute stays gone for a while. One that was recycled or cleared after a respawn was not killed, and
+    // does not start the delay.
+    void HandleZombieDeath(ZombieAI zombie)
+    {
+        if (zombie != null && zombie.IsBrute) nextBruteTime = Time.time + bruteRespawnDelay;
     }
 
     void Start()
@@ -220,6 +285,7 @@ public class ZombieSpawner : MonoBehaviour
     {
         DespawnAll();
         nearSpawnsOwed = 0;
+        nextBruteTime = 0f;
         RunStartTime = Time.time;
         BeginStage(false);
     }
@@ -300,9 +366,11 @@ public class ZombieSpawner : MonoBehaviour
             return;
         }
 
+        bool wantBrute = s.maxBrutes > 0 && brute.bodies.Length > 0 && AliveBrutes < s.maxBrutes && Time.time >= nextBruteTime;
         bool wantRunner = s.maxRunners > 0 && runner.bodies.Length > 0 && AliveRunners < s.maxRunners;
-        // no place for a runner right now: a regular zombie instead, rather than nothing
-        bool spawned = wantRunner && TrySpawn(runner, true);
+        // no place for a brute or a runner right now: a regular zombie instead, rather than nothing
+        bool spawned = wantBrute && TrySpawn(brute, false);
+        if (!spawned) spawned = wantRunner && TrySpawn(runner, true);
         if (!spawned && !TrySpawn(regular, false)) return;
 
         if (openingGroup > 0) openingGroup--;
@@ -342,6 +410,7 @@ public class ZombieSpawner : MonoBehaviour
         {
             if (point == null || point.fromStage > stage) continue;
             if (towardEscape && Vector3.Distance(point.position, escapePoint.position) < runnerEscapeExclusion) continue;
+            if (role.minEscapeDistance > 0f && escapePoint != null && Vector3.Distance(point.position, escapePoint.position) < role.minEscapeDistance) continue;
             if (!IsAllowed(point.position, player.position)) continue;
             if (!NavMesh.SamplePosition(point.position, out _, 1.5f, filter)) continue;
 
@@ -397,7 +466,8 @@ public class ZombieSpawner : MonoBehaviour
     public ZombieAI Spawn(Role role, bool asRunner, Vector3 position)
     {
         var go = Instantiate(zombiePrefab, position, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f), transform);
-        go.name = (asRunner ? "Runner " : "Zombie ") + (SpawnCount + 1);
+        bool asBrute = role == brute;
+        go.name = (asBrute ? "Brute " : asRunner ? "Runner " : "Zombie ") + (SpawnCount + 1);
         var zombie = go.GetComponent<ZombieAI>();
 
         GameObject bodyPrefab = role.bodies[Random.Range(0, role.bodies.Length)];
@@ -412,6 +482,8 @@ public class ZombieSpawner : MonoBehaviour
         go.transform.localScale = Vector3.one * Random.Range(role.scale.x, role.scale.y);
 
         zombie.IsRunner = asRunner;
+        zombie.IsBrute = asBrute;
+        ApplyOptional(zombie, role);
         zombie.wanderSpeed = Random.Range(role.wanderSpeed.x, role.wanderSpeed.y);
         zombie.chaseSpeed = Random.Range(role.chaseSpeed.x, role.chaseSpeed.y);
         zombie.screamChance = role.screamChance;
@@ -422,6 +494,33 @@ public class ZombieSpawner : MonoBehaviour
         SpawnCount++;
         LastSpawnPosition = position;
         return zombie;
+    }
+
+    // The role's optional values: anything left at 0 keeps what the Zombie prefab has.
+    void ApplyOptional(ZombieAI zombie, Role role)
+    {
+        if (role.headshotMultiplier > 0f) zombie.Health.headshotMultiplier = role.headshotMultiplier;
+        if (role.windUpTime > 0f) zombie.windUpTime = role.windUpTime;
+        if (role.staggerTime > 0f) zombie.staggerTime = role.staggerTime;
+        if (role.headRadius > 0f) zombie.headRadius = role.headRadius;
+        if (role.voicePitch > 0f)
+        {
+            var voice = zombie.GetComponent<ZombieAudio>();
+            if (voice != null) voice.ScalePitch(role.voicePitch);
+        }
+        if (role.bodyRadius > 0f || role.bodyHeight > 0f)
+        {
+            var capsule = zombie.GetComponent<CapsuleCollider>();
+            if (capsule != null)
+            {
+                if (role.bodyRadius > 0f) capsule.radius = role.bodyRadius;
+                if (role.bodyHeight > 0f)
+                {
+                    capsule.height = role.bodyHeight;
+                    capsule.center = new Vector3(0f, role.bodyHeight * 0.5f, 0f);
+                }
+            }
+        }
     }
 
     void Tint(GameObject body, Color tint)
