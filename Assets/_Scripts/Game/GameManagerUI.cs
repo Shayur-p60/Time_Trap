@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // Everything the game manager puts on screen: the timer (top centre) with the lives beside it and the penalty popup,
-// the pause panel and the end screen. Built in code by GameManager, in the same dark-panel style as GameHUD, on its
+// and the end screen. (The pause menu is one of GameMenus' screens.) Built in code by GameManager, in the same dark-panel style as GameHUD, on its
 // own canvas above GameHUD's (so the end screen also covers a respawn fade).
 // The menus are deliberately plain. The buttons are ordinary UI Buttons, so they need the scene's EventSystem
 // (GameManager checks there is exactly one).
@@ -20,7 +20,13 @@ public class GameManagerUI : MonoBehaviour
     GameManager owner;
     Sprite panelSprite;
 
+    // Most lives any difficulty gives: this many hearts are built.
+    public const int MaxLifeIcons = 5;
+
     GameObject hudRoot;
+    CanvasGroup hudGroup;
+    RectTransform livesPanel;
+    int livesMax = -1;
     RectTransform timerRect;
     TextMeshProUGUI timerLabel;
     readonly List<Image> lifeIcons = new List<Image>();
@@ -28,19 +34,14 @@ public class GameManagerUI : MonoBehaviour
     Vector2 penaltyHome;
     float penaltyAge = -1f;
 
-    GameObject pauseRoot;
-
     GameObject endRoot;
     TextMeshProUGUI endTitle;
     TextMeshProUGUI endText;
     TextMeshProUGUI endStatNames;
     TextMeshProUGUI endStatValues;
 
-    public Button ResumeButton { get; private set; }
-    public Button PauseRestartButton { get; private set; }
-    public Button PauseQuitButton { get; private set; }
-    public Button EndRestartButton { get; private set; }
-    public Button EndQuitButton { get; private set; }
+    public Button EndPlayAgainButton { get; private set; }
+    public Button EndMainMenuButton { get; private set; }
 
     string timerText = "";
     bool timerLow;
@@ -53,8 +54,8 @@ public class GameManagerUI : MonoBehaviour
     public Color TimerColour => timerLabel != null ? timerLabel.color : Color.clear;
     public float TimerScale => timerLabel != null ? timerLabel.transform.localScale.x : 1f;
     public int LivesShown => livesShown;
-    public bool HudVisible => hudRoot != null && hudRoot.activeSelf;
-    public bool PauseVisible => pauseRoot != null && pauseRoot.activeSelf;
+    public bool HudVisible => hudRoot != null && hudRoot.activeSelf && hudGroup.alpha > 0f;
+    public float HudAlpha => hudGroup != null ? hudGroup.alpha : 0f;
     public bool EndVisible => endRoot != null && endRoot.activeSelf;
     public string EndTitle => endTitle != null ? endTitle.text : "";
     public string EndText => endText != null ? endText.text : "";
@@ -78,13 +79,32 @@ public class GameManagerUI : MonoBehaviour
 
     public void SetLives(int lives, int max)
     {
-        if (lives == livesShown) return;
+        if (lives == livesShown && max == livesMax) return;
         livesShown = lives;
+        if (max != livesMax) LayoutLives(max);
         for (int i = 0; i < lifeIcons.Count; i++)
         {
             lifeIcons[i].gameObject.SetActive(i < max);
             lifeIcons[i].color = i < lives ? owner.lifeColour : owner.lifeLostColour;
         }
+    }
+
+    // The panel is as wide as the hearts the difficulty gives (three fit the original 148).
+    void LayoutLives(int max)
+    {
+        livesMax = max;
+        int shown = Mathf.Clamp(max, 1, lifeIcons.Count);
+        float width = shown <= 3 ? 148f : 22f + shown * 42f;
+        livesPanel.sizeDelta = new Vector2(width, 64f);
+        livesPanel.anchoredPosition = new Vector2(96f + width * 0.5f, -46f);
+        for (int i = 0; i < lifeIcons.Count; i++)
+            ((RectTransform)lifeIcons[i].transform).anchoredPosition = new Vector2((i - (shown - 1) * 0.5f) * 42f, 0f);
+    }
+
+    // 0 hides the timer and the lives (the main menu); the end screen is not part of it.
+    public void SetHudAlpha(float alpha)
+    {
+        if (hudGroup != null) hudGroup.alpha = alpha;
     }
 
     // "-10s", beside the timer: rises a little and fades out.
@@ -97,13 +117,6 @@ public class GameManagerUI : MonoBehaviour
         ApplyPenalty();
     }
 
-    public void ShowPause(bool show)
-    {
-        if (pauseRoot == null) return;
-        ClearSelection();
-        pauseRoot.SetActive(show);
-    }
-
     // No button stays selected from the last click, so Enter or Space cannot press one by accident.
     static void ClearSelection()
     {
@@ -114,7 +127,6 @@ public class GameManagerUI : MonoBehaviour
     {
         if (endRoot == null) return;
         ClearSelection();
-        pauseRoot.SetActive(false);
         hudRoot.SetActive(false);
 
         endTitle.text = title;
@@ -204,43 +216,27 @@ public class GameManagerUI : MonoBehaviour
 
         // ---- HUD: [-10s] [ 4:59 ] [hearts]
         hudRoot = MakeFill("HUD", transform).gameObject;
+        hudGroup = hudRoot.AddComponent<CanvasGroup>();
+        hudGroup.interactable = false;
+        hudGroup.blocksRaycasts = false;
 
         timerRect = MakePanel("Timer", hudRoot.transform, top, new Vector2(0f, -46f), new Vector2(176f, 64f), owner.panelColour);
         timerLabel = MakeText("Text", timerRect, centre, Vector2.zero, new Vector2(176f, 64f), 42f, TextAlignmentOptions.Center);
 
-        var lives = MakePanel("Lives", hudRoot.transform, top, new Vector2(170f, -46f), new Vector2(148f, 64f), owner.panelColour);
+        livesPanel = MakePanel("Lives", hudRoot.transform, top, new Vector2(170f, -46f), new Vector2(148f, 64f), owner.panelColour);
         Sprite heart = MakeHeartSprite();
-        for (int i = 0; i < Mathf.Max(owner.startLives, 3); i++)
+        for (int i = 0; i < Mathf.Max(owner.startLives, MaxLifeIcons); i++)
         {
-            var icon = MakeRect("Life" + (i + 1), lives, centre, new Vector2((i - 1) * 42f, 0f), new Vector2(34f, 34f));
+            var icon = MakeRect("Life" + (i + 1), livesPanel, centre, new Vector2((i - 1) * 42f, 0f), new Vector2(34f, 34f));
             var image = icon.gameObject.AddComponent<Image>();
             image.sprite = heart;
             image.raycastTarget = false;
             lifeIcons.Add(image);
         }
-        // more than three lives: widen the panel to fit
-        if (lifeIcons.Count > 3)
-        {
-            lives.sizeDelta = new Vector2(22f + lifeIcons.Count * 42f, 64f);
-            lives.anchoredPosition = new Vector2(96f + lives.sizeDelta.x * 0.5f, -46f);
-            for (int i = 0; i < lifeIcons.Count; i++)
-                ((RectTransform)lifeIcons[i].transform).anchoredPosition = new Vector2((i - (lifeIcons.Count - 1) * 0.5f) * 42f, 0f);
-        }
 
         penaltyHome = new Vector2(-182f, -46f);
         penaltyLabel = MakeText("Penalty", hudRoot.transform, top, penaltyHome, new Vector2(170f, 56f), 38f, TextAlignmentOptions.Right);
         penaltyLabel.gameObject.SetActive(false);
-
-        // ---- pause
-        var pause = MakeFill("Pause", transform);
-        AddImage(pause, null, new Color(0f, 0f, 0f, 0.6f));
-        var pausePanel = MakePanel("Panel", pause, centre, Vector2.zero, new Vector2(460f, 440f), new Color(0f, 0f, 0f, 0.85f));
-        MakeText("Title", pausePanel, centre, new Vector2(0f, 150f), new Vector2(420f, 80f), 56f, TextAlignmentOptions.Center).text = "PAUSED";
-        ResumeButton = MakeButton(pausePanel, "Resume", new Vector2(0f, 40f), owner.Resume);
-        PauseRestartButton = MakeButton(pausePanel, "Restart", new Vector2(0f, -45f), owner.Restart);
-        PauseQuitButton = MakeButton(pausePanel, "Quit", new Vector2(0f, -130f), owner.Quit);
-        pauseRoot = pause.gameObject;
-        pauseRoot.SetActive(false);
 
         // ---- end screen
         var end = MakeFill("End", transform);
@@ -251,8 +247,9 @@ public class GameManagerUI : MonoBehaviour
         endStatNames = MakeText("Names", stats, centre, new Vector2(-70f, 0f), new Vector2(420f, 260f), 30f, TextAlignmentOptions.Left);
         endStatNames.color = new Color(0.75f, 0.75f, 0.75f, 1f);
         endStatValues = MakeText("Values", stats, centre, new Vector2(180f, 0f), new Vector2(200f, 260f), 30f, TextAlignmentOptions.Right);
-        EndRestartButton = MakeButton(end, "Restart", new Vector2(-170f, -240f), owner.Restart);
-        EndQuitButton = MakeButton(end, "Quit", new Vector2(170f, -240f), owner.Quit);
+        // Play Again: the same difficulty, straight into the run. Main Menu: back to the menu.
+        EndPlayAgainButton = MakeButton(end, "Play Again", new Vector2(-170f, -240f), owner.Restart);
+        EndMainMenuButton = MakeButton(end, "Main Menu", new Vector2(170f, -240f), owner.ReturnToMenu);
         endRoot = end.gameObject;
         endRoot.SetActive(false);
     }
@@ -339,7 +336,7 @@ public class GameManagerUI : MonoBehaviour
     }
 
     // A white heart with a soft edge, for the life icons.
-    static Sprite MakeHeartSprite()
+    public static Sprite MakeHeartSprite()
     {
         const int size = 64;
         const int samples = 3;

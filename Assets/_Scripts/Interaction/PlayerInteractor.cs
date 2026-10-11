@@ -23,6 +23,7 @@ public class PlayerInteractor : MonoBehaviour
     public Transform PlayerRoot { get; private set; }
 
     Camera cam;
+    bool holdCancelled;
     static readonly RaycastHit[] sweepHits = new RaycastHit[24];
 
     void Reset()
@@ -57,7 +58,13 @@ public class PlayerInteractor : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.InputBlocked) return;
+        if (GameManager.InputBlocked)
+        {
+            // pausing drops a hold: E has to be pressed again afterwards
+            holdCancelled = true;
+            return;
+        }
+        if (!Input.GetKey(interactKey)) holdCancelled = false;
 
         Target = FindTarget();
         GameHUD.Prompt(Target != null ? Target.PromptText : "");
@@ -65,7 +72,7 @@ public class PlayerInteractor : MonoBehaviour
         if (Target != null && Target.CanInteract && Input.GetKeyDown(interactKey))
             Target.Interact();
         // hold-to-use things (the data download): looking away or stepping out of reach drops the target, which pauses them
-        if (Target != null && Target.CanInteract && Input.GetKey(interactKey))
+        if (Target != null && Target.CanInteract && Input.GetKey(interactKey) && !holdCancelled)
             Target.Hold(Time.deltaTime);
     }
 

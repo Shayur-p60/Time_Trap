@@ -21,6 +21,9 @@ public class GameHUD : MonoBehaviour
     public Color crosshairColour = new Color(1f, 1f, 1f, 0.8f);
 
     static GameHUD instance;
+    // 0 while the main menu is up; the game manager fades it in when a run starts
+    static float alpha = 1f;
+    CanvasGroup group;
 
     // A line of text on a dark rounded panel that resizes to fit it and hides itself when empty.
     class TextPanel
@@ -174,13 +177,28 @@ public class GameHUD : MonoBehaviour
         if (hud != null && hud.ammoLabel != null) hud.ammoLabel.text = text ?? "";
     }
 
-    // 0 = clear, 1 = black.
-    public static void Fade(float alpha)
+    // Opacity of the whole HUD (the respawn fade included). It is remembered if the HUD has not been built yet.
+    public static void SetAlpha(float value)
     {
-        var hud = Get(alpha > 0f);
+        alpha = Mathf.Clamp01(value);
+        if (instance != null && instance.group != null) instance.group.alpha = alpha;
+    }
+
+    public static float Alpha => alpha;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetForNewPlaySession()
+    {
+        alpha = 1f;
+    }
+
+    // 0 = clear, 1 = black.
+    public static void Fade(float amount)
+    {
+        var hud = Get(amount > 0f);
         if (hud == null || hud.fadeImage == null) return;
         var c = hud.fadeImage.color;
-        c.a = Mathf.Clamp01(alpha);
+        c.a = Mathf.Clamp01(amount);
         hud.fadeImage.color = c;
         hud.fadeImage.enabled = c.a > 0f;
     }
@@ -237,6 +255,12 @@ public class GameHUD : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         scaler.matchWidthOrHeight = 1f;
+
+        group = GetComponent<CanvasGroup>();
+        if (group == null) group = gameObject.AddComponent<CanvasGroup>();
+        group.interactable = false;
+        group.blocksRaycasts = false;
+        group.alpha = alpha;
 
         var centre = new Vector2(0.5f, 0.5f);
 

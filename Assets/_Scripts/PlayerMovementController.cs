@@ -140,6 +140,10 @@ public class PlayerMovementController : MonoBehaviour
     [System.NonSerialized] public bool scriptedInput;
     [System.NonSerialized] public Vector2 scriptedMove;   // x = strafe, y = forward, each -1..1
     [System.NonSerialized] public bool scriptedSprint;
+    /// <summary>Settings: a multiplier on Mouse Sensitivity (1 = as set here).</summary>
+    public float SensitivityMultiplier { get; set; } = 1f;
+    /// <summary>Settings: moving the mouse up looks down.</summary>
+    public bool InvertY { get; set; }
     /// <summary>Multiplier on walk, sprint and crouch speed (1 = normal). The Speed Boost power-up sets this.</summary>
     public float SpeedMultiplier { get; set; } = 1f;
 
@@ -173,7 +177,8 @@ public class PlayerMovementController : MonoBehaviour
 
     private void Start()
     {
-        if (lockCursor)
+        // with a game manager the cursor is its business (free in the menu, locked while playing)
+        if (lockCursor && GameManager.Instance == null)
         {
             SetCursorLocked(true);
         }
@@ -183,10 +188,11 @@ public class PlayerMovementController : MonoBehaviour
 
     private void Update()
     {
-        // paused or on an end screen: the game manager owns the cursor, and the view must not turn
+        // in the menu, paused or on an end screen: the view must not turn
         if (GameManager.InputBlocked) return;
 
-        HandleCursorToggle();
+        // Esc belongs to the pause menu. Only a scene without a game manager keeps the old cursor toggle.
+        if (GameManager.Instance == null) HandleCursorToggle();
         HandleMouseLook();
         HandleCrouch();
         HandleMovement();
@@ -220,8 +226,9 @@ public class PlayerMovementController : MonoBehaviour
     #region Mouse Look
     private void HandleMouseLook()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        float sensitivity = mouseSensitivity * SensitivityMultiplier;
+        float mouseX = Input.GetAxis("Mouse X") * sensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * sensitivity * (InvertY ? -1f : 1f);
 
         // Rotate player body horizontally (yaw)
         transform.Rotate(Vector3.up * mouseX);

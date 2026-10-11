@@ -12,6 +12,8 @@ public class RunStats
     public const int ObjectiveCount = 3;
 
     public RunOutcome outcome = RunOutcome.InProgress;
+    // "Easy", "Normal" or "Hard".
+    public string difficulty = "";
 
     // Seconds on the countdown now (or when the run ended).
     public float timeRemaining;

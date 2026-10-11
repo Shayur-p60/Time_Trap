@@ -1,4 +1,5 @@
 using UnityEngine;
+using TimeTrap.UI;
 
 public class FlashlightController : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class FlashlightController : MonoBehaviour
 
     private float currentBattery;
     private bool isOn = true;
+    private bool heldForMenu;
 
     // flicker state
     private float clock;
@@ -53,6 +55,23 @@ public class FlashlightController : MonoBehaviour
 
     void Update()
     {
+        // main menu: the torch waits, switched off and not draining, until the fly-through hands over
+        if (MenuCameraRig.Active || GameManager.InMenu)
+        {
+            if (MenuCameraRig.Active && flashlightLight != null && flashlightLight.enabled)
+            {
+                flashlightLight.enabled = false;
+                heldForMenu = true;
+            }
+            if (MenuCameraRig.Active) return;
+        }
+        if (heldForMenu)
+        {
+            heldForMenu = false;
+            if (flashlightLight != null) flashlightLight.enabled = isOn;
+        }
+        if (GameManager.InMenu) return;
+
         if (Input.GetKeyDown(KeyCode.F) && !GameManager.InputBlocked)
             ToggleLight();
 

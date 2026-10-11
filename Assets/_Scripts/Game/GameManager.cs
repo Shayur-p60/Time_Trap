@@ -3,6 +3,7 @@
 //   F6  set the timer to 0:30
 //   F7  simulate a zombie catch
 //   F8  pause / resume the timer
+// Esc opens and closes the pause menu. In the editor P does too, because Esc also takes the cursor out of the Game view.
 
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,10 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using TimeTrap.UI;
 
-public enum GameState { Playing, Paused, Won, Lost }
+// Menu: the main menu is up (or the camera is gliding in after Play). Won and Lost are the two ways a run has ended.
+public enum GameState { Menu, Playing, Paused, Won, Lost }
 
 // Runs the game: the countdown, the lives, winning, losing, pausing and restarting. One per scene, on
 // Map/Gameplay/GameManager. It builds its own HUD and menus (GameManagerUI), so it needs no other scene setup.
@@ -24,11 +27,28 @@ public enum GameState { Playing, Paused, Won, Lost }
 //           ends the run with no respawn: Infection if a zombie took it, Lost in the Dark if a fall did. A penalty
 //           that empties the clock is Portal Failure.
 //   Win     GameProgress.OnPlayerEscaped.
+//   Menu    the scene loads into the main menu (GameMenus): no input, no HUD, no clock, no zombies. Play applies the
+//           chosen difficulty and starts the run. Play Again and Restart reload the scene and skip the menu; Main
+//           Menu reloads into it.
+//   Pause   Esc. Not in the menu, on an end screen or during a death and respawn. The pause menu is the only thing
+//           Esc does during play; this class owns the cursor (locked while playing, free everywhere else).
 //   Restart reloads the scene. Statics survive a reload, so ResetAllStatics runs first.
 [DefaultExecutionOrder(-200)]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    // The next scene load goes straight into a run (Play Again, Restart). Deliberately not cleared by
+    // ResetAllStatics; the scene that loads takes it.
+    public static bool SkipMenuOnLoad;
+
+    [Header("Menu and difficulty")]
+    [Tooltip("Off: the scene starts straight in a run (for working on the level).")]
+    public bool startInMenu = true;
+    [Tooltip("Easy, Normal, Hard, in that order. Empty: the values below are used as they are.")]
+    public DifficultySettings[] difficulties = new DifficultySettings[0];
+    [Tooltip("Seconds the HUD takes to fade in when a run starts without the menu.")]
+    public float hudFadeTime = 0.4f;
 
     [Header("Timer")]
     [Tooltip("Seconds on the clock at the start of a run.")]
@@ -69,6 +89,11 @@ public class GameManager : MonoBehaviour
     public Color lossColour = new Color(1f, 0.22f, 0.18f, 1f);
 
     public GameState State { get; private set; } = GameState.Playing;
+    // Play has been pressed and the camera is on its way in. State is still Menu.
+    public bool Starting { get; private set; }
+    // The frame the pause menu opened in, so the key press that opened it is not also read as "back".
+    public int PauseFrame { get; private set; } = -1;
+    public GameMenus Menus { get; private set; }
     public float TimeLeft { get; private set; }
     public int Lives { get; private set; }
     // The countdown is held (dev hotkey F8). The game itself carries on.
@@ -88,12 +113,29 @@ public class GameManager : MonoBehaviour
 
     // The run is over (win or loss).
     public static bool IsGameOver => Instance != null && (Instance.State == GameState.Won || Instance.State == GameState.Lost);
-    // Player input is off: paused, on an end screen, or the frame the game was resumed in (so the Esc or the click
-    // that resumed it does nothing else). False in a scene without a game manager.
+    // The main menu is up. False in a scene without a game manager.
+    public static bool InMenu => Instance != null && Instance.State == GameState.Menu;
+    // The pause key went down this frame.
+    public static bool PausePressed
+    {
+        get
+        {
+            if (Instance != null && Input.GetKeyDown(Instance.pauseKey)) return true;
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.P)) return true;
+#endif
+            return false;
+        }
+    }
+    // Player input is off: in the menu, paused, on an end screen, or the frame the game was resumed in (so the Esc
+    // or the click that resumed it does nothing else). False in a scene without a game manager.
     public static bool InputBlocked => Instance != null && (Instance.State != GameState.Playing || Time.frameCount <= Instance.resumeFrame);
 
     int resumeFrame = -1;
     bool restartRequested;
+    float hudAlpha = 1f;
+    float hudAlphaTarget = 1f;
+    float hudAlphaRate = 1f;
     readonly List<KeyValuePair<Pistol, Action>> pistolHooks = new List<KeyValuePair<Pistol, Action>>();
     Action<float> screenFxLowTime;
     bool screenFxSearched;
@@ -113,9 +155,8 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1f;
         AudioListener.pause = false;
-        TimeLeft = startSeconds;
-        Lives = startLives;
-        Stats = new RunStats { timeRemaining = TimeLeft, livesLeft = Lives };
+        bool menu = startInMenu && !SkipMenuOnLoad;
+        SkipMenuOnLoad = false;
 
         EnsureEventSystem();
 
@@ -123,6 +164,103 @@ public class GameManager : MonoBehaviour
         go.transform.SetParent(transform, false);
         UI = go.AddComponent<GameManagerUI>();
         UI.Build(this);
+
+        Menus = FindAnyObjectByType<GameMenus>();
+        if (Menus == null)
+        {
+            // a scene nobody set the menus up in still gets a pause menu (with no sounds or credits of its own)
+            var menus = new GameObject("GameMenus");
+            menus.transform.SetParent(transform, false);
+            Menus = menus.AddComponent<GameMenus>();
+        }
+
+        ApplyDifficulty();
+        if (menu)
+        {
+            State = GameState.Menu;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            SetHudAlpha(0f);
+        }
+        else
+        {
+            State = GameState.Playing;
+            LockCursor();
+            SetHudAlpha(0f);
+            FadeHud(1f, hudFadeTime);
+        }
+    }
+
+    // ------------------------------------------------------------------ difficulty, starting a run
+
+    // The player moved the difficulty selector: the numbers on the menu follow.
+    public void SelectDifficulty()
+    {
+        if (State == GameState.Menu) ApplyDifficulty();
+    }
+
+    // Takes the chosen difficulty's numbers for this run (the clock, the lives, the penalties, and the spawner's
+    // caps and multipliers) and puts the clock and the lives at their start.
+    void ApplyDifficulty()
+    {
+        DifficultySettings d = Difficulty.Select(difficulties);
+        if (d != null)
+        {
+            startSeconds = d.timerSeconds;
+            startLives = d.lives;
+            catchPenaltySeconds = d.penaltySeconds;
+            fallPenaltySeconds = d.penaltySeconds;
+        }
+        var spawner = FindAnyObjectByType<ZombieSpawner>();
+        if (spawner != null) spawner.ApplyDifficulty(d);
+
+        TimeLeft = startSeconds;
+        Lives = startLives;
+        Stats = new RunStats { timeRemaining = TimeLeft, livesLeft = Lives, difficulty = Difficulty.Name };
+        if (UI != null) RefreshHud();
+    }
+
+    // Play was pressed. The menu keeps the state until its camera has arrived (StartGame).
+    public void BeginStart()
+    {
+        if (State != GameState.Menu) return;
+        Starting = true;
+        ApplyDifficulty();
+    }
+
+    // The run begins: input on, clock running, zombies spawning.
+    public void StartGame()
+    {
+        if (State != GameState.Menu) return;
+        Starting = false;
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        LockCursor();
+        resumeFrame = Time.frameCount;
+        FadeHud(1f, 0f);
+        SetState(GameState.Playing);
+        Debug.Log("[GameManager] Run started on " + Difficulty.Name + ": " + FormatTime(TimeLeft) + ", " + Lives + " lives, penalty " + Mathf.RoundToInt(catchPenaltySeconds) + " s.");
+    }
+
+    static void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    // The HUD (the timer and lives here, and GameHUD) fades to an opacity over a number of seconds.
+    public void FadeHud(float alpha, float seconds)
+    {
+        hudAlphaTarget = Mathf.Clamp01(alpha);
+        if (seconds <= 0f) SetHudAlpha(hudAlphaTarget);
+        else hudAlphaRate = 1f / seconds;
+    }
+
+    void SetHudAlpha(float alpha)
+    {
+        hudAlpha = hudAlphaTarget = alpha;
+        if (UI != null) UI.SetHudAlpha(alpha);
+        GameHUD.SetAlpha(alpha);
     }
 
     // The menu buttons need exactly one EventSystem. It lives in the scene (not DontDestroyOnLoad), so a restart
@@ -189,11 +327,18 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(pauseKey))
+        // closing it again (and going back out of its sub-panels) is the menus' side of the same key
+        if (State == GameState.Playing && PausePressed && Time.frameCount > resumeFrame) Pause();
+
+        if (!Mathf.Approximately(hudAlpha, hudAlphaTarget))
         {
-            if (State == GameState.Playing) Pause();
-            else if (State == GameState.Paused) Resume();
+            hudAlpha = Mathf.MoveTowards(hudAlpha, hudAlphaTarget, hudAlphaRate * Time.unscaledDeltaTime);
+            UI.SetHudAlpha(hudAlpha);
+            GameHUD.SetAlpha(hudAlpha);
         }
+
+        // Esc in the editor, or switching away and back, frees the cursor: while playing it is always locked
+        if (State == GameState.Playing && Cursor.lockState != CursorLockMode.Locked && Application.isFocused) LockCursor();
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (State == GameState.Playing)
@@ -278,6 +423,12 @@ public class GameManager : MonoBehaviour
         Stats.outcome = outcome;
         Stats.escaped = outcome == RunOutcome.Won;
 
+        // a run can end under the pause menu (the dev hotkeys, or an escape on the frame it opened)
+        if (State == GameState.Paused)
+        {
+            Menus.HidePause(true);
+            if (GameSettings.Instance != null) GameSettings.Instance.SetPaused(false);
+        }
         Freeze();
         SetState(outcome == RunOutcome.Won ? GameState.Won : GameState.Lost);
         RefreshHud();
@@ -304,12 +455,19 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------ pause
 
+    // Only from play, and not while the player is being caught or respawned (the fade must finish first).
+    public bool CanPause => State == GameState.Playing && !PlayerCatch.PlayerOutOfPlay;
+
     public void Pause()
     {
-        if (State != GameState.Playing) return;
+        if (!CanPause) return;
         Freeze();
+        PauseFrame = Time.frameCount;
         SetState(GameState.Paused);
-        UI.ShowPause(true);
+        if (GameSettings.Instance != null) GameSettings.Instance.SetPaused(true);
+        // the pause strip shows the same things: the HUD steps back while the menu is up
+        FadeHud(0f, 0.12f);
+        Menus.ShowPause();
     }
 
     public void Resume()
@@ -317,11 +475,12 @@ public class GameManager : MonoBehaviour
         if (State != GameState.Paused) return;
         Time.timeScale = 1f;
         AudioListener.pause = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        LockCursor();
         resumeFrame = Time.frameCount;
         SetState(GameState.Playing);
-        UI.ShowPause(false);
+        if (GameSettings.Instance != null) GameSettings.Instance.SetPaused(false);
+        FadeHud(1f, 0.3f);
+        Menus.HidePause();
     }
 
     // Stops the game where it is: zombies, physics, animation and every timer run on scaled time, and the player
@@ -343,10 +502,19 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------ restart, quit
 
-    // Reloads the scene as a fresh run. The reload itself waits for LateUpdate: a Button calls this from inside the
-    // EventSystem's update, and the scene must not be switched off under it.
+    // Reloads the scene as a fresh run on the same difficulty, without the menu (Restart, Play Again). The reload
+    // itself waits for LateUpdate: a Button calls this from inside the EventSystem's update, and the scene must not
+    // be switched off under it.
     public void Restart()
     {
+        SkipMenuOnLoad = true;
+        restartRequested = true;
+    }
+
+    // Reloads the scene into the main menu.
+    public void ReturnToMenu()
+    {
+        SkipMenuOnLoad = false;
         restartRequested = true;
     }
 
@@ -383,6 +551,8 @@ public class GameManager : MonoBehaviour
     // Statics survive a scene reload, so each one is put back to what a fresh play session starts with. Every class
     // already has that code for entering Play mode (its RuntimeInitializeOnLoadMethod); this runs the same methods in
     // the same order: SubsystemRegistration first, then BeforeSceneLoad, which hooks the static listeners up again.
+    // Kept on purpose: SkipMenuOnLoad (Play Again goes straight into a run), the chosen difficulty, and everything
+    // saved in PlayerPrefs (settings, and Part B's achievements and records).
     public static void ResetAllStatics()
     {
         Time.timeScale = 1f;
@@ -402,10 +572,20 @@ public class GameManager : MonoBehaviour
         PickupHighlight.ResetForNewPlaySession();   // SharedMaterial (PickupHighlightConfig sets it again on load)
         GameAudio.ResetForNewPlaySession();         // Instance, the cached listener, Played
         ZombieAudio.ResetForNewPlaySession();       // the groaning list and its counters
+        GameSettings.ResetForNewPlaySession();      // Instance, OnResetProgress
+        GameMenus.ResetForNewPlaySession();         // Instance, the menu sound hooks
+        MenuCameraRig.ResetForNewPlaySession();     // Active
 
         // BeforeSceneLoad
         PlayerCatch.StartPlaySession();             // OnPlayerCaught, CatchCount, InvulnerableUntil, pending, player, respawnOnCatch; listens to OnPlayerRespawned again
         ZombieHearing.StartPlaySession();           // maxResponders, NoisesHeard, LastResponderCount; listens to OnNoiseDetailed again
+    }
+
+    // A new play session in the editor always starts at the menu, even with domain reload switched off.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetForNewPlaySession()
+    {
+        SkipMenuOnLoad = false;
     }
 
     // How many listeners each static event has, for checking that nothing doubles up after a restart.

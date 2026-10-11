@@ -33,6 +33,9 @@ public class HeadBob : MonoBehaviour
     [Tooltip("Bob size while crouching, as a fraction.")]
     [Range(0f, 1f)] public float crouchScale = 0.6f;
 
+    [Tooltip("Off (Settings): the camera stays level. The step rhythm still runs, so footsteps and the arm sway keep their timing.")]
+    public bool visualBob = true;
+
     [Header("Easing")]
     [Tooltip("Below this speed (m/s) the player counts as standing still.")]
     public float minSpeed = 0.3f;
@@ -118,6 +121,7 @@ public class HeadBob : MonoBehaviour
             Mathf.Sin(stepPhase * Mathf.PI) * sideSway * size,
             Mathf.Sin(stepPhase * Mathf.PI * 2f) * bobHeight * 0.5f * size,
             0f);
+        if (!visualBob) offset = Vector3.zero;
 
         transform.localPosition += offset;
         appliedOffset = offset;

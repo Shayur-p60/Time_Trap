@@ -74,6 +74,16 @@ public class EscapePortal : MonoBehaviour
         ApplyActivation();
     }
 
+    // Main menu only: shows the portal fully open without opening the way out (the trigger stays off). Preview(false)
+    // puts it back to what the stage says.
+    public void Preview(bool show)
+    {
+        if (IsOpen) return;
+        if (visual != null) visual.SetActive(show);
+        Activation = show ? 1f : 0f;
+        ApplyActivation();
+    }
+
     void ApplyActivation()
     {
         if (portalSurface == null) return;

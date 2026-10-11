@@ -200,6 +200,15 @@ public class PlayerWeaponState : MonoBehaviour
         }
     }
 
+    // The run starts (the menu camera has just handed over): the torch arm comes up from below instead of popping in.
+    public void RaiseTorchFromBelow()
+    {
+        if (Current != State.Torch) return;
+        torchLower = 1f;
+        torchLowering = false;
+        Apply();
+    }
+
     // The gun is down out of view: the torch takes its place, lowered, at the start of the Raise clip.
     void SwapToTorch()
     {

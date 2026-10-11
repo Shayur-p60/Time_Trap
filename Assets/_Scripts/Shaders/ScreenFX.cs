@@ -12,6 +12,7 @@ using UnityEngine.Rendering.Universal;
 //
 // Time: the glitch and the flash run on real (unscaled) time, so they always finish, even under an end screen.
 // The other three hold still while the game is paused (timeScale 0) and fade out once the run has ended.
+// Under the pause menu a faint glitch (Pause Glitch) keeps running on real time, so the frozen picture still shimmers.
 [DefaultExecutionOrder(200)]
 public class ScreenFX : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class ScreenFX : MonoBehaviour
 
     [Header("Timing (seconds)")]
     public float glitchTime = 0.6f;
+    [Tooltip("Strength of the glitch that runs behind the pause menu (0 = none).")]
+    [Range(0f, 0.5f)] public float pauseGlitch = 0.1f;
     public float flashTime = 0.2f;
     [Tooltip("How quickly frost, danger and the low-time pulse follow their targets.")]
     public float fadeTime = 0.4f;
@@ -57,6 +60,8 @@ public class ScreenFX : MonoBehaviour
     static float lowTime;
 
     bool frozen;
+    float glitchFade;
+    float pauseLevel;
     float pulsePhase;
     float gameClock;
     float realClock;
@@ -107,6 +112,7 @@ public class ScreenFX : MonoBehaviour
         PowerUps.OnFlashPulse -= HandleFlashPulse;
 
         Glitch = Pulse = Frost = Flash = Danger = 0f;
+        pauseLevel = 0f;
         frozen = false;
         ClearGlobals();
         SetDrawing(false);
@@ -119,7 +125,14 @@ public class ScreenFX : MonoBehaviour
     void HandleFreezeEnded() { frozen = false; }
     void HandleFlashPulse(Vector3 position, float duration) { TriggerFlash(); }
 
-    public void TriggerGlitch() { Glitch = 1f; }
+    public void TriggerGlitch() { TriggerGlitch(glitchTime); }
+
+    // A glitch that fades over a given time instead of Glitch Time (the main menu's short ones).
+    public void TriggerGlitch(float seconds)
+    {
+        Glitch = 1f;
+        glitchFade = Mathf.Max(0.01f, seconds);
+    }
     public void TriggerFlash() { Flash = 1f; }
 
     void Update()
@@ -131,7 +144,9 @@ public class ScreenFX : MonoBehaviour
 
         // one-shot effects: always play out, on real time
         realClock += realDelta;
-        Glitch = Mathf.MoveTowards(Glitch, 0f, realDelta / Mathf.Max(0.01f, glitchTime));
+        Glitch = Mathf.MoveTowards(Glitch, 0f, realDelta / Mathf.Max(0.01f, glitchFade > 0f ? glitchFade : glitchTime));
+        bool pauseMenu = GameManager.Instance != null && GameManager.Instance.State == GameState.Paused;
+        pauseLevel = Mathf.MoveTowards(pauseLevel, pauseMenu ? pauseGlitch : 0f, realDelta / 0.3f);
         Flash = Mathf.MoveTowards(Flash, 0f, realDelta / Mathf.Max(0.01f, flashTime));
 
         if (runEnded)
@@ -162,7 +177,8 @@ public class ScreenFX : MonoBehaviour
 
         // F9 (ShaderDevToggle) shows the game without custom shaders: the full-screen effect is off too
         bool show = !ShaderDevToggle.Plain;
-        Shader.SetGlobalFloat(GlitchId, show ? Glitch : 0f);
+        float glitch = Mathf.Max(Glitch, pauseLevel);
+        Shader.SetGlobalFloat(GlitchId, show ? glitch : 0f);
         Shader.SetGlobalFloat(PulseId, show ? Pulse : 0f);
         Shader.SetGlobalFloat(FrostId, show ? Frost : 0f);
         // ease the flash out: fast at first, then a soft tail
@@ -171,7 +187,7 @@ public class ScreenFX : MonoBehaviour
         Shader.SetGlobalFloat(PulsePhaseId, pulsePhase);
         Shader.SetGlobalVector(ClockId, new Vector4(gameClock, realClock, 0f, 0f));
 
-        SetDrawing(show && (Glitch > 0.001f || Pulse > 0.001f || Frost > 0.001f || Flash > 0.001f || Danger > 0.001f));
+        SetDrawing(show && (glitch > 0.001f || Pulse > 0.001f || Frost > 0.001f || Flash > 0.001f || Danger > 0.001f));
     }
 
     // 0 with no chasing zombie inside the radius, rising to 1 as the nearest one reaches the player.

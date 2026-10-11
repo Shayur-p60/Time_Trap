@@ -14,6 +14,9 @@ using Random = UnityEngine.Random;
 // NavMesh, and never above the stage's Max Alive. When no spawn point passes, the spawner waits and tries again.
 // For the first Opening Grace Time of a run nothing spawns within Opening Grace Distance of the player.
 // Runners are placed on or beside the walking route from the player to Gate B, never close to the gate itself.
+// The difficulty (GameManager.ApplyDifficulty) replaces the stages' Max Alive, multiplies sight and speed, and says
+// from which stage a brute may spawn. While the main menu is up nothing spawns at all; the run (and its opening
+// grace) starts when the menu closes.
 // Each zombie is the Zombie Prefab (the brain) plus one random body from its role's list, so adding a new character
 // is one more entry in Bodies.
 public class ZombieSpawner : MonoBehaviour
@@ -189,6 +192,39 @@ public class ZombieSpawner : MonoBehaviour
     public string LastSkipReason { get; private set; } = "";
     public GameStage Stage => GameProgress.Instance != null ? GameProgress.Instance.Stage : GameStage.Stage1;
     public StageSettings Current => SettingsFor(Stage);
+    // Null: no difficulty, the stage settings are used as they are.
+    public DifficultySettings DifficultyInUse { get; private set; }
+    public int CurrentMaxAlive => MaxAlive(Stage);
+    public int CurrentMaxBrutes => MaxBrutes(Stage);
+    public float SightMultiplier => DifficultyInUse != null ? DifficultyInUse.sightMultiplier : 1f;
+    public float SpeedMultiplier => DifficultyInUse != null ? DifficultyInUse.speedMultiplier : 1f;
+
+    public int MaxAlive(GameStage stage)
+    {
+        return DifficultyInUse != null ? DifficultyInUse.CapFor(stage) : SettingsFor(stage).maxAlive;
+    }
+
+    public int MaxBrutes(GameStage stage)
+    {
+        int own = SettingsFor(stage).maxBrutes;
+        if (DifficultyInUse == null) return own;
+        return DifficultyInUse.BruteIn(stage) ? Mathf.Max(1, own) : 0;
+    }
+
+    // Called by the game manager before a run starts. Zombies already alive take the new multipliers.
+    public void ApplyDifficulty(DifficultySettings difficulty)
+    {
+        float oldSpeed = SpeedMultiplier;
+        DifficultyInUse = difficulty;
+        float change = SpeedMultiplier / Mathf.Max(0.01f, oldSpeed);
+        foreach (var z in ZombieAI.All)
+        {
+            if (z == null || z.IsDead) continue;
+            z.wanderSpeed *= change;
+            z.chaseSpeed *= change;
+            ApplyStage(z, Current);
+        }
+    }
 
     float spawnTimer;
     float huntTimer;
@@ -199,6 +235,7 @@ public class ZombieSpawner : MonoBehaviour
     int nearSpawnsOwed;
     // zombies still owed to the current stage's opening group
     int openingGroup;
+    bool heldForMenu;
     Camera viewCamera;
     MaterialPropertyBlock block;
     readonly List<SpawnPoint> valid = new List<SpawnPoint>();
@@ -305,8 +342,8 @@ public class ZombieSpawner : MonoBehaviour
 
     void ApplyStage(ZombieAI zombie, StageSettings s)
     {
-        zombie.Senses.SightMultiplier = s.sightMultiplier;
-        zombie.investigateSpeed = s.investigateSpeed;
+        zombie.Senses.SightMultiplier = s.sightMultiplier * SightMultiplier;
+        zombie.investigateSpeed = s.investigateSpeed * SpeedMultiplier;
     }
 
     // The generator roars into life where the player is standing (at its console).
@@ -325,6 +362,19 @@ public class ZombieSpawner : MonoBehaviour
     void Update()
     {
         if (!spawningEnabled) return;
+        // main menu: an empty facility. The run starts when the menu closes.
+        if (GameManager.InMenu)
+        {
+            heldForMenu = true;
+            return;
+        }
+        if (heldForMenu)
+        {
+            heldForMenu = false;
+            RunStartTime = Time.time;
+            BeginStage(false);
+        }
+
         float dt = Time.deltaTime;
         StageSettings s = Current;
 
@@ -353,7 +403,7 @@ public class ZombieSpawner : MonoBehaviour
         spawnTimer = retryInterval;
 
         int alive = ZombieAI.AliveCount;
-        if (alive >= s.maxAlive)
+        if (alive >= CurrentMaxAlive)
         {
             openingGroup = 0;
             LastSkipReason = "at the stage's maximum";
@@ -366,7 +416,8 @@ public class ZombieSpawner : MonoBehaviour
             return;
         }
 
-        bool wantBrute = s.maxBrutes > 0 && brute.bodies.Length > 0 && AliveBrutes < s.maxBrutes && Time.time >= nextBruteTime;
+        int maxBrutes = CurrentMaxBrutes;
+        bool wantBrute = maxBrutes > 0 && brute.bodies.Length > 0 && AliveBrutes < maxBrutes && Time.time >= nextBruteTime;
         bool wantRunner = s.maxRunners > 0 && runner.bodies.Length > 0 && AliveRunners < s.maxRunners;
         // no place for a brute or a runner right now: a regular zombie instead, rather than nothing
         bool spawned = wantBrute && TrySpawn(brute, false);
@@ -484,8 +535,8 @@ public class ZombieSpawner : MonoBehaviour
         zombie.IsRunner = asRunner;
         zombie.IsBrute = asBrute;
         ApplyOptional(zombie, role);
-        zombie.wanderSpeed = Random.Range(role.wanderSpeed.x, role.wanderSpeed.y);
-        zombie.chaseSpeed = Random.Range(role.chaseSpeed.x, role.chaseSpeed.y);
+        zombie.wanderSpeed = Random.Range(role.wanderSpeed.x, role.wanderSpeed.y) * SpeedMultiplier;
+        zombie.chaseSpeed = Random.Range(role.chaseSpeed.x, role.chaseSpeed.y) * SpeedMultiplier;
         zombie.screamChance = role.screamChance;
         zombie.Health.SetMaxHealth(role.health);
         ApplyStage(zombie, Current);
