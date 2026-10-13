@@ -62,7 +62,7 @@ public static class PlayerCatch
     // or still invulnerable.
     public static bool TryCatch(ZombieAI by)
     {
-        if (!CanBeCaught) return false;
+        if (!CanBeCaught || !GameManager.DeathAllowed) return false;
         pending = true;
         pendingSince = Time.time;
         CatchCount++;

@@ -10,9 +10,13 @@ public static class PlayerEvents
     // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
     public static int KilledListenerCount => OnPlayerKilled != null ? OnPlayerKilled.GetInvocationList().Length : 0;
 
-    public static void RaisePlayerKilled(string cause)
+    // False when the death does not count: the game manager allows one death at a time, and the next only once the
+    // respawn from the last has finished (GameManager.DeathAllowed). Nothing is raised then.
+    public static bool RaisePlayerKilled(string cause)
     {
+        if (!GameManager.DeathAllowed) return false;
         OnPlayerKilled?.Invoke(cause);
+        return true;
     }
 
     [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]

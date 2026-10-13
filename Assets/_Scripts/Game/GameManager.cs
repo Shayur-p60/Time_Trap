@@ -410,9 +410,44 @@ public class GameManager : MonoBehaviour
 
     // ------------------------------------------------------------------ deaths, win, loss
 
+    // The one guard every death goes through (PlayerEvents.RaisePlayerKilled asks it, so a zombie catch, the pit and
+    // out-of-bounds are all covered): a death counts only during the run, and only when the respawn from the last
+    // death has completely finished. So one fall or one catch can never take two lives, whatever raises it twice.
+    public static bool DeathAllowed
+    {
+        get
+        {
+            var manager = Instance;
+            if (manager == null) return true;
+            return manager.State == GameState.Playing && !manager.DeathPending;
+        }
+    }
+
+    // A death has been counted and its respawn has not finished yet.
+    public bool DeathPending
+    {
+        get
+        {
+            if (!deathPending) return false;
+            var checkpoints = CheckpointManager.Instance;
+            // finished: the player has been put down and the fade back in is over
+            bool respawned = checkpoints != null ? checkpoints.RespawnCount > deathRespawnCount && !checkpoints.IsRespawning : Time.time - deathTime > 1.5f;
+            // safety: nothing respawned the player, so do not stay locked for ever
+            if (respawned || Time.time - deathTime > 5f) deathPending = false;
+            return deathPending;
+        }
+    }
+
+    bool deathPending;
+    float deathTime;
+    int deathRespawnCount;
+
     void HandlePlayerKilled(string cause)
     {
         if (State != GameState.Playing) return;
+        deathPending = true;
+        deathTime = Time.time;
+        deathRespawnCount = CheckpointManager.Instance != null ? CheckpointManager.Instance.RespawnCount : 0;
 
         bool caught = cause == "Zombie";
         if (caught) Stats.catches++;

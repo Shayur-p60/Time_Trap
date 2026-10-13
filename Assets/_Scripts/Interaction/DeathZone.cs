@@ -42,14 +42,17 @@ public class DeathZone : MonoBehaviour
         // the controller's centre, not its feet, so standing on a ledge just above the zone never counts
         bool inside = Contains(player.position + Vector3.up * 0.9f);
         if (inside) Kill();
-        else playerInside = false;
+        // not while a death is being dealt with: the trigger fires when the player's feet touch the zone, before
+        // their centre is inside, and forgetting that here made the same fall count a second time a moment later
+        else if (GameManager.DeathAllowed) playerInside = false;
     }
 
     void Kill()
     {
         if (playerInside) return;
+        // a death is already being dealt with (or the run is not on): this one does not count
+        if (!PlayerEvents.RaisePlayerKilled(cause)) return;
         playerInside = true;
-        PlayerEvents.RaisePlayerKilled(cause);
         // the penalty for this death ended the run: no respawn
         if (GameManager.IsGameOver) return;
         // back to the latest checkpoint. Without a CheckpointManager, TempRespawnHandler picks the event up instead.
