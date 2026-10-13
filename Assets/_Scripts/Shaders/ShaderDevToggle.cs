@@ -6,7 +6,8 @@ using UnityEngine;
 //   - materials listed under Overrides become the plain material given there (the portal -> its old placeholder)
 //   - any other transparent custom material (the beam, the dust, the pickup outline) has no "plain" look, so it is hidden
 //   - the full-screen effect is switched off as well (ScreenFX checks Plain)
-// Editor and development builds only; in a release build this script does nothing.
+// Works in the editor and in every build, release builds included. URP Lit is kept in the build by the Lit Shader
+// reference below (a shader that is only looked up by name can be stripped from a build).
 public class ShaderDevToggle : MonoBehaviour
 {
     [System.Serializable]
@@ -23,11 +24,12 @@ public class ShaderDevToggle : MonoBehaviour
     public Override[] overrides = new Override[0];
     [Tooltip("While plain is on, look for newly spawned objects this often (seconds).")]
     public float rescanInterval = 0.5f;
+    [Tooltip("Universal Render Pipeline/Lit. Set here so the shader is included in builds. Empty = looked up by name.")]
+    public Shader litShader;
 
     // True while the plain look is showing.
     public static bool Plain { get; private set; }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
     readonly Dictionary<Renderer, Material[]> swapped = new Dictionary<Renderer, Material[]>();
     readonly HashSet<Renderer> hidden = new HashSet<Renderer>();
     readonly Dictionary<Material, Material> plainCopies = new Dictionary<Material, Material>();
@@ -110,7 +112,7 @@ public class ShaderDevToggle : MonoBehaviour
         if (custom.renderQueue >= (int)UnityEngine.Rendering.RenderQueue.Transparent) return null;
 
         if (plainCopies.TryGetValue(custom, out var copy)) return copy;
-        var lit = Shader.Find("Universal Render Pipeline/Lit");
+        var lit = litShader != null ? litShader : Shader.Find("Universal Render Pipeline/Lit");
         if (lit == null) return null;
 
         copy = new Material(lit) { name = custom.name + " (URP Lit)" };
@@ -139,5 +141,4 @@ public class ShaderDevToggle : MonoBehaviour
         if (!Plain) return;
         GUI.Label(new Rect(12f, Screen.height - 30f, 400f, 22f), "Custom shaders OFF (plain URP Lit) - " + key + " to switch back");
     }
-#endif
 }

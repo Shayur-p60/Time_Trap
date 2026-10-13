@@ -1,3 +1,4 @@
+using TimeTrap.UI;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -12,6 +13,8 @@ using UnityEngine.Audio;
 //   Chase layer    on top of the ambient loop while any zombie is chasing or attacking the player, and all through
 //                  Stage 3. In over Chase Fade In; out again Chase Hold after the last chase ends.
 //   Stingers       win or loss: played once, with the end screen's title, while the loops fade out.
+//   Credits track  while the Credits screen is open: the menu loop fades out over Credits Fade and this fades in,
+//                  from its start every time, looping. Back: it fades out and the menu loop returns.
 // While a voice line is spoken (GameAudio.DuckGain) every loop comes down by the same amount as the ambience.
 // The sources ignore the paused listener, so the music carries on under the pause menu, where the mixer's Paused
 // snapshot turns it down and muffles it. Levels move on real time for the same reason.
@@ -34,6 +37,9 @@ public class MusicManager : MonoBehaviour
     public Slot ambientLoop = new Slot();
     public Slot chaseLayer = new Slot();
 
+    [Tooltip("Plays while the Credits screen is open, in place of the menu loop. Empty = the credits are silent.")]
+    public Slot creditsTrack = new Slot();
+
     [Header("Stingers")]
     public Slot winStinger = new Slot();
     public Slot lossStinger = new Slot();
@@ -45,16 +51,20 @@ public class MusicManager : MonoBehaviour
     public float chaseHold = 2f;
     public float chaseFadeOut = 1f;
     public float endFade = 1.5f;
+    [Tooltip("The menu loop and the credits track swap over this long when the Credits open or close.")]
+    public float creditsFade = 1f;
 
     // Current levels (0-1, before the slot's volume), for tests.
     public float MenuLevel { get; private set; }
     public float CutsceneLevel { get; private set; }
     public float AmbientLevel { get; private set; }
     public float ChaseLevel { get; private set; }
+    public float CreditsLevel { get; private set; }
+    public bool CreditsOpen { get; private set; }
     public bool ChaseWanted { get; private set; }
     public int StingersPlayed { get; private set; }
 
-    AudioSource menuSource, cutsceneSource, ambientSource, chaseSource, stingerSource;
+    AudioSource menuSource, cutsceneSource, ambientSource, chaseSource, stingerSource, creditsSource;
     GameManager manager;
     float sinceChase = 999f;
     bool ended;
@@ -66,6 +76,7 @@ public class MusicManager : MonoBehaviour
         ambientSource = MakeSource("AmbientLoop", true);
         chaseSource = MakeSource("ChaseLayer", true);
         stingerSource = MakeSource("Stinger", false);
+        creditsSource = MakeSource("CreditsTrack", true);
     }
 
     AudioSource MakeSource(string name, bool loop)
@@ -87,7 +98,7 @@ public class MusicManager : MonoBehaviour
         manager = GameManager.Instance;
         if (manager != null) manager.OnRunEnded += HandleRunEnded;
         if (musicGroup == null && GameAudio.Instance != null) musicGroup = GameAudio.Instance.musicGroup;
-        foreach (var source in new[] { menuSource, cutsceneSource, ambientSource, chaseSource, stingerSource })
+        foreach (var source in new[] { menuSource, cutsceneSource, ambientSource, chaseSource, stingerSource, creditsSource })
             source.outputAudioMixerGroup = musicGroup;
     }
 
@@ -121,6 +132,18 @@ public class MusicManager : MonoBehaviour
         // the intro: from the Play click that leads into it, until the player arrives in the facility
         bool intro = manager != null && (state == GameState.Cutscene ? !manager.Arriving : state == GameState.Menu && manager.Starting && manager.IntroQueued);
 
+        // the Credits screen (main menu only): its own track takes over from the menu loop
+        bool credits = menu && GameMenus.Instance != null && GameMenus.Instance.Current == GameMenus.Panel.Credits;
+        if (credits && !CreditsOpen)
+        {
+            // from the start, every time the Credits open
+            creditsSource.Stop();
+            CreditsLevel = 0f;
+        }
+        CreditsOpen = credits;
+        float swap = dt / Mathf.Max(0.01f, creditsFade);
+        CreditsLevel = Mathf.MoveTowards(CreditsLevel, credits ? 1f : 0f, swap);
+
         if (ended)
         {
             float step = dt / Mathf.Max(0.01f, endFade);
@@ -132,7 +155,9 @@ public class MusicManager : MonoBehaviour
         else
         {
             float cross = dt / Mathf.Max(0.01f, crossfadeTime);
-            MenuLevel = Mathf.MoveTowards(MenuLevel, menu ? 1f : 0f, cross);
+            // with no credits track the menu loop simply carries on under the Credits
+            bool swapping = creditsTrack.clip != null && (credits || CreditsLevel > 0f);
+            MenuLevel = Mathf.MoveTowards(MenuLevel, menu && !(credits && creditsTrack.clip != null) ? 1f : 0f, swapping && menu ? swap : cross);
             CutsceneLevel = Mathf.MoveTowards(CutsceneLevel, intro ? 1f : 0f, cross);
             AmbientLevel = Mathf.MoveTowards(AmbientLevel, menu || intro ? 0f : 1f, cross);
 
@@ -155,6 +180,7 @@ public class MusicManager : MonoBehaviour
         Drive(cutsceneSource, cutsceneLoop, CutsceneLevel);
         Drive(ambientSource, ambientLoop, AmbientLevel);
         Drive(chaseSource, chaseLayer, ChaseLevel);
+        Drive(creditsSource, creditsTrack, CreditsLevel);
     }
 
     static bool AnyChase()

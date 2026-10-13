@@ -61,6 +61,12 @@ source information: fill those in before release.
 
 Pixabay sounds are used under the Pixabay Content License.
 
+### Music
+
+| Track | Source | Licence |
+| --- | --- | --- |
+| "Luke's Song" (`Music/Luke_s Song.mp3`, file title "Curve That Knows") by exhilarativedesigns117 | Made with Suno (suno.com) | Mr Luke Vorester |
+
 ## Models
 
 Paths are under `Assets/_Models/Characters/Zombies/`.
@@ -69,8 +75,15 @@ Paths are under `Assets/_Models/Characters/Zombies/`.
 | --- | --- | --- | --- |
 | `Ch10_nonPBR.fbx` | Mixamo (Adobe) | Free for use | Stage 3 runner body |
 | `Warzombie F Pedroso.fbx` | Mixamo (Adobe) | Free for use | Regular zombie body |
-| `Zombie_Tier1/ZombieTier1_for_Mixamo.fbx` | **[TODO: model name]** by **[TODO: creator]** (**[TODO: link]**) | CC BY 4.0, rigged via Mixamo auto-rigger | Regular zombie body |
-| `bloater/Bloater_for_Mixamo.fbx` | Rigged via Mixamo auto-rigger. **[TODO: original model source not recorded]** | **[TODO]** | Stage 3 brute body |
+| `Zombie_Tier1/ZombieTier1_for_Mixamo.fbx` | Sourced from Open3DLabs.com | CC BY 4.0, rigged via Mixamo auto-rigger | Regular zombie body |
+| `bloater/Bloater_for_Mixamo.fbx` | Rigged via Mixamo auto-rigger. | Sourced from Open3DLabs.com | Stage 3 brute body |
+
+### Models made by our team (Blender)
+
+Dr Birkin (AI guide character)
+The portal chamber (intro room, culture tanks, portal ring)
+The control panel / generator console
+The elevator
 
 ### Intro cutscene
 
@@ -82,3 +95,4 @@ Birkin animations: Mixamo (Adobe)
 | Asset | Source | Licence | Used for |
 | --- | --- | --- | --- |
 | Low Poly Shooter Pack - Free Sample, by Infima Games | Unity Asset Store | Standard Unity Asset Store EULA | Handgun model only (`SK_Handgun_03`, with its 4 materials and 6 textures, in `Assets/_ThirdParty/LowPolyShooter/`). The materials were converted to URP Lit. No scripts, animations or other content from the pack are used. |
+| "[Horror game] Flashlight [Download Game-ready]" by Oskar "K1TT3N" Adamczyk (`Assets/_Models/Props/Flashlight.glb`) | Sketchfab: https://sketchfab.com/3d-models/horror-game-flashlight-download-game-ready-a8def4fb92ee4b3383726d053ff0f0e1 | CC BY 4.0 | The player's torch |

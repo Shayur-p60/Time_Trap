@@ -268,6 +268,10 @@ namespace TimeTrap.UI
             subtitleGroup = MenuKit.Group(subtitleRoot);
             MenuKit.AddImage(subtitleRoot, MenuKit.PanelSprite, MenuKit.Panel(0.9f));
             subtitleLabel = MenuKit.MakeText("Text", subtitleRoot, Vector2.zero, new Vector2(1060f, 60f), "", 28f, Color.white);
+            // a long radio line wraps, and the panel grows upward to hold it
+            subtitleLabel.textWrappingMode = TextWrappingModes.Normal;
+            subtitleRoot.pivot = new Vector2(0.5f, 0f);
+            subtitleRoot.anchoredPosition = new Vector2(0f, 204f);
             subtitleRoot.gameObject.SetActive(false);
         }
 
@@ -443,8 +447,18 @@ namespace TimeTrap.UI
         {
             subtitleLabel.text = (string.IsNullOrEmpty(speaker) ? "" : "<color=" + MenuKit.Hex(MenuKit.Amber) + "><b>" + speaker + "</b></color>   ") + text;
             subtitleLeft = Mathf.Max(0.5f, seconds);
+            float height = Mathf.Max(60f, subtitleLabel.GetPreferredValues(subtitleLabel.text, 1060f, 0f).y);
+            subtitleLabel.rectTransform.sizeDelta = new Vector2(1060f, height);
+            subtitleRoot.sizeDelta = new Vector2(1100f, height + 4f);
             subtitleGroup.alpha = 0f;
             subtitleRoot.gameObject.SetActive(true);
+        }
+
+        // The subtitle goes now (the radio line was cut short).
+        public void HideSubtitle()
+        {
+            subtitleLeft = 0f;
+            subtitleRoot.gameObject.SetActive(false);
         }
 
         // Everything off except the subtitle (the director uses this when the cutscene ends or is skipped).
@@ -557,6 +571,8 @@ namespace TimeTrap.UI
         void UpdateSubtitle(float dt)
         {
             if (!subtitleRoot.gameObject.activeSelf) return;
+            // under the pause menu the radio line is held, and so is its subtitle
+            if (GameManager.Instance != null && GameManager.Instance.State == GameState.Paused) return;
             subtitleLeft -= dt;
             // in over a quarter of a second, out over the last half
             float target = subtitleLeft > 0.5f ? 1f : Mathf.Clamp01(subtitleLeft / 0.5f);

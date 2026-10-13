@@ -28,7 +28,7 @@ dissolve, the beam, the portal, the frost and the fluid all read it.
 - **Forward+:** in URP 17 the keyword is `_CLUSTER_LIGHT_LOOP` (older versions called it `_FORWARD_PLUS`).
   `ZombieSurface`, `BioreactorFluid` and `TankGlass` declare it and loop over lights with `LIGHT_LOOP_BEGIN` /
   `LIGHT_LOOP_END`.
-- **Before/after:** press **F9** in Play mode (`ShaderDevToggle`, editor and development builds only). Zombies swap to
+- **Before/after:** press **F9** in Play mode (`ShaderDevToggle`; works in the editor and in builds, release builds included). Zombies swap to
   plain URP Lit with the same textures, the portal swaps to its old placeholder material, and the beam and dust are
   hidden (they have no URP Lit equivalent). The pit pool becomes a flat URP Lit surface, the tank strips and the
   pickup outlines are hidden, and the full-screen effect is switched off. F9 again switches back. A role tint

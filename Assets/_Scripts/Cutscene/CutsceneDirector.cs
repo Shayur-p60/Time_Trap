@@ -28,6 +28,9 @@ using UnityEngine.Timeline;
 // GameAudio.VoiceActive is on: the ambience and the music step back. A line with no clip types at the script's speed
 // with blips. The arrival's radio line plays through the Radio group, with a crackle before and after.
 //
+// Radio: the arrival's line and the Guide's lines during the run (GuideRadio) all go through QueueRadio, one at a
+// time, in the order they were asked for. A line is held by the pause menu and cut by a death or the end of the run.
+//
 // Skip: holding Skip Key for Skip Hold seconds at any point of beats 1 to 4 stops everything and goes to the arrival.
 // "Always skip intro" (Settings) goes from the black screen straight to the arrival. Play Again and Restart never
 // reach this script: they start the run without the menu.
@@ -153,6 +156,11 @@ public class CutsceneDirector : MonoBehaviour
     public CutsceneUI UI => ui;
     // A voice (Birkin's, or the radio line) is being spoken right now.
     public bool Speaking => (voiceSource != null && voiceSource.isPlaying && voiceSource.time < spokenUntil) || radioSpeaking;
+    // A radio line is being played or is waiting its turn.
+    public bool RadioBusy => radioRoutine != null;
+    // Radio lines started since the scene loaded, and the clip of the last one (for tests).
+    public int RadioLinesPlayed { get; private set; }
+    public string LastRadioClip { get; private set; } = "";
     // The voice source is sounding at all (for tests: false the moment a line is cut or skipped).
     public bool VoicePlaying => (voiceSource != null && voiceSource.isPlaying) || (radioSource != null && radioSource.isPlaying);
     // The last voiced line: the file's length and the spoken part of it, in seconds (for tests).
@@ -161,6 +169,9 @@ public class CutsceneDirector : MonoBehaviour
     // The loudest sample of the last voiced line's file (0-1) and the volume it was played at after levelling.
     public float LastClipPeak { get; private set; }
     public float LastClipGain { get; private set; }
+    // The voice source's clip name and volume right now (for tests).
+    public string VoiceClipName => voiceSource != null && voiceSource.clip != null ? voiceSource.clip.name : "";
+    public float VoiceSourceVolume => voiceSource != null ? voiceSource.volume : 0f;
     // The scene has an intro and it has not been played yet.
     public bool CanPlay => isActiveAndEnabled && script != null && introRoot != null && cameraRig != null && Current == Beat.None;
 
@@ -180,9 +191,18 @@ public class CutsceneDirector : MonoBehaviour
     readonly Dictionary<AudioClip, float> clipPeaks = new Dictionary<AudioClip, float>();
     float spokenUntil;
     bool radioSpeaking;
+    struct RadioItem
+    {
+        public AudioClip clip;
+        public string speaker, text;
+        public float seconds;
+    }
+    readonly Queue<RadioItem> radioQueue = new Queue<RadioItem>();
+    Coroutine radioRoutine;
     readonly List<Renderer> hidden = new List<Renderer>();
     TimelineAsset currentShot;
     bool advanceRequested;
+    int pressFrame = -1;       // the frame the last press was used in
     int lastFootstep = -1;
 
     bool fogSaved;
@@ -237,10 +257,23 @@ public class CutsceneDirector : MonoBehaviour
         radioSource.outputAudioMixerGroup = radioGroup != null ? radioGroup : voiceSource.outputAudioMixerGroup;
         ui.blip = blip;
         ui.keyClack = keyClack;
+        if (manager != null) manager.OnRunEnded += HandleRunEnded;
     }
+
+    // After GameManager.ResetAllStatics on a restart (it clears the event), as every listener of it does.
+    void OnEnable()
+    {
+        PlayerEvents.OnPlayerKilled += HandlePlayerKilled;
+    }
+
+    void HandlePlayerKilled(string cause) { StopRadio(); }
+    void HandleRunEnded(RunStats stats) { StopRadio(); }
 
     void OnDisable()
     {
+        PlayerEvents.OnPlayerKilled -= HandlePlayerKilled;
+        radioQueue.Clear();
+        radioRoutine = null;
         // a reload (or leaving Play mode) in the middle of it: nothing may stay changed
         StopAllCoroutines();
         if (movement != null && Running) movement.scriptedInput = false;
@@ -253,6 +286,7 @@ public class CutsceneDirector : MonoBehaviour
 
     void OnDestroy()
     {
+        if (manager != null) manager.OnRunEnded -= HandleRunEnded;
         if (Instance == this) Instance = null;
     }
 
@@ -287,6 +321,7 @@ public class CutsceneDirector : MonoBehaviour
         if (!Running || Current < Beat.Typewriter || Current >= Beat.Arrival) return;
         Skipped = true;
         // every beat is part of the one coroutine, so this stops whatever it was in the middle of
+        // (no radio line can be playing yet: they only start once the run has)
         StopAllCoroutines();
         StartCoroutine(ArrivalBeat());
     }
@@ -311,15 +346,16 @@ public class CutsceneDirector : MonoBehaviour
         if (SkipHold01 >= 1f) Skip();
     }
 
-    // E, left click or Enter went down this frame.
+    // E, left click or Enter went down this frame. One press does one thing: a key is "down" for the whole frame,
+    // and the next line starts in the same frame the last one ended, so without the frame check the press that
+    // moved on from a line also completed the next one and cut its voice before it was heard.
     bool AdvancePressed()
     {
-        if (advanceRequested)
-        {
-            advanceRequested = false;
-            return true;
-        }
-        return Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
+        if (Time.frameCount == pressFrame) return false;
+        bool pressed = advanceRequested || Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
+        advanceRequested = false;
+        if (pressed) pressFrame = Time.frameCount;
+        return pressed;
     }
 
     static IEnumerator Wait(float seconds)
@@ -595,36 +631,77 @@ public class CutsceneDirector : MonoBehaviour
         manager.StartGame(hudFade);
         Current = Beat.Done;
         Running = false;
-        StartCoroutine(RadioLine());
+        QueueRadio(script.radioVoice, script.radioSpeaker, script.radioLine, script.radioSeconds);
     }
 
-    // "You're through." A subtitle, and with a clip a radio voice: a crackle, the line, a crackle.
-    IEnumerator RadioLine()
+    // ------------------------------------------------------------------ radio lines
+
+    // A radio line: a subtitle, and with a clip the voice through the Radio group with a crackle before and after.
+    // Lines never overlap: one asked for while another is playing waits its turn. Only during the run.
+    public bool QueueRadio(AudioClip clip, string speaker, string text, float minSeconds)
     {
-        AudioClip clip = script.radioVoice;
-        if (clip == null)
-        {
-            ui.Subtitle(script.radioSpeaker, script.radioLine, script.radioSeconds);
-            yield break;
-        }
+        if (manager == null || !isActiveAndEnabled || (manager.State != GameState.Playing && manager.State != GameState.Paused)) return false;
+        radioQueue.Enqueue(new RadioItem { clip = clip, speaker = speaker, text = text, seconds = minSeconds });
+        if (radioRoutine == null) radioRoutine = StartCoroutine(RadioLoop());
+        return true;
+    }
 
-        float spoken = SpokenLength(clip);
-        LastClipLength = clip.length;
-        LastSpokenLength = spoken;
-        radioSpeaking = true;
-        ui.Subtitle(script.radioSpeaker, script.radioLine, Mathf.Max(script.radioSeconds, spoken + 1f));
-        Crackle();
-        yield return Wait(0.14f);
-
-        radioSource.clip = clip;
-        radioSource.volume = voiceVolume * LevelGain(clip);
-        radioSource.Play();
-        GameAudio.Note("Cutscene/RadioVoice", radioSource, clip);
-        // a source is "not playing" while the listener is paused (the pause menu): that is not the end of the line
-        while (radioSource.time < spoken && (radioSource.isPlaying || AudioListener.pause)) yield return null;
-        radioSource.Stop();
-        Crackle();
+    // Cuts the line that is playing and drops the ones waiting (a death, the end of the run).
+    public void StopRadio()
+    {
+        radioQueue.Clear();
+        if (radioRoutine != null) StopCoroutine(radioRoutine);
+        radioRoutine = null;
+        if (radioSource != null) radioSource.Stop();
         radioSpeaking = false;
+        if (ui != null) ui.HideSubtitle();
+    }
+
+    IEnumerator RadioLoop()
+    {
+        while (radioQueue.Count > 0)
+        {
+            RadioItem item = radioQueue.Dequeue();
+            // not over the pause menu
+            while (manager.State == GameState.Paused) yield return null;
+            RadioLinesPlayed++;
+            LastRadioClip = item.clip != null ? item.clip.name : "";
+
+            if (item.clip == null)
+            {
+                ui.Subtitle(item.speaker, item.text, item.seconds);
+                yield return RadioWait(item.seconds);
+            }
+            else
+            {
+                float spoken = SpokenLength(item.clip);
+                LastClipLength = item.clip.length;
+                LastSpokenLength = spoken;
+                radioSpeaking = true;
+                ui.Subtitle(item.speaker, item.text, Mathf.Max(item.seconds, spoken + 1f));
+                Crackle();
+                yield return RadioWait(0.14f);
+
+                radioSource.clip = item.clip;
+                radioSource.volume = voiceVolume * LevelGain(item.clip);
+                radioSource.Play();
+                GameAudio.Note("Cutscene/RadioVoice", radioSource, item.clip);
+                // a source is "not playing" while the listener is paused (the pause menu): that is not the end of the line
+                while (radioSource.time < spoken && (radioSource.isPlaying || AudioListener.pause)) yield return null;
+                radioSource.Stop();
+                Crackle();
+                radioSpeaking = false;
+            }
+            // a breath between two lines
+            if (radioQueue.Count > 0) yield return RadioWait(0.6f);
+        }
+        radioRoutine = null;
+    }
+
+    // Real seconds that do not count under the pause menu.
+    IEnumerator RadioWait(float seconds)
+    {
+        for (float t = 0f; t < seconds; t += manager.State == GameState.Paused ? 0f : Time.unscaledDeltaTime) yield return null;
     }
 
     // ------------------------------------------------------------------ helpers

@@ -46,6 +46,15 @@ namespace TimeTrap.UI
         [Tooltip("Optional serif for the titles. Empty = the TextMeshPro default, bold.")]
         public TMP_FontAsset titleFont;
         public string studio = "Dead Reckoning Games";
+        [Tooltip("The team, one per line, under THE TEAM at the top of the credits.")]
+        public string[] team =
+        {
+            "Tharish Dayanand (223004453)",
+            "Mfundo Shwabede (223059561)",
+            "Simbonge Ndlovu (223059617)",
+            "Yakhani Dlamini (223063732)",
+            "Shayur Pragdheen (224014462)",
+        };
         public string version = "v1.0";
 
         [Header("Scene")]
@@ -1032,7 +1041,8 @@ namespace TimeTrap.UI
             sb.Append("<size=26><color=").Append(dim).Append(">presents</color></size>\n\n");
             sb.Append("<size=110><b>TIME TRAP</b></size>\n\n\n");
             sb.Append("<size=44><b><color=").Append(amber).Append(">THE TEAM</color></b></size>\n\n");
-            sb.Append("[TODO: group member names]\n\n\n");
+            foreach (string member in team) sb.Append(member).Append('\n');
+            sb.Append("\n\n");
             if (credits == null) return sb.ToString();
 
             string[] lines = credits.text.Replace("\r", "").Split('\n');
