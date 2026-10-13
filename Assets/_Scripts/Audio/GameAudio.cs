@@ -18,6 +18,8 @@ using UnityEngine.Audio;
 //   GameProgress.OnObjectiveCompleted  a "collected" sound with the HUD banner (power, pathogen, data)
 //   PlayerEvents.OnPlayerKilled      catch sting (with the glitch effect)
 //   GameManager.OnRunEnded           ambience, heartbeat and tick fade out; the end screen calls EndSting with its title
+//   GameAudio.VoiceActive            while a voice line is being spoken (the intro's Dr Birkin), the ambience layers here
+//                                    and the music (MusicManager) come down by Duck Decibels, and return when it stops
 //
 // Pause: AudioListener.pause holds every source. The UI group's sounds (stings, button clicks) ignore it. On an end
 // screen the ambience and the heartbeat are let through the pause for a moment so they can fade out instead of cut.
@@ -99,6 +101,13 @@ public class GameAudio : MonoBehaviour
     [Tooltip("Seconds the ambience, heartbeat and tick take to fade out on an end screen.")]
     public float endFade = 1.5f;
 
+    [Header("Ducking under a voice line")]
+    [Tooltip("How far the ambience and the music come down while a voice line is spoken (decibels).")]
+    public float duckDecibels = 6f;
+    [Tooltip("Seconds to come down, and to come back.")]
+    public float duckAttack = 0.15f;
+    public float duckRelease = 0.5f;
+
     [Header("3D defaults")]
     public float worldMinDistance = 2f;
     public float worldMaxDistance = 22f;
@@ -129,6 +138,11 @@ public class GameAudio : MonoBehaviour
     // The panting loop's volume right now (0-1, before the mixer).
     public float PantingLevel => pantingLayer != null ? pantingLayer.Level : 0f;
     public AudioSource PantingSource => pantingLayer != null ? pantingLayer.Source : null;
+
+    // A voice line is being spoken right now. Set every frame by whoever plays it (CutsceneDirector).
+    public static bool VoiceActive;
+    // What the ambience and the music are multiplied by: 1 normally, lower under a voice line.
+    public static float DuckGain { get; private set; } = 1f;
 
     static Transform listener;
 
@@ -266,6 +280,12 @@ public class GameAudio : MonoBehaviour
             UpdateHeartbeat();
             UpdateTick();
         }
+
+        // under a voice line the ambience (here) and the music (MusicManager reads DuckGain) step back
+        float ducked = Mathf.Pow(10f, -Mathf.Abs(duckDecibels) / 20f);
+        float duckStep = (1f - ducked) * realDelta / Mathf.Max(0.01f, VoiceActive ? duckAttack : duckRelease);
+        DuckGain = Mathf.MoveTowards(DuckGain, VoiceActive ? ducked : 1f, duckStep);
+        droneLayer.gain = humLayer.gain = bedLayer.gain = DuckGain;
 
         foreach (var layer in layers) layer.Tick(realDelta);
         foreach (var voice in voices) voice.Tick();
@@ -536,6 +556,8 @@ public class GameAudio : MonoBehaviour
         Instance = null;
         listener = null;
         Played.Clear();
+        VoiceActive = false;
+        DuckGain = 1f;
     }
 
     // ------------------------------------------------------------------ loops
@@ -554,6 +576,8 @@ public class GameAudio : MonoBehaviour
 
         public float Level { get; private set; }
         public AudioSource Source => sources[0];
+        // Multiplied into the volume (ducking).
+        public float gain = 1f;
 
         public LoopLayer(string name, Transform parent, SfxLoop loop, AudioMixerGroup group, bool spatial, float min, float max)
         {
@@ -617,7 +641,7 @@ public class GameAudio : MonoBehaviour
                 return;
             }
 
-            float volume = loop.volume * Level;
+            float volume = loop.volume * Level * gain;
             float clipPitch = (loop.pitch > 0f ? loop.pitch : 1f) * pitch;
             if (!sliced)
             {

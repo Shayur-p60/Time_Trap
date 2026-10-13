@@ -1,6 +1,6 @@
-# Time Trap – custom shaders (parts A and B)
+# Time Trap – custom shaders (parts A and B, and the intro cutscene)
 
-Seven hand-written HLSL shaders for URP 17.5 (Unity 6, Forward+). No Shader Graph. Each one includes URP's
+Ten hand-written HLSL shaders for URP 17.5 (Unity 6, Forward+). No Shader Graph. Each one includes URP's
 `Core.hlsl` (and `Lighting.hlsl` where it needs lights) for the matrices and light data, and does its own maths.
 
 | Shader | File | Used on | Driver script |
@@ -12,23 +12,29 @@ Seven hand-written HLSL shaders for URP 17.5 (Unity 6, Forward+). No Shader Grap
 | `TimeTrap/TimeDistortionFullscreen` | `TimeDistortionFullscreen.shader` | Full Screen Pass feature on `PC_Renderer` | `ScreenFX` |
 | `TimeTrap/BioreactorFluid` | `BioreactorFluid.shader` | `Map/ShaderFX/BioreactorFluid` (pit pool, tank strips) | none |
 | `TimeTrap/PickupHighlight` | `PickupHighlight.shader` | every pickup and objective item, added at runtime | `PickupHighlight`, `PickupHighlightConfig` |
+| `TimeTrap/Hologram` | `Hologram.shader` | Dr Birkin in the intro cutscene (`IntroCutscene/Birkin`, one material per body part) | `BirkinHologramFX` |
+| `TimeTrap/TankFluid` | `TankFluid.shader` | the liquid in the eight specimen tanks of the portal chamber (`M_Tank_Fluid`) | none |
+| `TimeTrap/TankGlass` | `TankGlass.shader` | the glass of those tanks (`M_Tank_Glass`) | none |
 
 Materials are in `Assets/_Materials/Shaders/`. Scripts are in `Assets/_Scripts/Shaders/`.
 `Textures/TT_Noise.png` is a generated, tileable noise texture (R and G hold two different noise patterns); the
 dissolve, the beam, the portal, the frost and the fluid all read it.
 
-**Things that apply to all seven**
+**Things that apply to all ten**
 
 - **SRP Batcher:** every per-material property is declared once inside `CBUFFER_START(UnityPerMaterial)`, and the
   buffer is identical in every pass of a shader (in `ZombieSurface` it sits in an `HLSLINCLUDE` block shared by all
   four passes). Values set from scripts as globals (`_TorchPositionWS` and friends) are deliberately outside it.
 - **Forward+:** in URP 17 the keyword is `_CLUSTER_LIGHT_LOOP` (older versions called it `_FORWARD_PLUS`).
-  `ZombieSurface` and `BioreactorFluid` declare it and loop over lights with `LIGHT_LOOP_BEGIN` / `LIGHT_LOOP_END`.
+  `ZombieSurface`, `BioreactorFluid` and `TankGlass` declare it and loop over lights with `LIGHT_LOOP_BEGIN` /
+  `LIGHT_LOOP_END`.
 - **Before/after:** press **F9** in Play mode (`ShaderDevToggle`, editor and development builds only). Zombies swap to
   plain URP Lit with the same textures, the portal swaps to its old placeholder material, and the beam and dust are
   hidden (they have no URP Lit equivalent). The pit pool becomes a flat URP Lit surface, the tank strips and the
   pickup outlines are hidden, and the full-screen effect is switched off. F9 again switches back. A role tint
   (`_Tint`, no role uses one for now beyond the regulars' slight variations) is not carried over to the plain version.
+  In the intro cutscene F9 shows Dr Birkin as the plain URP Lit model he was imported as (each hologram material has
+  its original listed under `ShaderDevToggle`'s Overrides), and the tank fluid and glass are hidden.
 
 ---
 
@@ -485,6 +491,125 @@ return max(nearby, inBeam) * _Fade;
 
 ---
 
+## 8. TimeTrap/Hologram
+
+**What it does.** Dr Birkin, the AI guide of the intro cutscene, is a man made of light: cyan, see-through, edged
+with a glow, crossed by scanlines that climb his body, flickering, and now and then torn sideways by a glitch. He
+materialises from the feet up when he first appears.
+
+**Where it is used.** Every renderer of `IntroCutscene/Birkin`. There is one hologram material per original material
+(`Assets/_Materials/Cutscene/Hologram/Holo_*`), because each keeps its own albedo texture. The hair cards use
+`_Cutoff` and `Cull Off`; the lens of the glasses has `_ZWrite` off so it does not hide the eyes.
+
+**Techniques**
+
+- *Vertex glitch*: the body is cut into horizontal bands in world space (`floor(positionWS.y * _GlitchBands)`). A
+  hash of the band and of the time, cut into steps of 1/14 s, decides which bands are displaced, and by how much;
+  the displaced bands move along the camera's right vector. Because the time is stepped, an offset holds for a few
+  frames and then jumps, which is what makes it read as a glitch and not a wobble.
+- *Colour with detail*: the output is `_Color`, multiplied by the albedo's luminance (blended by `_DetailStrength`),
+  so the face, the coat's folds and the moustache still read although everything is one colour.
+- *Fresnel rim*: `pow(1 - dot(normal, view), _RimPower) * _RimIntensity`, added to the colour and to the alpha.
+- *Scanlines*: a sine of the world-space height, scrolled with time so the lines travel upward; `_ScanDensity` is
+  lines per metre, so they keep their spacing whatever the camera does.
+- *Flicker*: a hash of the stepped time gives random dips in brightness; `_Flicker` scales them.
+- *Reveal*: each vertex carries its height up the figure (0 at the feet, 1 at the head). Pixels above the reveal line
+  are thrown away with `clip`, and the line itself is drawn in a bright `_EdgeColor`. `_Reveal` 0 → 1 materialises
+  him from the bottom up.
+- *Transparency with a depth pre-pass*: see below.
+
+**The depth pre-pass.** A see-through character drawn in one pass shows everything inside itself: the back of the
+coat through the front, the teeth through the cheeks, an arm through the chest. So the shader has two passes:
+
+1. `HologramDepth` writes depth only (`ColorMask 0`, `ZWrite On`).
+2. `Hologram` draws the colour, alpha blended, with `ZTest LEqual` and no depth write.
+
+Doing both passes renderer by renderer is not enough, because Birkin is eighteen separate skinned meshes (head,
+teeth, eyes, hair, hands, coat and so on): the head's colour would be drawn before the hair's depth. So the first
+pass has its own LightMode tag, which URP never draws by itself, and a **Render Objects** renderer feature on
+`PC_Renderer` (named `Hologram Depth`, event Before Rendering Transparents, pass name `HologramDepth`) draws that
+pass for every hologram renderer before any transparent object is drawn. By the time the colour pass runs, the
+nearest surface of the whole figure is in the depth buffer, and only that surface is shaded. Both passes move the
+vertices with the same glitch function, so their depths match exactly.
+
+**Driver.** `BirkinHologramFX` (on Birkin) sets `_Reveal`, `_GlitchAmount`, `_Flicker`, `_RevealMinY` and
+`_RevealHeight` through a `MaterialPropertyBlock`, the same way `ZombieShaderFX` does, so the materials themselves
+never change. `Appear` and `Disappear` run the reveal with a big glitch; the cutscene director fires a small glitch
+between dialogue lines; a faint one fires by itself every few seconds. The script also switches the Render Objects
+feature on while Birkin exists and off again when the cutscene is over, so the feature costs nothing during play.
+
+**Module concepts shown:** vertex displacement, fresnel, procedural patterns in world space, alpha blending and
+draw order (the depth pre-pass), `clip`, multi-pass shaders, driving a shader from a script.
+
+**Key lines for a slide**
+
+```hlsl
+// vertex: random horizontal bands jump sideways for a few frames
+float tick = floor(_Time.y * 14.0);
+float band = floor(positionWS.y * _GlitchBands);
+float on = step(1.0 - 0.55 * _GlitchAmount, Hash(float2(band, tick)));
+float shift = (Hash(float2(tick, band) + 7.3) - 0.5) * 2.0 * _GlitchShift * _GlitchAmount;
+positionWS += UNITY_MATRIX_V[0].xyz * (on * shift);
+```
+
+```hlsl
+// fragment: reveal from the feet up, with a glowing line
+half below = _Reveal * (1.0 + _RevealEdgeWidth) - input.height01;
+clip(below);
+half edge = (1.0 - smoothstep(0.0, _RevealEdgeWidth, below)) * step(_Reveal, 0.999);
+```
+
+```hlsl
+// fragment: scanlines scrolling upward, and the fresnel rim
+half scan = 0.5 + 0.5 * sin((input.positionWS.y * _ScanDensity - _Time.y * _ScanSpeed) * TWO_PI);
+half rim = pow(1.0 - saturate(dot(normalWS, viewWS)), _RimPower);
+```
+
+```hlsl
+// pass 1: depth only, drawn for the whole figure before any colour
+Tags { "LightMode" = "HologramDepth" }
+ZWrite [_ZWrite]
+ColorMask 0
+```
+
+---
+
+## 9. TimeTrap/TankFluid and 10. TimeTrap/TankGlass
+
+Two small shaders for the eight specimen tanks of the portal chamber. The bodies floating in the tanks are the
+game's own zombie bodies with their usual `ZombieSurface` materials.
+
+**TankFluid** (`M_Tank_Fluid`): a see-through teal column that glows and never looks still.
+
+- two noise layers read through world-space coordinates and scrolled upward at different speeds: slow currents,
+  different in every tank
+- fresnel: the edge of the column, where the camera looks through more liquid, is denser and brighter
+- brighter toward the bottom, where the tank's light is
+- alpha blended, no depth write, queue `Transparent-10` so it is drawn before the glass around it
+
+**TankGlass** (`M_Tank_Glass`): clear when looked at straight on, more visible toward its edges, slightly
+reflective.
+
+- fresnel drives both the opacity and the brightness
+- there is nothing to reflect in a dark hall, so two soft vertical streaks are faked from the direction of the
+  reflected view ray; they slide round the cylinder as the camera moves
+- Blinn-Phong highlights from the additional lights (the tank lights and the red lamps), through the Forward+ light
+  loop
+
+```hlsl
+// TankFluid: currents rising through world-space noise
+float up = input.positionWS.y * _NoiseScale - _Time.y * _RiseSpeed;
+half currents = lerp(1.0, noiseA * noiseB * 4.0, _NoiseStrength);
+```
+
+```hlsl
+// TankGlass: a faked reflection, placed by where the reflected ray points
+half3 reflected = reflect(-viewWS, normalWS);
+half streak = pow(saturate(dot(normalize(reflected.xz), half2(0.83, 0.56))), _StreakPower);
+```
+
+---
+
 ## URP settings these shaders rely on
 
 `Assets/Settings/PC_RPAsset.asset` already had both textures switched on; nothing was changed there.
@@ -494,6 +619,9 @@ return max(nearby, inBeam) * _Fade;
 - **`PC_Renderer`**: one renderer feature was added, a Full Screen Pass named `TimeDistortionFullscreen` (injection
   point After Rendering Post Processing, Fetch Color Buffer on, material `TimeDistortionFullscreen`). It is saved
   switched off; `ScreenFX` switches it on only while an effect is showing.
+- **`PC_Renderer`**, for the hologram: a Render Objects feature named `Hologram Depth` (event Before Rendering
+  Transparents, transparent queue, shader pass `HologramDepth`). Also saved switched off; `BirkinHologramFX`
+  switches it on only while Dr Birkin exists.
 
 ## Performance
 
@@ -524,6 +652,12 @@ and the figures moved by about ±0.4 ms between runs, so treat them as rough.
 | Chest at 3 m, with / without the 40 outline shells | 12.92 / 13.23 | too small to measure |
 
 The full-screen pass costs nothing while no effect is showing, because the renderer feature is switched off.
+
+**Intro cutscene.** The hologram, the tank shaders and the `Hologram Depth` feature only exist while `IntroCutscene` is
+active. After the arrival that root is inactive and the feature is off, so none of it is drawn or updated during
+play. At the player's start in Stage 1 the render time was the same with the root inactive and with it switched on
+500 m below (25.7 and 30.6 ms against 26.6 and 31.1 ms over two alternating batches of 80 renders, inside the noise of
+that measurement).
 
 ## Screenshots
 

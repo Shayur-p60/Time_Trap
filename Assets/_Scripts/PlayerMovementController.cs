@@ -140,6 +140,7 @@ public class PlayerMovementController : MonoBehaviour
     [System.NonSerialized] public bool scriptedInput;
     [System.NonSerialized] public Vector2 scriptedMove;   // x = strafe, y = forward, each -1..1
     [System.NonSerialized] public bool scriptedSprint;
+    private bool scriptedWalk;
     /// <summary>Settings: a multiplier on Mouse Sensitivity (1 = as set here).</summary>
     public float SensitivityMultiplier { get; set; } = 1f;
     /// <summary>Settings: moving the mouse up looks down.</summary>
@@ -188,13 +189,20 @@ public class PlayerMovementController : MonoBehaviour
 
     private void Update()
     {
+        // the intro's arrival walks the player out of the portal with Scripted Input: the body moves, the mouse and
+        // the crouch key do nothing
+        scriptedWalk = scriptedInput && GameManager.InCutscene;
+
         // in the menu, paused or on an end screen: the view must not turn
-        if (GameManager.InputBlocked) return;
+        if (GameManager.InputBlocked && !scriptedWalk) return;
 
         // Esc belongs to the pause menu. Only a scene without a game manager keeps the old cursor toggle.
         if (GameManager.Instance == null) HandleCursorToggle();
-        HandleMouseLook();
-        HandleCrouch();
+        if (!scriptedWalk)
+        {
+            HandleMouseLook();
+            HandleCrouch();
+        }
         HandleMovement();
         UpdateAnimationBlend();
     }
@@ -318,7 +326,7 @@ public class PlayerMovementController : MonoBehaviour
             moveDirection.Normalize();
         }
 
-        bool isCrouchHeld = Input.GetKey(crouchKey);
+        bool isCrouchHeld = !scriptedWalk && Input.GetKey(crouchKey);
         bool sprintHeld = scriptedInput ? scriptedSprint : Input.GetKey(sprintKey);
         WantsSprint = !isCrouchHeld && sprintHeld && !SprintBlocked && moveDirection.sqrMagnitude > 0.01f;
         bool isSprinting = WantsSprint && SprintAllowed;

@@ -72,6 +72,11 @@ Paths are under `Assets/_Models/Characters/Zombies/`.
 | `Zombie_Tier1/ZombieTier1_for_Mixamo.fbx` | **[TODO: model name]** by **[TODO: creator]** (**[TODO: link]**) | CC BY 4.0, rigged via Mixamo auto-rigger | Regular zombie body |
 | `bloater/Bloater_for_Mixamo.fbx` | Rigged via Mixamo auto-rigger. **[TODO: original model source not recorded]** | **[TODO]** | Stage 3 brute body |
 
+### Intro cutscene
+
+Portal chamber and Dr Birkin: original models by Dead Reckoning Games (Blender)
+Birkin animations: Mixamo (Adobe)
+
 ## Third-party assets
 
 | Asset | Source | Licence | Used for |

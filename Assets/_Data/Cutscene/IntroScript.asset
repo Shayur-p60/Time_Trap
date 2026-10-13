@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6def8151ec2b4beaa8ae791d75e843f, type: 3}
+  m_Name: IntroScript
+  m_EditorClassIdentifier: Assembly-CSharp::IntroScript
+  typewriterLines:
+  - "BIRKIN LABORATORIES \u2014 SUBLEVEL 4"
+  - 03:12 AM. CONTAINMENT FAILURE.
+  - 41 STAFF. NO SURVIVORS.
+  - Six years later, the lights came back on.
+  typewriterSpeed: 22
+  lineHold: 0.9
+  lastLineHold: 1.6
+  lastLineFade: 2.5
+  speaker: "DR. BIRKIN \xB7 AI GUIDE"
+  charactersPerSecond: 40
+  voidLines:
+  - text: Don't be alarmed. What you're looking at isn't a man. Not anymore.
+    voice: {fileID: 8300000, guid: 2b7660f574340483995d211158ea1760, type: 3}
+    shot: {fileID: 11400000, guid: f98861f0361f6457e89b4b896371551c, type: 2}
+    action: {fileID: 11400000, guid: a1601a0776d6a4c22b4c072fb2b20eef, type: 2}
+  - text: "I built this place. My work had two halves: a pathogen that rewrites living
+      tissue\u2026 and a machine that folds time."
+    voice: {fileID: 8300000, guid: 2f8964c3697084a78be24e72a8dc830e, type: 3}
+    shot: {fileID: 11400000, guid: f98861f0361f6457e89b4b896371551c, type: 2}
+    action: {fileID: 11400000, guid: af9726773e29947b0bbb8c6649563cc5, type: 2}
+  - text: The night of the breach, I knew I wouldn't walk out. So I copied everything
+      I was into the lab's core. My body died on Sublevel 4. My mind stayed.
+    voice: {fileID: 8300000, guid: 2cf2e765a679f471a94e041611725831, type: 3}
+    shot: {fileID: 11400000, guid: cee10f6311c1f406c900bc0415fa9ebe, type: 2}
+    action: {fileID: 11400000, guid: d3edd4058f4a54eed977f24f19ed268d, type: 2}
+  - text: Six years I've watched that night replay in my data. Every scream. Every
+      door that didn't close.
+    voice: {fileID: 8300000, guid: 070ea2ec2d4114687b7b300f30551978, type: 3}
+    shot: {fileID: 11400000, guid: 261154ebfbce842eab1f6a19debac445, type: 2}
+    action: {fileID: 11400000, guid: 22d101a1f5b9f49088d5b7b0b739fea2, type: 2}
+  - text: But the portal still works. It can open a window back to that night. Five
+      minutes. No more.
+    voice: {fileID: 8300000, guid: ddf791dc55d9d4cd5b54dd2c80b84d25, type: 3}
+    shot: {fileID: 11400000, guid: 261154ebfbce842eab1f6a19debac445, type: 2}
+    action: {fileID: 11400000, guid: a370c6fe40dda41348f2e6778e88a6da, type: 2}
+  - text: I can't go through. I'm only light. You can.
+    voice: {fileID: 8300000, guid: 94068def5b305478ea382afba441e165, type: 3}
+    shot: {fileID: 11400000, guid: edbcab5d42a5d42afaff50c52cbdeccb, type: 2}
+    action: {fileID: 11400000, guid: bb43f04d0609648cd997b7b66b5e54aa, type: 2}
+  chamberLines:
+  - text: "This is the portal chamber. The tanks behind you\u2026 that's what the
+      pathogen did to my staff."
+    voice: {fileID: 8300000, guid: c9e8a346bb1fb493d9fd1c1bc0387a99, type: 3}
+    shot: {fileID: 0}
+    action: {fileID: 11400000, guid: 90536fc5e054e474c8a98c24c89d9450, type: 2}
+  - text: 'On the other side: restore the power, take the pathogen sample, and download
+      my research. Any order.'
+    voice: {fileID: 8300000, guid: 7c98aa3b19b5641189249c986551a2f2, type: 3}
+    shot: {fileID: 0}
+    action: {fileID: 11400000, guid: 0233fd6ab6d954c9a94f3b401d4edb87, type: 2}
+  - text: Then get back through the portal at Gate B before it collapses. If it closes
+      with you still in there, you stay in that night. Forever.
+    voice: {fileID: 8300000, guid: 153d6ab6f01784dbfabb1b6e8fe437d1, type: 3}
+    shot: {fileID: 0}
+    action: {fileID: 11400000, guid: 3f5dd0172c3fe491ab8a493f0d991c8a, type: 2}
+  - text: They were people once. Don't let them touch you. Go.
+    voice: {fileID: 8300000, guid: 38a4bd7d8ec1043d0abfd456fc251f16, type: 3}
+    shot: {fileID: 0}
+    action: {fileID: 11400000, guid: 647935d8c6356467bb0a92087b93b13f, type: 2}
+  radioSpeaker: DR. BIRKIN
+  radioLine: You're through. The clock's running.
+  radioVoice: {fileID: 8300000, guid: a51c185692a7b4f13833afa547aba8f6, type: 3}
+  radioSeconds: 4

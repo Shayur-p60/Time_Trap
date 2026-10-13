@@ -362,8 +362,8 @@ public class ZombieSpawner : MonoBehaviour
     void Update()
     {
         if (!spawningEnabled) return;
-        // main menu: an empty facility. The run starts when the menu closes.
-        if (GameManager.InMenu)
+        // main menu and intro cutscene: an empty facility. The run starts when the menu closes or the intro ends.
+        if (GameManager.BeforeRun)
         {
             heldForMenu = true;
             return;

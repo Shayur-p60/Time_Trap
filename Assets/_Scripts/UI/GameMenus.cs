@@ -14,7 +14,9 @@ namespace TimeTrap.UI
     // (MenuKit) above the HUD and the game manager's screens.
     //
     //   Main menu   shown while GameManager.State is Menu. Play: whoosh, the MenuCameraRig glides into the player's
-    //               camera, the menu fades out as the HUD fades in, then GameManager.StartGame.
+    //               camera, the menu fades out as the HUD fades in, then GameManager.StartGame. With a
+    //               CutsceneDirector in the scene, Play hands over to the intro instead: the screen fades to black
+    //               over the menu and the director takes it from there.
     //   Pause       GameManager.Pause / Resume show and hide it. Esc (P as well in the editor) goes back one level:
     //               out of a confirmation, out of a sub-panel, then out of the pause menu.
     //   Settings    reads and writes GameSettings; the same panel from both menus.
@@ -75,6 +77,8 @@ namespace TimeTrap.UI
         public string PauseStripText => stripTime.text + " | " + stripDifficulty.text + " | " + stripObjectives.text;
         public bool PauseDimVisible => pauseDim != null && pauseDim.gameObject.activeSelf;
         public float MainAlpha => mainGroup != null && mainRoot.gameObject.activeSelf ? mainGroup.alpha : 0f;
+        public MenuSelector SkipIntroSelector => skipIntroSelector;
+        public Slider VoiceSlider => voiceSlider;
 
         GameManager manager;
         Transform canvas;
@@ -103,8 +107,8 @@ namespace TimeTrap.UI
         RectTransform tabUnderline;
         int tab;
         MenuEntry settingsBack, settingsDefaults, settingsProgress;
-        Slider masterSlider, musicSlider, sfxSlider, zombiesSlider, sensitivitySlider, brightnessSlider, fovSlider;
-        MenuSelector invertSelector, fullscreenSelector, resolutionSelector, headBobSelector;
+        Slider masterSlider, musicSlider, sfxSlider, zombiesSlider, voiceSlider, sensitivitySlider, brightnessSlider, fovSlider;
+        MenuSelector invertSelector, fullscreenSelector, resolutionSelector, headBobSelector, skipIntroSelector;
         readonly List<Vector2Int> resolutions = new List<Vector2Int>();
         Graphic brightnessMark;
 
@@ -502,9 +506,29 @@ namespace TimeTrap.UI
             mainGroup.blocksRaycasts = false;
             defaultSelection = null;
             MenuKit.Select(null);
+            // the intro cutscene, when the scene has one: the director fades to black over the menu and calls
+            // CloseForIntro once nothing of it can be seen
+            var director = CutsceneDirector.Instance;
+            if (director != null && director.CanPlay)
+            {
+                manager.BeginStart(true);
+                director.Begin(GameSettings.IsOn(GameSettings.SkipIntro));
+                return;
+            }
+
             manager.BeginStart();
             if (cameraRig != null && cameraRig.InMenu) cameraRig.BeginGlide(() => StartCoroutine(FinishStart()));
             else StartCoroutine(FinishStart());
+        }
+
+        // The screen is black and the intro is taking over: the menu goes, and the fly-through camera gives the
+        // player's renderers, the fog and its light back (the director then takes the picture for itself).
+        public void CloseForIntro()
+        {
+            mainGroup.alpha = 0f;
+            Show(Panel.None, null);
+            Starting = false;
+            if (cameraRig != null) cameraRig.HandOver();
         }
 
         // The camera is where the player's is: the menu fades out as the HUD fades in, then the game takes over.
@@ -728,6 +752,7 @@ namespace TimeTrap.UI
             musicSlider = Row(parent, controls, "Music", 100f, GameSettings.Music, 0f, 1f, Percent);
             sfxSlider = Row(parent, controls, "Sound effects", 20f, GameSettings.Sfx, 0f, 1f, Percent);
             zombiesSlider = Row(parent, controls, "Zombies", -60f, GameSettings.Zombies, 0f, 1f, Percent);
+            voiceSlider = Row(parent, controls, "Voice", -140f, GameSettings.Voice, 0f, 1f, Percent);
             // a sample on letting go, so the level can be judged by ear
             sfxSlider.gameObject.AddComponent<SliderRelease>().onRelease = () => Sound("UI/SfxSample", sfxSample, true);
         }
@@ -747,9 +772,10 @@ namespace TimeTrap.UI
 
         void BuildDisplayTab(Transform parent, List<Selectable> controls)
         {
-            brightnessSlider = Row(parent, controls, "Brightness", 196f, GameSettings.Brightness, 0f, 1f, Percent);
+            // eight rows and the brightness test share the tab: 62 apart
+            brightnessSlider = Row(parent, controls, "Brightness", 204f, GameSettings.Brightness, 0f, 1f, Percent);
             brightnessSlider.onValueChanged.AddListener(v => RefreshBrightnessTest());
-            fullscreenSelector = ToggleRow(parent, controls, "Fullscreen", 124f, GameSettings.Fullscreen);
+            fullscreenSelector = ToggleRow(parent, controls, "Fullscreen", 142f, GameSettings.Fullscreen);
 
             foreach (Resolution r in Screen.resolutions)
             {
@@ -763,27 +789,29 @@ namespace TimeTrap.UI
             resolutions.Sort((a, b) => a.x != b.x ? a.x.CompareTo(b.x) : a.y.CompareTo(b.y));
             var names = new List<string>();
             foreach (var r in resolutions) names.Add(r.x + " x " + r.y);
-            var resolutionLabel = MenuKit.MakeRowLabel(parent, "Resolution", new Vector2(RowLabelX, 52f), RowLabelWidth);
-            resolutionSelector = MenuKit.MakeSelector(parent, "Resolution", new Vector2(ControlX, 52f), ControlWidth, names, Mathf.Max(0, resolutions.IndexOf(now)), resolutionLabel,
+            var resolutionLabel = MenuKit.MakeRowLabel(parent, "Resolution", new Vector2(RowLabelX, 80f), RowLabelWidth);
+            resolutionSelector = MenuKit.MakeSelector(parent, "Resolution", new Vector2(ControlX, 80f), ControlWidth, names, Mathf.Max(0, resolutions.IndexOf(now)), resolutionLabel,
                 i => GameSettings.SetResolution(resolutions[i].x, resolutions[i].y));
             resolutionSelector.wrap = false;
             controls.Add(resolutionSelector);
 
-            fovSlider = Row(parent, controls, "Field of view", -20f, GameSettings.Fov, GameSettings.MinFov, GameSettings.MaxFov, v => Mathf.RoundToInt(v) + "°");
+            fovSlider = Row(parent, controls, "Field of view", 18f, GameSettings.Fov, GameSettings.MinFov, GameSettings.MaxFov, v => Mathf.RoundToInt(v) + "°");
             fovSlider.wholeNumbers = true;
-            headBobSelector = ToggleRow(parent, controls, "Head bob", -92f, GameSettings.HeadBobOn);
+            headBobSelector = ToggleRow(parent, controls, "Head bob", -44f, GameSettings.HeadBobOn);
+            // Play goes straight to the arrival in the facility
+            skipIntroSelector = ToggleRow(parent, controls, "Always skip intro", -106f, GameSettings.SkipIntro);
 
             // the Time Lord reward: the row is only there once it is unlocked (RefreshSettings)
-            goldenLabel = MenuKit.MakeRowLabel(parent, "Golden beam", new Vector2(RowLabelX, -164f), RowLabelWidth);
-            goldenSelector = MenuKit.MakeSelector(parent, "Golden beam", new Vector2(ControlX, -164f), ControlWidth, OffOn, Achievements.GoldenBeamEnabled ? 1 : 0, goldenLabel,
+            goldenLabel = MenuKit.MakeRowLabel(parent, "Golden beam", new Vector2(RowLabelX, -168f), RowLabelWidth);
+            goldenSelector = MenuKit.MakeSelector(parent, "Golden beam", new Vector2(ControlX, -168f), ControlWidth, OffOn, Achievements.GoldenBeamEnabled ? 1 : 0, goldenLabel,
                 i => Achievements.GoldenBeamEnabled = i == 1);
             goldenSelector.GetComponent<MenuEntry>().highlightColour = MenuKit.Gold;
 
             // brightness test: a symbol on black that should only just show
-            MenuKit.MakeText("TestCaption", parent, new Vector2(RowLabelX, -264f), new Vector2(RowLabelWidth, 80f),
+            MenuKit.MakeText("TestCaption", parent, new Vector2(RowLabelX, -272f), new Vector2(RowLabelWidth, 80f),
                 "<size=24>Brightness test</size>\n<size=20><color=" + MenuKit.Hex(MenuKit.Dim) + ">Adjust until the symbol is barely visible.</color></size>",
                 24f, MenuKit.Text, TextAlignmentOptions.Left);
-            var box = MenuKit.Rect("BrightnessTest", parent, new Vector2(ControlX - ControlWidth * 0.5f + 150f, -264f), new Vector2(300f, 108f));
+            var box = MenuKit.Rect("BrightnessTest", parent, new Vector2(ControlX - ControlWidth * 0.5f + 150f, -272f), new Vector2(300f, 108f));
             MenuKit.AddImage(box, null, Color.black);
             var mark = MenuKit.Rect("Symbol", box, Vector2.zero, new Vector2(84f, 84f));
             var image = MenuKit.AddImage(mark, brightnessSymbol != null ? brightnessSymbol : MenuKit.PanelSprite, Color.white);
@@ -852,10 +880,11 @@ namespace TimeTrap.UI
             musicSlider.SetValueWithoutNotify(GameSettings.Get(GameSettings.Music));
             sfxSlider.SetValueWithoutNotify(GameSettings.Get(GameSettings.Sfx));
             zombiesSlider.SetValueWithoutNotify(GameSettings.Get(GameSettings.Zombies));
+            voiceSlider.SetValueWithoutNotify(GameSettings.Get(GameSettings.Voice));
             sensitivitySlider.SetValueWithoutNotify(GameSettings.Get(GameSettings.Sensitivity));
             brightnessSlider.SetValueWithoutNotify(GameSettings.Get(GameSettings.Brightness));
             fovSlider.SetValueWithoutNotify(GameSettings.Get(GameSettings.Fov));
-            foreach (var slider in new[] { masterSlider, musicSlider, sfxSlider, zombiesSlider, sensitivitySlider, brightnessSlider, fovSlider })
+            foreach (var slider in new[] { masterSlider, musicSlider, sfxSlider, zombiesSlider, voiceSlider, sensitivitySlider, brightnessSlider, fovSlider })
             {
                 // the value text follows onValueChanged, which SetValueWithoutNotify skips
                 float value = slider.value;
@@ -864,6 +893,7 @@ namespace TimeTrap.UI
             invertSelector.SetIndex(GameSettings.IsOn(GameSettings.InvertY) ? 1 : 0, false);
             fullscreenSelector.SetIndex(GameSettings.IsOn(GameSettings.Fullscreen) ? 1 : 0, false);
             headBobSelector.SetIndex(GameSettings.IsOn(GameSettings.HeadBobOn) ? 1 : 0, false);
+            skipIntroSelector.SetIndex(GameSettings.IsOn(GameSettings.SkipIntro) ? 1 : 0, false);
 
             bool golden = Achievements.GoldenBeamAvailable;
             goldenLabel.gameObject.SetActive(golden);
@@ -871,7 +901,7 @@ namespace TimeTrap.UI
             goldenSelector.SetIndex(Achievements.GoldenBeamEnabled ? 1 : 0, false);
             var display = tabControls[2];
             display.Remove(goldenSelector);
-            if (golden) display.Insert(display.IndexOf(headBobSelector) + 1, goldenSelector);
+            if (golden) display.Insert(display.IndexOf(skipIntroSelector) + 1, goldenSelector);
             int resolution = resolutions.IndexOf(GameSettings.Resolution);
             if (resolution >= 0) resolutionSelector.SetIndex(resolution, false);
             RefreshBrightnessTest();

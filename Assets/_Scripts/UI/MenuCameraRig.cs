@@ -166,6 +166,15 @@ namespace TimeTrap.UI
             ApplyShot();
         }
 
+        // The intro cutscene takes over from the menu with the screen black: everything the menu changed is put back,
+        // with no glide. (The player's camera comes back on; the cutscene director switches it off again for itself.)
+        public void HandOver()
+        {
+            if (!InMenu) return;
+            onArrived = null;
+            Exit();
+        }
+
         void Exit()
         {
             InMenu = false;

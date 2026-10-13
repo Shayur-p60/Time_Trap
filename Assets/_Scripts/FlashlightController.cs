@@ -55,22 +55,24 @@ public class FlashlightController : MonoBehaviour
 
     void Update()
     {
-        // main menu: the torch waits, switched off and not draining, until the fly-through hands over
-        if (MenuCameraRig.Active || GameManager.InMenu)
+        // main menu and intro cutscene: the torch waits, switched off and not draining, until the fly-through (or the
+        // cutscene camera) hands the picture over
+        bool elsewhere = MenuCameraRig.Active || CutsceneDirector.OwnsPicture;
+        if (elsewhere || GameManager.BeforeRun)
         {
-            if (MenuCameraRig.Active && flashlightLight != null && flashlightLight.enabled)
+            if (elsewhere && flashlightLight != null && flashlightLight.enabled)
             {
                 flashlightLight.enabled = false;
                 heldForMenu = true;
             }
-            if (MenuCameraRig.Active) return;
+            if (elsewhere) return;
         }
         if (heldForMenu)
         {
             heldForMenu = false;
             if (flashlightLight != null) flashlightLight.enabled = isOn;
         }
-        if (GameManager.InMenu) return;
+        if (GameManager.BeforeRun) return;
 
         if (Input.GetKeyDown(KeyCode.F) && !GameManager.InputBlocked)
             ToggleLight();

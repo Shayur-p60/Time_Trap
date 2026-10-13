@@ -1,15 +1,18 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-// The music: three loops and two stingers, all on the Music mixer group. One per scene, on Map/Gameplay/MusicManager.
+// The music: four loops and two stingers, all on the Music mixer group. One per scene, on Map/Gameplay/MusicManager.
 // Every slot may be left empty: an empty slot is simply silent, so the files can be dropped in later (see
 // Assets/_Audio/Music/README.md for the expected names).
 //
-//   Menu loop      while the main menu is up.
-//   Ambient loop   cross-fades in over Crossfade Time when Play is pressed, and runs for the whole game.
+//   Menu loop      while the main menu is up. Fades out when Play is pressed.
+//   Cutscene loop  through the intro cutscene, from the Play click to the arrival in the facility.
+//   Ambient loop   cross-fades in over Crossfade Time when Play is pressed (after the intro: at the arrival), and
+//                  runs for the whole game.
 //   Chase layer    on top of the ambient loop while any zombie is chasing or attacking the player, and all through
 //                  Stage 3. In over Chase Fade In; out again Chase Hold after the last chase ends.
 //   Stingers       win or loss: played once, with the end screen's title, while the loops fade out.
+// While a voice line is spoken (GameAudio.DuckGain) every loop comes down by the same amount as the ambience.
 // The sources ignore the paused listener, so the music carries on under the pause menu, where the mixer's Paused
 // snapshot turns it down and muffles it. Levels move on real time for the same reason.
 public class MusicManager : MonoBehaviour
@@ -26,6 +29,8 @@ public class MusicManager : MonoBehaviour
 
     [Header("Loops")]
     public Slot menuLoop = new Slot();
+    [Tooltip("The intro cutscene.")]
+    public Slot cutsceneLoop = new Slot();
     public Slot ambientLoop = new Slot();
     public Slot chaseLayer = new Slot();
 
@@ -43,12 +48,13 @@ public class MusicManager : MonoBehaviour
 
     // Current levels (0-1, before the slot's volume), for tests.
     public float MenuLevel { get; private set; }
+    public float CutsceneLevel { get; private set; }
     public float AmbientLevel { get; private set; }
     public float ChaseLevel { get; private set; }
     public bool ChaseWanted { get; private set; }
     public int StingersPlayed { get; private set; }
 
-    AudioSource menuSource, ambientSource, chaseSource, stingerSource;
+    AudioSource menuSource, cutsceneSource, ambientSource, chaseSource, stingerSource;
     GameManager manager;
     float sinceChase = 999f;
     bool ended;
@@ -56,6 +62,7 @@ public class MusicManager : MonoBehaviour
     void Awake()
     {
         menuSource = MakeSource("MenuLoop", true);
+        cutsceneSource = MakeSource("CutsceneLoop", true);
         ambientSource = MakeSource("AmbientLoop", true);
         chaseSource = MakeSource("ChaseLayer", true);
         stingerSource = MakeSource("Stinger", false);
@@ -80,7 +87,7 @@ public class MusicManager : MonoBehaviour
         manager = GameManager.Instance;
         if (manager != null) manager.OnRunEnded += HandleRunEnded;
         if (musicGroup == null && GameAudio.Instance != null) musicGroup = GameAudio.Instance.musicGroup;
-        foreach (var source in new[] { menuSource, ambientSource, chaseSource, stingerSource })
+        foreach (var source in new[] { menuSource, cutsceneSource, ambientSource, chaseSource, stingerSource })
             source.outputAudioMixerGroup = musicGroup;
     }
 
@@ -111,11 +118,14 @@ public class MusicManager : MonoBehaviour
         GameState state = manager != null ? manager.State : GameState.Playing;
         // the cross-fade starts with the Play click, not when the camera arrives
         bool menu = state == GameState.Menu && !manager.Starting;
+        // the intro: from the Play click that leads into it, until the player arrives in the facility
+        bool intro = manager != null && (state == GameState.Cutscene ? !manager.Arriving : state == GameState.Menu && manager.Starting && manager.IntroQueued);
 
         if (ended)
         {
             float step = dt / Mathf.Max(0.01f, endFade);
             MenuLevel = Mathf.MoveTowards(MenuLevel, 0f, step);
+            CutsceneLevel = Mathf.MoveTowards(CutsceneLevel, 0f, step);
             AmbientLevel = Mathf.MoveTowards(AmbientLevel, 0f, step);
             ChaseLevel = Mathf.MoveTowards(ChaseLevel, 0f, step);
         }
@@ -123,7 +133,8 @@ public class MusicManager : MonoBehaviour
         {
             float cross = dt / Mathf.Max(0.01f, crossfadeTime);
             MenuLevel = Mathf.MoveTowards(MenuLevel, menu ? 1f : 0f, cross);
-            AmbientLevel = Mathf.MoveTowards(AmbientLevel, menu ? 0f : 1f, cross);
+            CutsceneLevel = Mathf.MoveTowards(CutsceneLevel, intro ? 1f : 0f, cross);
+            AmbientLevel = Mathf.MoveTowards(AmbientLevel, menu || intro ? 0f : 1f, cross);
 
             // under the pause menu the chase stands still, and so does its layer
             if (state == GameState.Playing)
@@ -133,7 +144,7 @@ public class MusicManager : MonoBehaviour
                 if (ChaseWanted) ChaseLevel = Mathf.MoveTowards(ChaseLevel, 1f, dt / Mathf.Max(0.01f, chaseFadeIn));
                 else if (sinceChase >= chaseHold) ChaseLevel = Mathf.MoveTowards(ChaseLevel, 0f, dt / Mathf.Max(0.01f, chaseFadeOut));
             }
-            else if (state == GameState.Menu)
+            else if (state == GameState.Menu || state == GameState.Cutscene)
             {
                 ChaseWanted = false;
                 ChaseLevel = 0f;
@@ -141,6 +152,7 @@ public class MusicManager : MonoBehaviour
         }
 
         Drive(menuSource, menuLoop, MenuLevel);
+        Drive(cutsceneSource, cutsceneLoop, CutsceneLevel);
         Drive(ambientSource, ambientLoop, AmbientLevel);
         Drive(chaseSource, chaseLayer, ChaseLevel);
     }
@@ -172,7 +184,7 @@ public class MusicManager : MonoBehaviour
             return;
         }
         if (source.clip != slot.clip) source.clip = slot.clip;
-        source.volume = slot.volume * level;
+        source.volume = slot.volume * level * GameAudio.DuckGain;
         if (!source.isPlaying) source.Play();
     }
 }

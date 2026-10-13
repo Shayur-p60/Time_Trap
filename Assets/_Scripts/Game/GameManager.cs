@@ -14,7 +14,8 @@ using UnityEngine.SceneManagement;
 using TimeTrap.UI;
 
 // Menu: the main menu is up (or the camera is gliding in after Play). Won and Lost are the two ways a run has ended.
-public enum GameState { Menu, Playing, Paused, Won, Lost }
+// Cutscene: the intro (CutsceneDirector), from the fade to black after Play until the arrival in the facility is over.
+public enum GameState { Menu, Playing, Paused, Won, Lost, Cutscene }
 
 // Runs the game: the countdown, the lives, winning, losing, pausing and restarting. One per scene, on
 // Map/Gameplay/GameManager. It builds its own HUD and menus (GameManagerUI), so it needs no other scene setup.
@@ -30,6 +31,10 @@ public enum GameState { Menu, Playing, Paused, Won, Lost }
 //   Menu    the scene loads into the main menu (GameMenus): no input, no HUD, no clock, no zombies. Play applies the
 //           chosen difficulty and starts the run. Play Again and Restart reload the scene and skip the menu; Main
 //           Menu reloads into it.
+//   Intro   with a CutsceneDirector in the scene, Play goes Menu -> Cutscene -> Playing. The Cutscene state is the
+//           menu's without the menu: no input, no HUD, no clock, no zombies, no pause, no achievements. The director
+//           calls StartGame when the arrival is over, which is when the clock starts. Play Again and Restart never
+//           pass through it.
 //   Pause   Esc. Not in the menu, on an end screen or during a death and respawn. The pause menu is the only thing
 //           Esc does during play; this class owns the cursor (locked while playing, free everywhere else).
 //   Restart reloads the scene. Statics survive a reload, so ResetAllStatics runs first.
@@ -91,6 +96,10 @@ public class GameManager : MonoBehaviour
     public GameState State { get; private set; } = GameState.Playing;
     // Play has been pressed and the camera is on its way in. State is still Menu.
     public bool Starting { get; private set; }
+    // Play has been pressed and the intro cutscene follows (the music waits for the arrival).
+    public bool IntroQueued { get; private set; }
+    // The last beat of the intro: the player is stepping out of the arrival portal.
+    public bool Arriving { get; private set; }
     // The frame the pause menu opened in, so the key press that opened it is not also read as "back".
     public int PauseFrame { get; private set; } = -1;
     public GameMenus Menus { get; private set; }
@@ -115,6 +124,10 @@ public class GameManager : MonoBehaviour
     public static bool IsGameOver => Instance != null && (Instance.State == GameState.Won || Instance.State == GameState.Lost);
     // The main menu is up. False in a scene without a game manager.
     public static bool InMenu => Instance != null && Instance.State == GameState.Menu;
+    // The intro cutscene is running (arrival included).
+    public static bool InCutscene => Instance != null && Instance.State == GameState.Cutscene;
+    // The run has not begun: the main menu or the intro. No zombies, no clock, the torch waits.
+    public static bool BeforeRun => InMenu || InCutscene;
     // The pause key went down this frame.
     public static bool PausePressed
     {
@@ -220,24 +233,49 @@ public class GameManager : MonoBehaviour
         if (UI != null) RefreshHud();
     }
 
-    // Play was pressed. The menu keeps the state until its camera has arrived (StartGame).
-    public void BeginStart()
+    // Play was pressed. The menu keeps the state until its camera has arrived (StartGame), or, with the intro, until
+    // the screen is black (BeginCutscene).
+    public void BeginStart(bool intro = false)
     {
         if (State != GameState.Menu) return;
         Starting = true;
+        IntroQueued = intro;
         ApplyDifficulty();
     }
 
-    // The run begins: input on, clock running, zombies spawning.
-    public void StartGame()
+    // The intro takes over from the menu. Everything stays as it was in the menu (no HUD, no clock, no zombies); the
+    // cursor is locked, for the look-around in the portal chamber.
+    public void BeginCutscene()
     {
         if (State != GameState.Menu) return;
         Starting = false;
+        Arriving = false;
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        LockCursor();
+        SetHudAlpha(0f);
+        SetState(GameState.Cutscene);
+    }
+
+    // The intro has reached the arrival in the facility (or was skipped to it).
+    public void BeginArrival()
+    {
+        if (State == GameState.Cutscene) Arriving = true;
+    }
+
+    // The run begins: input on, clock running, zombies spawning. From the menu the HUD is already up; the intro's
+    // arrival fades it in over Hud Fade Seconds.
+    public void StartGame(float hudFadeSeconds = 0f)
+    {
+        if (State != GameState.Menu && State != GameState.Cutscene) return;
+        Starting = false;
+        IntroQueued = false;
+        Arriving = false;
         Time.timeScale = 1f;
         AudioListener.pause = false;
         LockCursor();
         resumeFrame = Time.frameCount;
-        FadeHud(1f, 0f);
+        FadeHud(1f, hudFadeSeconds);
         SetState(GameState.Playing);
         Debug.Log("[GameManager] Run started on " + Difficulty.Name + ": " + FormatTime(TimeLeft) + ", " + Lives + " lives, penalty " + Mathf.RoundToInt(catchPenaltySeconds) + " s.");
     }
@@ -339,8 +377,8 @@ public class GameManager : MonoBehaviour
             GameHUD.SetAlpha(hudAlpha);
         }
 
-        // Esc in the editor, or switching away and back, frees the cursor: while playing it is always locked
-        if (State == GameState.Playing && Cursor.lockState != CursorLockMode.Locked && Application.isFocused) LockCursor();
+        // Esc in the editor, or switching away and back, frees the cursor: while playing (and in the intro) it is always locked
+        if ((State == GameState.Playing || State == GameState.Cutscene) && Cursor.lockState != CursorLockMode.Locked && Application.isFocused) LockCursor();
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (State == GameState.Playing)
@@ -586,6 +624,7 @@ public class GameManager : MonoBehaviour
         GameMenus.ResetForNewPlaySession();         // Instance, the menu sound hooks
         MenuCameraRig.ResetForNewPlaySession();     // Active
         AchievementTracker.ResetForNewPlaySession(); // Instance
+        CutsceneDirector.ResetForNewPlaySession();  // Instance, OwnsPicture
         Achievements.ResetForNewRun();              // OnUnlocked, OnReset, the unlocked-this-run list (saved progress stays)
 
         // BeforeSceneLoad

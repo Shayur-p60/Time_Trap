@@ -124,6 +124,8 @@ public static class Achievements
     {
         AchievementDef def = Find(id);
         if (def == null || IsUnlocked(id)) return false;
+        // nothing is earned by watching the intro
+        if (GameManager.InCutscene) return false;
         PlayerPrefs.SetInt(UnlockKey + id, 1);
         PlayerPrefs.Save();
         UnlockedThisRun.Add(def);

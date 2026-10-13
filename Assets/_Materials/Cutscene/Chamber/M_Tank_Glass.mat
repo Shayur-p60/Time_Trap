@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_Tank_Glass
+  m_Shader: {fileID: 4800000, guid: b42a6bc6657d34e98a1a248022724e7a, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Alpha: 0.04
+    - _EdgeAlpha: 0.45
+    - _FresnelPower: 3
+    - _Smoothness: 0.9
+    - _SpecStrength: 0.8
+    - _StreakIntensity: 0.35
+    - _StreakPower: 14
+    m_Colors:
+    - _ReflectColor: {r: 0.5, g: 0.95, b: 1.1, a: 1}
+    - _Tint: {r: 0.54999995, g: 0.9, b: 0.95, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -9,20 +9,20 @@ using UnityEngine.Rendering.Universal;
 // scene, on Map/Gameplay/GameSettings. The Settings panel (GameMenus) reads and writes the values through the static
 // Get / Set calls here; nothing else needs to know where they are stored.
 //
-//   Audio     Master, Music, SFX and Zombies drive the TimeTrapMixer's exposed volumes. A slider is a gain on top of
+//   Audio     Master, Music, SFX, Zombies and Voice drive the TimeTrapMixer's exposed volumes. A slider is a gain on top of
 //             the group's balanced level in the mixer: 100% is that level, 0% is -80 dB.
 //   Controls  mouse sensitivity (a multiplier on the player's own) and Invert Y.
 //   Display   brightness (post-exposure on a global Volume this object creates), fullscreen, resolution, field of
-//             view, head bob.
+//             view, head bob, and "Always skip intro" (Play goes straight to the arrival; off by default).
 // It also holds the two things the pause menu does to picture and sound: the Paused mixer snapshot and the
 // desaturation of the game behind the menu.
 [DefaultExecutionOrder(-180)]
 public class GameSettings : MonoBehaviour
 {
-    public const string Master = "master", Music = "music", Sfx = "sfx", Zombies = "zombies";
+    public const string Master = "master", Music = "music", Sfx = "sfx", Zombies = "zombies", Voice = "voice";
     public const string Sensitivity = "sensitivity", InvertY = "invertY";
     public const string Brightness = "brightness", Fullscreen = "fullscreen", ResolutionWidth = "resW", ResolutionHeight = "resH";
-    public const string Fov = "fov", HeadBobOn = "headBob";
+    public const string Fov = "fov", HeadBobOn = "headBob", SkipIntro = "skipIntro";
     const string Prefix = "tt.set.";
 
     public const float MinSensitivity = 0.1f, MaxSensitivity = 3f;
@@ -32,7 +32,7 @@ public class GameSettings : MonoBehaviour
     // Settings -> Reset progress. Part B's achievements and records clear themselves from this.
     public static event Action OnResetProgress;
 
-    [Tooltip("TimeTrapMixer. Its MasterVolume, MusicVolume, SFXVolume and ZombiesVolume parameters are driven from here.")]
+    [Tooltip("TimeTrapMixer. Its MasterVolume, MusicVolume, SFXVolume, ZombiesVolume and VoiceVolume parameters are driven from here.")]
     public AudioMixer mixer;
     [Tooltip("Snapshot names in the mixer: the normal mix, and the pause menu's (music low and muffled).")]
     public string normalSnapshot = "Snapshot";
@@ -70,6 +70,7 @@ public class GameSettings : MonoBehaviour
             case Music: return 0.7f;
             case Sfx: return 1f;
             case Zombies: return 1f;
+            case Voice: return 1f;
             case Sensitivity: return 1f;
             case InvertY: return 0f;
             case Brightness: return 0.5f;
@@ -122,7 +123,7 @@ public class GameSettings : MonoBehaviour
     // Everything back to its default. Progress (achievements, records) is not a setting and stays.
     public static void ResetToDefaults()
     {
-        foreach (string key in new[] { Master, Music, Sfx, Zombies, Sensitivity, InvertY, Brightness, Fullscreen, ResolutionWidth, ResolutionHeight, Fov, HeadBobOn })
+        foreach (string key in new[] { Master, Music, Sfx, Zombies, Voice, Sensitivity, InvertY, Brightness, Fullscreen, ResolutionWidth, ResolutionHeight, Fov, HeadBobOn, SkipIntro })
             PlayerPrefs.DeleteKey(Prefix + key);
         PlayerPrefs.Save();
         if (Instance == null) return;
@@ -220,6 +221,7 @@ public class GameSettings : MonoBehaviour
         SetVolume("MusicVolume", Get(Music));
         SetVolume("SFXVolume", Get(Sfx));
         SetVolume("ZombiesVolume", Get(Zombies));
+        SetVolume("VoiceVolume", Get(Voice));
 
         if (movement != null)
         {
