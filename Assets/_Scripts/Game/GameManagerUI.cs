@@ -34,14 +34,11 @@ public class GameManagerUI : MonoBehaviour
     Vector2 penaltyHome;
     float penaltyAge = -1f;
 
-    GameObject endRoot;
-    TextMeshProUGUI endTitle;
-    TextMeshProUGUI endText;
-    TextMeshProUGUI endStatNames;
-    TextMeshProUGUI endStatValues;
+    // The win and loss screen (its own class: the sequence, the stats and the unlock list).
+    public TimeTrap.UI.EndScreen End { get; private set; }
 
-    public Button EndPlayAgainButton { get; private set; }
-    public Button EndMainMenuButton { get; private set; }
+    public Button EndPlayAgainButton => End.PlayAgainButton;
+    public Button EndMainMenuButton => End.MainMenuButton;
 
     string timerText = "";
     bool timerLow;
@@ -56,11 +53,9 @@ public class GameManagerUI : MonoBehaviour
     public int LivesShown => livesShown;
     public bool HudVisible => hudRoot != null && hudRoot.activeSelf && hudGroup.alpha > 0f;
     public float HudAlpha => hudGroup != null ? hudGroup.alpha : 0f;
-    public bool EndVisible => endRoot != null && endRoot.activeSelf;
-    public string EndTitle => endTitle != null ? endTitle.text : "";
-    public string EndText => endText != null ? endText.text : "";
-    public string EndStatNames => endStatNames != null ? endStatNames.text : "";
-    public string EndStatValues => endStatValues != null ? endStatValues.text : "";
+    public bool EndVisible => End != null && End.Visible;
+    public string EndTitle => End != null ? End.Title : "";
+    public string EndText => End != null ? End.Subtitle : "";
     public bool PenaltyVisible => penaltyAge >= 0f;
     public string PenaltyText => penaltyLabel != null ? penaltyLabel.text : "";
 
@@ -123,27 +118,12 @@ public class GameManagerUI : MonoBehaviour
         if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
     }
 
-    public void ShowEnd(string title, string text, Color titleColour, RunStats stats)
+    public void ShowEnd(RunStats stats)
     {
-        if (endRoot == null) return;
+        if (End == null) return;
         ClearSelection();
         hudRoot.SetActive(false);
-
-        endTitle.text = title;
-        endTitle.color = titleColour;
-        endText.text = text;
-
-        // a win shows what was left on the clock; a loss shows how long the player lasted
-        bool won = stats.outcome == RunOutcome.Won;
-        endStatNames.text = (won ? "Time remaining" : "Time survived") + "\nLives left\nZombies killed\nShots fired\nAccuracy\nObjectives completed";
-        endStatValues.text = GameManager.FormatTime(won ? stats.timeRemaining : stats.timeSurvived)
-            + "\n" + stats.livesLeft
-            + "\n" + stats.zombiesKilled
-            + "\n" + stats.shotsFired
-            + "\n" + (stats.shotsFired > 0 ? Mathf.RoundToInt(stats.Accuracy * 100f) + "%" : "-")
-            + "\n" + stats.objectivesCompleted + " / " + RunStats.ObjectiveCount;
-
-        endRoot.SetActive(true);
+        End.Show(stats);
     }
 
     // ------------------------------------------------------------------ every frame
@@ -239,19 +219,8 @@ public class GameManagerUI : MonoBehaviour
         penaltyLabel.gameObject.SetActive(false);
 
         // ---- end screen
-        var end = MakeFill("End", transform);
-        AddImage(end, null, new Color(0f, 0f, 0f, 0.93f));
-        endTitle = MakeText("Title", end, centre, new Vector2(0f, 330f), new Vector2(1700f, 120f), 92f, TextAlignmentOptions.Center);
-        endText = MakeText("Text", end, centre, new Vector2(0f, 240f), new Vector2(1500f, 60f), 34f, TextAlignmentOptions.Center);
-        var stats = MakePanel("Stats", end, centre, new Vector2(0f, 10f), new Vector2(640f, 300f), new Color(1f, 1f, 1f, 0.06f));
-        endStatNames = MakeText("Names", stats, centre, new Vector2(-70f, 0f), new Vector2(420f, 260f), 30f, TextAlignmentOptions.Left);
-        endStatNames.color = new Color(0.75f, 0.75f, 0.75f, 1f);
-        endStatValues = MakeText("Values", stats, centre, new Vector2(180f, 0f), new Vector2(200f, 260f), 30f, TextAlignmentOptions.Right);
-        // Play Again: the same difficulty, straight into the run. Main Menu: back to the menu.
-        EndPlayAgainButton = MakeButton(end, "Play Again", new Vector2(-170f, -240f), owner.Restart);
-        EndMainMenuButton = MakeButton(end, "Main Menu", new Vector2(170f, -240f), owner.ReturnToMenu);
-        endRoot = end.gameObject;
-        endRoot.SetActive(false);
+        End = gameObject.AddComponent<TimeTrap.UI.EndScreen>();
+        End.Build(owner, transform);
     }
 
     static RectTransform MakeRect(string name, Transform parent, Vector2 anchor, Vector2 position, Vector2 size)

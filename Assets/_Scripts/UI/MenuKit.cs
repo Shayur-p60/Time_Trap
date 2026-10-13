@@ -40,7 +40,7 @@ namespace TimeTrap.UI
 
         public static readonly Vector2 Centre = new Vector2(0.5f, 0.5f);
 
-        static Sprite panel, triangle, vignette;
+        static Sprite panel, triangle, vignette, pill;
 
         public static Color Panel(float alpha = PanelAlpha)
         {
@@ -107,6 +107,30 @@ namespace TimeTrap.UI
                 tex.Apply();
                 vignette = Sprite.Create(tex, new Rect(0f, 0f, size, size), Centre, 100f);
                 return vignette;
+            }
+        }
+
+        // A white disc, sliced through the middle so it stretches sideways into a pill.
+        public static Sprite PillSprite
+        {
+            get
+            {
+                if (pill != null) return pill;
+                const int size = 96;
+                var tex = NewTexture(size);
+                var pixels = new Color32[size * size];
+                float r = size * 0.5f;
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++)
+                    {
+                        float dx = x + 0.5f - r, dy = y + 0.5f - r;
+                        float outside = Mathf.Sqrt(dx * dx + dy * dy) - (r - 0.5f);
+                        pixels[y * size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * Mathf.Clamp01(0.5f - outside)));
+                    }
+                tex.SetPixels32(pixels);
+                tex.Apply();
+                pill = Sprite.Create(tex, new Rect(0f, 0f, size, size), Centre, 100f, 0, SpriteMeshType.FullRect, new Vector4(47f, 47f, 47f, 47f));
+                return pill;
             }
         }
 

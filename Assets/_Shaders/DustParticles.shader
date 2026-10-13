@@ -69,6 +69,7 @@ Shader "TimeTrap/DustParticles"
             float3 _TorchPositionWS;
             float3 _TorchDirectionWS;
             float4 _TorchParams;      // x = cos(outer half-angle), y = cos(inner half-angle), z = range, w = brightness 0-1
+            half4 _TorchTint;         // white, or gold with the Time Lord reward (unset reads as black: treated as white)
 
             struct Attributes
             {
@@ -119,8 +120,10 @@ Shader "TimeTrap/DustParticles"
                 half reach = saturate(1.0 - dist / max(_TorchParams.z, 0.0001));
                 half inBeam = cone * reach * reach * _TorchParams.w;
 
-                half brightness = _AmbientGlow + inBeam * _BeamBoost;
-                output.color = half4(_Color.rgb * input.color.rgb * (brightness * input.color.a), 1.0);
+                // the glow of its own keeps the dust colour; the part lit by the torch takes the torch's tint
+                half3 tint = dot(_TorchTint.rgb, half3(1, 1, 1)) > 0.001 ? _TorchTint.rgb : half3(1, 1, 1);
+                half3 light = _AmbientGlow + tint * (inBeam * _BeamBoost);
+                output.color = half4(_Color.rgb * input.color.rgb * light * input.color.a, 1.0);
                 return output;
             }
 

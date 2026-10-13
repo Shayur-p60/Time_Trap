@@ -22,6 +22,7 @@ public class FlashlightBeamCone : MonoBehaviour
     static readonly int RangeId = Shader.PropertyToID("_Range");
     static readonly int TanOuterId = Shader.PropertyToID("_TanOuter");
     static readonly int TanInnerId = Shader.PropertyToID("_TanInner");
+    static readonly int ColourId = Shader.PropertyToID("_Color");
 
     MeshRenderer meshRenderer;
     Mesh mesh;
@@ -29,6 +30,8 @@ public class FlashlightBeamCone : MonoBehaviour
     float builtAngle = -1f;
     float builtInner = -1f;
     float builtRange = -1f;
+    Color normalColour = Color.white;
+    bool shownGolden;
 
     void Awake()
     {
@@ -37,6 +40,7 @@ public class FlashlightBeamCone : MonoBehaviour
         meshRenderer = GetComponent<MeshRenderer>();
         // this object's own copy of the material, so its intensity can change without a property block
         material = meshRenderer.material;
+        if (material.HasProperty(ColourId)) normalColour = material.GetColor(ColourId);
         Rebuild();
     }
 
@@ -44,6 +48,15 @@ public class FlashlightBeamCone : MonoBehaviour
     {
         if (spot == null) return;
         if (spot.spotAngle != builtAngle || spot.innerSpotAngle != builtInner || spot.range != builtRange) Rebuild();
+
+        // golden beam (Time Lord): gold, and as bright as the normal beam
+        bool golden = torch != null && torch.Golden;
+        if (golden != shownGolden)
+        {
+            shownGolden = golden;
+            // the beam colour is an HDR property: used as it is, so matched in brightness as a linear colour
+            material.SetColor(ColourId, golden ? TorchShaderGlobals.GoldLinear(normalColour) : normalColour);
+        }
 
         float level = torch != null ? torch.Level : (spot.enabled ? 1f : 0f);
         material.SetFloat(IntensityId, level * strength);

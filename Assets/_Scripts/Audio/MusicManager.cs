@@ -9,7 +9,7 @@ using UnityEngine.Audio;
 //   Ambient loop   cross-fades in over Crossfade Time when Play is pressed, and runs for the whole game.
 //   Chase layer    on top of the ambient loop while any zombie is chasing or attacking the player, and all through
 //                  Stage 3. In over Chase Fade In; out again Chase Hold after the last chase ends.
-//   Stingers       win or loss: played once while the loops fade out.
+//   Stingers       win or loss: played once, with the end screen's title, while the loops fade out.
 // The sources ignore the paused listener, so the music carries on under the pause menu, where the mixer's Paused
 // snapshot turns it down and muffles it. Levels move on real time for the same reason.
 public class MusicManager : MonoBehaviour
@@ -92,7 +92,12 @@ public class MusicManager : MonoBehaviour
     void HandleRunEnded(RunStats stats)
     {
         ended = true;
-        Slot stinger = stats != null && stats.outcome == RunOutcome.Won ? winStinger : lossStinger;
+    }
+
+    // The win or loss stinger, once. The end screen calls this as its title appears.
+    public void PlayStinger(bool won)
+    {
+        Slot stinger = won ? winStinger : lossStinger;
         StingersPlayed++;
         if (stinger.clip == null) return;
         stingerSource.clip = stinger.clip;

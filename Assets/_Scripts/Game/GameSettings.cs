@@ -132,7 +132,7 @@ public class GameSettings : MonoBehaviour
 
     public static void ResetProgress()
     {
-        Debug.Log("[GameSettings] Reset progress.");
+        Achievements.ResetAll();
         OnResetProgress?.Invoke();
     }
 

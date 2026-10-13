@@ -29,6 +29,8 @@ public class EscapePortal : MonoBehaviour
     Transform player;
     float glowIntensity;
     bool glowRead;
+    float flareTime = 1f;
+    float flareLeft;
 
     void Awake()
     {
@@ -84,6 +86,12 @@ public class EscapePortal : MonoBehaviour
         ApplyActivation();
     }
 
+    // The win: the portal's light surges for a moment. Real time, since the game is frozen by then.
+    public void Flare(float seconds)
+    {
+        flareTime = flareLeft = Mathf.Max(0.05f, seconds);
+    }
+
     void ApplyActivation()
     {
         if (portalSurface == null) return;
@@ -121,7 +129,13 @@ public class EscapePortal : MonoBehaviour
                 glowIntensity = glow.intensity;
                 glowRead = true;
             }
-            glow.intensity = glowIntensity * Activation * (1f + pulseAmount * Mathf.Sin(Time.time * pulseSpeed));
+            float flare = 0f;
+            if (flareLeft > 0f)
+            {
+                flareLeft -= Time.unscaledDeltaTime;
+                flare = 6f * Mathf.Clamp01(flareLeft / flareTime);
+            }
+            glow.intensity = glowIntensity * Activation * (1f + pulseAmount * Mathf.Sin(Time.time * pulseSpeed) + flare);
         }
 
         // as in DeathZone: a position check as well, so a teleport into the portal still counts

@@ -74,6 +74,8 @@ public class PlayerPowerUps : MonoBehaviour
                 compassEndTime = Time.time + compassDuration;
                 break;
         }
+        // after the effect's own events, so a listener sees the freeze or the flash already counted
+        PowerUps.RaisePowerUpUsed(type);
     }
 
     void Update()

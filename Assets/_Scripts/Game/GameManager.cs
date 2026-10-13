@@ -68,14 +68,14 @@ public class GameManager : MonoBehaviour
     [Header("Screens")]
     public KeyCode pauseKey = KeyCode.Escape;
     public string winTitle = "CONTAINMENT SUCCESSFUL";
-    public string winText = "The outbreak never left the facility.";
+    public string winText = "The portal sealed behind you.";
     public string portalFailureTitle = "PORTAL FAILURE";
-    public string portalFailureText = "The portal collapsed. History repeats itself.";
+    public string portalFailureText = "The portal collapsed. You're trapped in time.";
     public string infectionTitle = "INFECTED";
-    public string infectionText = "You became what you were sent to stop.";
+    public string infectionText = "The infection took hold.";
     [Tooltip("The last life was lost to a fall.")]
     public string fallTitle = "LOST IN THE DARK";
-    public string fallText = "Your timeline ends here.";
+    public string fallText = "You fell into the dark.";
 
     [Header("Look (matches GameHUD)")]
     [Tooltip("Optional. Leave empty to use the TextMeshPro default font.")]
@@ -290,6 +290,7 @@ public class GameManager : MonoBehaviour
         PlayerEvents.OnPlayerKilled += HandlePlayerKilled;
         GameProgress.OnPlayerEscaped += HandlePlayerEscaped;
         ZombieAI.OnAnyDeathStarted += HandleZombieDied;
+        PowerUps.OnPowerUpUsed += HandlePowerUpUsed;
     }
 
     void OnDisable()
@@ -297,6 +298,7 @@ public class GameManager : MonoBehaviour
         PlayerEvents.OnPlayerKilled -= HandlePlayerKilled;
         GameProgress.OnPlayerEscaped -= HandlePlayerEscaped;
         ZombieAI.OnAnyDeathStarted -= HandleZombieDied;
+        PowerUps.OnPowerUpUsed -= HandlePowerUpUsed;
     }
 
     void Start()
@@ -401,7 +403,18 @@ public class GameManager : MonoBehaviour
 
     void HandleZombieDied(ZombieAI zombie)
     {
-        if (State == GameState.Playing) Stats.zombiesKilled++;
+        if (State != GameState.Playing) return;
+        Stats.zombiesKilled++;
+        if (zombie == null) return;
+        if (zombie.Health != null && zombie.Health.LastHitWasHead) Stats.headshotKills++;
+        if (zombie.IsBrute) Stats.bruteKills++;
+    }
+
+    void HandlePowerUpUsed(PowerUpType type)
+    {
+        if (State != GameState.Playing) return;
+        Stats.powerUpsUsed++;
+        Stats.powerUpTypes |= 1 << (int)type;
     }
 
     void HandleShotFired(Pistol pistol)
@@ -433,15 +446,12 @@ public class GameManager : MonoBehaviour
         SetState(outcome == RunOutcome.Won ? GameState.Won : GameState.Lost);
         RefreshHud();
 
-        switch (outcome)
-        {
-            case RunOutcome.Won: UI.ShowEnd(winTitle, winText, winColour, Stats); break;
-            case RunOutcome.Infection: UI.ShowEnd(infectionTitle, infectionText, lossColour, Stats); break;
-            case RunOutcome.Fall: UI.ShowEnd(fallTitle, fallText, lossColour, Stats); break;
-            default: UI.ShowEnd(portalFailureTitle, portalFailureText, lossColour, Stats); break;
-        }
         Debug.Log("[GameManager] Run ended: " + outcome + ", " + FormatTime(Stats.timeRemaining) + " left, " + Stats.livesLeft + " lives.");
+        // the whole HUD goes (the objective list and the crosshair showed faintly through the end screen)
+        SetHudAlpha(0f);
+        // listeners first (the achievements and the records), so the end screen can show what they found
         OnRunEnded?.Invoke(Stats);
+        UI.ShowEnd(Stats);
     }
 
     void UpdateStats()
@@ -575,6 +585,8 @@ public class GameManager : MonoBehaviour
         GameSettings.ResetForNewPlaySession();      // Instance, OnResetProgress
         GameMenus.ResetForNewPlaySession();         // Instance, the menu sound hooks
         MenuCameraRig.ResetForNewPlaySession();     // Active
+        AchievementTracker.ResetForNewPlaySession(); // Instance
+        Achievements.ResetForNewRun();              // OnUnlocked, OnReset, the unlocked-this-run list (saved progress stays)
 
         // BeforeSceneLoad
         PlayerCatch.StartPlaySession();             // OnPlayerCaught, CatchCount, InvulnerableUntil, pending, player, respawnOnCatch; listens to OnPlayerRespawned again

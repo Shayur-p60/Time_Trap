@@ -27,12 +27,22 @@ public class RunStats
     public int Deaths => catches + falls;
 
     public int zombiesKilled;
+    // Kills where the last shot was to the head, and kills of a Bloater brute.
+    public int headshotKills;
+    public int bruteKills;
     public int shotsFired;
     // Shots that hit a zombie (anything IDamageable).
     public int shotsHit;
 
     // Times the player ran their stamina down to nothing.
     public int timesExhausted;
+
+    // Power-ups set off (from pickups and chests), and which types: one bit per PowerUpType.
+    public int powerUpsUsed;
+    public int powerUpTypes;
+    // The most zombies one Zombie Freeze stopped, and one Flash Pulse stunned.
+    public int mostFrozen;
+    public int mostStunned;
 
     public int objectivesCompleted;
     public bool escaped;

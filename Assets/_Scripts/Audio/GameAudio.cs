@@ -17,7 +17,7 @@ using UnityEngine.Audio;
 //   GameManager.LowTime01            clock tick under Low Time Seconds, speeding up
 //   GameProgress.OnObjectiveCompleted  a "collected" sound with the HUD banner (power, pathogen, data)
 //   PlayerEvents.OnPlayerKilled      catch sting (with the glitch effect)
-//   GameManager.OnRunEnded           win or lose sting; ambience, heartbeat and tick fade out
+//   GameManager.OnRunEnded           ambience, heartbeat and tick fade out; the end screen calls EndSting with its title
 //
 // Pause: AudioListener.pause holds every source. The UI group's sounds (stings, button clicks) ignore it. On an end
 // screen the ambience and the heartbeat are let through the pause for a moment so they can fade out instead of cut.
@@ -426,9 +426,14 @@ public class GameAudio : MonoBehaviour
         foreach (var voice in voices)
             if (voice.Active && !voice.source.ignoreListenerPause) voice.Stop();
 
-        bool won = stats != null && stats.outcome == RunOutcome.Won;
-        if (won) Play2D("Sting/Win", winSting, uiGroup, true);
-        else Play2D("Sting/Lose", loseSting, uiGroup, true);
+    }
+
+    // The win or lose sting. The end screen calls this as its title appears.
+    public static void EndSting(bool won)
+    {
+        if (Instance == null) return;
+        if (won) Instance.Play2D("Sting/Win", Instance.winSting, Instance.uiGroup, true);
+        else Instance.Play2D("Sting/Lose", Instance.loseSting, Instance.uiGroup, true);
     }
 
     // ------------------------------------------------------------------ hooks for the gameplay scripts

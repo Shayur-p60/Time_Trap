@@ -15,6 +15,14 @@ public static class PowerUps
     public static event Action<float> OnZombieFreeze;
     public static event Action OnZombieFreezeEnded;
 
+    // A power-up was set off (picked up, or out of a chest): (which).
+    public static event Action<PowerUpType> OnPowerUpUsed;
+
+    public static void RaisePowerUpUsed(PowerUpType type)
+    {
+        OnPowerUpUsed?.Invoke(type);
+    }
+
     // Number of listeners, for the restart checks (GameManager.StaticListenerReport).
     public static int FlashPulseListenerCount => OnFlashPulse != null ? OnFlashPulse.GetInvocationList().Length : 0;
     public static int ZombieFreezeListenerCount => OnZombieFreeze != null ? OnZombieFreeze.GetInvocationList().Length : 0;
@@ -80,6 +88,7 @@ public static class PowerUps
         OnFlashPulse = null;
         OnZombieFreeze = null;
         OnZombieFreezeEnded = null;
+        OnPowerUpUsed = null;
         FreezeEndTime = 0f;
         CompassTargets.Clear();
     }

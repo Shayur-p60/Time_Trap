@@ -24,10 +24,6 @@ namespace TimeTrap.UI
     {
         public enum Panel { None, Main, Pause, Settings, HowToPlay, Credits, Achievements }
 
-        public const int AchievementsTotal = 17;
-        // Part B: how many achievements are unlocked, for the counter beside ACHIEVEMENTS. Empty = 0.
-        public static Func<int> AchievementsUnlocked;
-
         public static GameMenus Instance { get; private set; }
 
         [Header("Sounds (UI mixer group)")]
@@ -114,7 +110,13 @@ namespace TimeTrap.UI
 
         // the rest
         RectTransform howToRoot, creditsRoot, achievementsRoot, confirmRoot;
-        TextMeshProUGUI howToText, achievementsText, confirmText;
+        TextMeshProUGUI howToText, achievementsHeader, confirmText;
+        ScrollRect achievementsScroll;
+        RectTransform achievementsContent;
+        Image[] cardIcons;
+        TextMeshProUGUI[] cardNames, cardDescriptions, cardPoints;
+        MenuSelector goldenSelector;
+        TextMeshProUGUI goldenLabel;
         MenuEntry howToBack, creditsBack, achievementsBack, confirmYes, confirmNo;
         RectTransform creditsContent;
         float creditsViewHeight, creditsHeight;
@@ -206,6 +208,7 @@ namespace TimeTrap.UI
             if (GameManager.PausePressed && (manager == null || Time.frameCount != manager.PauseFrame)) Back();
 
             if (Current == Panel.Credits) ScrollCredits(Time.unscaledDeltaTime);
+            if (Current == Panel.Achievements) ScrollAchievements(Time.unscaledDeltaTime);
 
             // a click on empty space drops the selection: put it back, so the keyboard always has somewhere to start
             var events = EventSystem.current;
@@ -327,7 +330,8 @@ namespace TimeTrap.UI
                     creditsContent.anchoredPosition = new Vector2(0f, -creditsViewHeight);
                     break;
                 case Panel.Achievements:
-                    achievementsText.text = Unlocked() + " of " + AchievementsTotal + " achievements unlocked";
+                    RefreshAchievements();
+                    achievementsScroll.verticalNormalizedPosition = 1f;
                     Show(panel, achievementsBack);
                     break;
             }
@@ -467,17 +471,12 @@ namespace TimeTrap.UI
             titleCyan.gameObject.SetActive(false);
         }
 
-        int Unlocked()
-        {
-            return AchievementsUnlocked != null ? AchievementsUnlocked() : 0;
-        }
-
         // The tagline's time and the achievement counter.
         public void RefreshMain()
         {
             float seconds = Difficulty.Current != null ? Difficulty.Current.timerSeconds : (manager != null ? manager.startSeconds : 300f);
             tagline.text = "Containment breach · " + Clock(seconds) + " until portal collapse";
-            achievementCounter.text = Unlocked() + " / " + AchievementsTotal;
+            achievementCounter.text = Achievements.UnlockedCount + " / " + Achievements.Count;
         }
 
         // mm:ss
@@ -697,7 +696,7 @@ namespace TimeTrap.UI
             settingsBack = MenuKit.MakeButton(panel, "BACK", new Vector2(-430f, -392f), size, CloseSub, 30f);
             settingsDefaults = MenuKit.MakeButton(panel, "RESET TO DEFAULTS", new Vector2(0f, -392f), size, ResetDefaults, 30f);
             settingsProgress = MenuKit.MakeButton(panel, "RESET PROGRESS", new Vector2(430f, -392f), size,
-                () => Confirm("Are you sure?\n<size=75%>This clears every achievement and record.</size>", GameSettings.ResetProgress), 30f);
+                () => Confirm("Are you sure?\n<size=75%>This clears every achievement and record.</size>", ResetProgress), 30f);
         }
 
         static string Percent(float value)
@@ -774,13 +773,19 @@ namespace TimeTrap.UI
             fovSlider.wholeNumbers = true;
             headBobSelector = ToggleRow(parent, controls, "Head bob", -92f, GameSettings.HeadBobOn);
 
+            // the Time Lord reward: the row is only there once it is unlocked (RefreshSettings)
+            goldenLabel = MenuKit.MakeRowLabel(parent, "Golden beam", new Vector2(RowLabelX, -164f), RowLabelWidth);
+            goldenSelector = MenuKit.MakeSelector(parent, "Golden beam", new Vector2(ControlX, -164f), ControlWidth, OffOn, Achievements.GoldenBeamEnabled ? 1 : 0, goldenLabel,
+                i => Achievements.GoldenBeamEnabled = i == 1);
+            goldenSelector.GetComponent<MenuEntry>().highlightColour = MenuKit.Gold;
+
             // brightness test: a symbol on black that should only just show
-            MenuKit.MakeText("TestCaption", parent, new Vector2(RowLabelX, -210f), new Vector2(RowLabelWidth, 80f),
+            MenuKit.MakeText("TestCaption", parent, new Vector2(RowLabelX, -264f), new Vector2(RowLabelWidth, 80f),
                 "<size=24>Brightness test</size>\n<size=20><color=" + MenuKit.Hex(MenuKit.Dim) + ">Adjust until the symbol is barely visible.</color></size>",
                 24f, MenuKit.Text, TextAlignmentOptions.Left);
-            var box = MenuKit.Rect("BrightnessTest", parent, new Vector2(ControlX - ControlWidth * 0.5f + 150f, -212f), new Vector2(300f, 140f));
+            var box = MenuKit.Rect("BrightnessTest", parent, new Vector2(ControlX - ControlWidth * 0.5f + 150f, -264f), new Vector2(300f, 108f));
             MenuKit.AddImage(box, null, Color.black);
-            var mark = MenuKit.Rect("Symbol", box, Vector2.zero, new Vector2(104f, 104f));
+            var mark = MenuKit.Rect("Symbol", box, Vector2.zero, new Vector2(84f, 84f));
             var image = MenuKit.AddImage(mark, brightnessSymbol != null ? brightnessSymbol : MenuKit.PanelSprite, Color.white);
             image.type = Image.Type.Simple;
             image.preserveAspect = true;
@@ -859,9 +864,26 @@ namespace TimeTrap.UI
             invertSelector.SetIndex(GameSettings.IsOn(GameSettings.InvertY) ? 1 : 0, false);
             fullscreenSelector.SetIndex(GameSettings.IsOn(GameSettings.Fullscreen) ? 1 : 0, false);
             headBobSelector.SetIndex(GameSettings.IsOn(GameSettings.HeadBobOn) ? 1 : 0, false);
+
+            bool golden = Achievements.GoldenBeamAvailable;
+            goldenLabel.gameObject.SetActive(golden);
+            goldenSelector.gameObject.SetActive(golden);
+            goldenSelector.SetIndex(Achievements.GoldenBeamEnabled ? 1 : 0, false);
+            var display = tabControls[2];
+            display.Remove(goldenSelector);
+            if (golden) display.Insert(display.IndexOf(headBobSelector) + 1, goldenSelector);
             int resolution = resolutions.IndexOf(GameSettings.Resolution);
             if (resolution >= 0) resolutionSelector.SetIndex(resolution, false);
             RefreshBrightnessTest();
+        }
+
+        // Achievements, records and the golden beam go; the panel and the main menu's counter follow.
+        void ResetProgress()
+        {
+            GameSettings.ResetProgress();
+            RefreshSettings();
+            SelectTab(tab, false);
+            RefreshMain();
         }
 
         void ResetDefaults()
@@ -1026,15 +1048,117 @@ namespace TimeTrap.UI
             return text.Replace("**", "").Replace("`", "").Replace("<", "(").Replace(">", ")").Trim();
         }
 
-        // ------------------------------------------------------------------ achievements (Part B fills this in)
+        // ------------------------------------------------------------------ achievements
+
+        const float CardWidth = 724f, CardHeight = 124f, CardGap = 14f, AchievementsViewHeight = 580f;
 
         void BuildAchievements()
         {
             achievementsRoot = MenuKit.Fill("Achievements", canvas);
-            var panel = MenuKit.MakePanel("Panel", achievementsRoot, Vector2.zero, new Vector2(900f, 420f));
-            MenuKit.MakeHeading("Title", panel, new Vector2(0f, 140f), "ACHIEVEMENTS", 58f);
-            achievementsText = MenuKit.MakeText("Text", panel, new Vector2(0f, 20f), new Vector2(800f, 60f), "", 32f, MenuKit.Text);
-            achievementsBack = MenuKit.MakeButton(panel, "BACK", new Vector2(0f, -140f), new Vector2(300f, 54f), CloseSub, 32f);
+            var panel = MenuKit.MakePanel("Panel", achievementsRoot, Vector2.zero, new Vector2(1620f, 920f));
+            MenuKit.MakeHeading("Title", panel, new Vector2(0f, 395f), "ACHIEVEMENTS", 58f);
+            achievementsHeader = MenuKit.MakeText("Header", panel, new Vector2(0f, 328f), new Vector2(1400f, 40f), "", 28f, MenuKit.Cyan);
+            achievementsHeader.characterSpacing = 3f;
+
+            // the cards scroll inside this window: wheel, drag, or the up and down keys
+            var view = MenuKit.Rect("View", panel, new Vector2(-8f, -8f), new Vector2(CardWidth * 2f + CardGap, AchievementsViewHeight));
+            MenuKit.AddImage(view, null, Color.clear, true);
+            view.gameObject.AddComponent<RectMask2D>();
+            achievementsContent = MenuKit.Rect("Content", view, Vector2.zero, Vector2.zero);
+            achievementsContent.anchorMin = new Vector2(0f, 1f);
+            achievementsContent.anchorMax = new Vector2(1f, 1f);
+            achievementsContent.pivot = new Vector2(0.5f, 1f);
+            int rows = (Achievements.Count + 1) / 2;
+            achievementsContent.sizeDelta = new Vector2(0f, rows * (CardHeight + CardGap) - CardGap);
+            achievementsContent.anchoredPosition = Vector2.zero;
+
+            achievementsScroll = view.gameObject.AddComponent<ScrollRect>();
+            achievementsScroll.viewport = view;
+            achievementsScroll.content = achievementsContent;
+            achievementsScroll.horizontal = false;
+            achievementsScroll.movementType = ScrollRect.MovementType.Clamped;
+            achievementsScroll.scrollSensitivity = 45f;
+
+            var bar = MenuKit.Rect("Scrollbar", panel, new Vector2(CardWidth + CardGap * 0.5f + 16f, -8f), new Vector2(8f, AchievementsViewHeight));
+            MenuKit.AddImage(bar, MenuKit.PanelSprite, MenuKit.Track, true).pixelsPerUnitMultiplier = 6f;
+            var slide = MenuKit.Fill("Sliding Area", bar);
+            var handle = MenuKit.Fill("Handle", slide);
+            var handleImage = MenuKit.AddImage(handle, MenuKit.PanelSprite, MenuKit.Amber, true);
+            handleImage.pixelsPerUnitMultiplier = 6f;
+            var scrollbar = bar.gameObject.AddComponent<Scrollbar>();
+            scrollbar.transition = Selectable.Transition.None;
+            scrollbar.handleRect = handle;
+            scrollbar.targetGraphic = handleImage;
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+            // the keyboard stays on Back; the arrow keys scroll the list themselves
+            scrollbar.navigation = new Navigation { mode = Navigation.Mode.None };
+            achievementsScroll.verticalScrollbar = scrollbar;
+
+            int count = Achievements.Count;
+            cardIcons = new Image[count];
+            cardNames = new TextMeshProUGUI[count];
+            cardDescriptions = new TextMeshProUGUI[count];
+            cardPoints = new TextMeshProUGUI[count];
+            for (int i = 0; i < count; i++)
+            {
+                float x = (i % 2 == 0 ? -1f : 1f) * (CardWidth + CardGap) * 0.5f;
+                float y = -(i / 2) * (CardHeight + CardGap) - CardHeight * 0.5f;
+                var card = MenuKit.Rect("Card " + Achievements.All[i].id, achievementsContent, new Vector2(0.5f, 1f), new Vector2(x, y), new Vector2(CardWidth, CardHeight));
+                MenuKit.AddImage(card, MenuKit.PanelSprite, new Color(1f, 1f, 1f, 0.045f));
+                var disc = MenuKit.Rect("Disc", card, new Vector2(-CardWidth * 0.5f + 62f, 0f), new Vector2(88f, 88f));
+                MenuKit.AddImage(disc, MenuKit.PillSprite, new Color(0f, 0f, 0f, 0.45f));
+                cardIcons[i] = MenuKit.AddImage(MenuKit.Rect("Icon", disc, Vector2.zero, new Vector2(58f, 58f)), null, Color.white);
+                cardIcons[i].preserveAspect = true;
+                cardNames[i] = MenuKit.MakeText("Name", card, new Vector2(-12f, 24f), new Vector2(470f, 40f), "", 29f, MenuKit.Text, TextAlignmentOptions.Left, true);
+                cardDescriptions[i] = MenuKit.MakeText("Description", card, new Vector2(-12f, -22f), new Vector2(470f, 58f), "", 21f, MenuKit.Dim, TextAlignmentOptions.TopLeft);
+                cardDescriptions[i].textWrappingMode = TextWrappingModes.Normal;
+                cardPoints[i] = MenuKit.MakeText("Points", card, new Vector2(CardWidth * 0.5f - 76f, 0f), new Vector2(120f, 44f), "", 27f, MenuKit.Amber, TextAlignmentOptions.Right, true);
+            }
+
+            achievementsBack = MenuKit.MakeButton(panel, "BACK", new Vector2(0f, -405f), new Vector2(300f, 54f), CloseSub, 32f);
+            achievementsBack.Control.navigation = new Navigation { mode = Navigation.Mode.None };
         }
+
+        // The header and every card, from what is unlocked now. A locked card is grey; a hidden one says nothing
+        // about itself until it is unlocked.
+        public void RefreshAchievements()
+        {
+            achievementsHeader.text = Achievements.UnlockedCount + " of " + Achievements.Count + " achievements  \u00B7  "
+                + Achievements.UnlockedPoints + " / " + Achievements.TotalPoints + " TP";
+            Color grey = new Color(0.42f, 0.44f, 0.48f, 1f);
+            for (int i = 0; i < Achievements.Count; i++)
+            {
+                AchievementDef def = Achievements.All[i];
+                bool unlocked = Achievements.IsUnlocked(def.id);
+                bool secret = def.hidden && !unlocked;
+                Color tint = Achievements.Tint(def, unlocked);
+                cardIcons[i].sprite = Achievements.Icon != null ? Achievements.Icon : brightnessSymbol;
+                cardIcons[i].enabled = cardIcons[i].sprite != null;
+                cardIcons[i].color = tint;
+                cardNames[i].text = secret ? "???" : def.name;
+                cardNames[i].color = unlocked ? MenuKit.Text : grey;
+                cardDescriptions[i].text = secret ? "Secret achievement: keep playing to unlock" : def.description;
+                cardDescriptions[i].color = unlocked ? MenuKit.Dim : new Color(grey.r, grey.g, grey.b, 0.8f);
+                cardPoints[i].text = def.points + " TP";
+                cardPoints[i].color = unlocked ? tint : grey;
+            }
+        }
+
+        // Up and down (arrows or W / S) move the list, since there is only Back to select.
+        void ScrollAchievements(float deltaTime)
+        {
+            float hidden = achievementsContent.rect.height - AchievementsViewHeight;
+            if (hidden <= 0f) return;
+            float move = Input.GetAxisRaw("Vertical");
+            if (Mathf.Abs(move) < 0.1f) return;
+            achievementsScroll.verticalNormalizedPosition = Mathf.Clamp01(achievementsScroll.verticalNormalizedPosition + move * deltaTime * 900f / hidden);
+        }
+
+        // For tests.
+        public string AchievementsHeader => achievementsHeader != null ? achievementsHeader.text : "";
+        public string CardText(int index) => cardNames[index].text + " / " + cardDescriptions[index].text + " / " + cardPoints[index].text;
+        public Color CardTint(int index) => cardIcons[index].color;
+        public bool GoldenToggleVisible => goldenSelector != null && goldenSelector.gameObject.activeSelf;
+        public MenuSelector GoldenSelector => goldenSelector;
     }
 }

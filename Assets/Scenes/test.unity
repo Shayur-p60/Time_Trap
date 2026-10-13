@@ -1878,13 +1878,13 @@ MonoBehaviour:
   fallCostsLife: 1
   pauseKey: 27
   winTitle: CONTAINMENT SUCCESSFUL
-  winText: The outbreak never left the facility.
+  winText: The portal sealed behind you.
   portalFailureTitle: PORTAL FAILURE
-  portalFailureText: The portal collapsed. History repeats itself.
+  portalFailureText: The portal collapsed. You're trapped in time.
   infectionTitle: INFECTED
-  infectionText: You became what you were sent to stop.
+  infectionText: The infection took hold.
   fallTitle: LOST IN THE DARK
-  fallText: Your timeline ends here.
+  fallText: You fell into the dark.
   font: {fileID: 0}
   panelColour: {r: 0, g: 0, b: 0, a: 0.7}
   textColour: {r: 1, g: 1, b: 1, a: 1}
@@ -41684,6 +41684,7 @@ Transform:
   - {fileID: 1524456150}
   - {fileID: 1042749686}
   - {fileID: 721968633}
+  - {fileID: 2105868736}
   m_Father: {fileID: 1274742017}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1208426598
@@ -75536,6 +75537,62 @@ MonoBehaviour:
   reloadDrop: 0.09
   reloadTilt: {x: 22, y: 12}
   reloadEase: 0.2
+--- !u!1 &2105868735
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2105868736}
+  - component: {fileID: 2105868737}
+  m_Layer: 0
+  m_Name: Achievements
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2105868736
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105868735}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1208426597}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2105868737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105868735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7653a10dafe74580b54f16d9416c381, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AchievementTracker
+  icon: {fileID: 21300000, guid: f721bf783d92442868ded4950648d564, type: 3}
+  chime:
+    clip: {fileID: 0}
+    volume: 1
+    pitch: {x: 1, y: 1}
+    start: 0
+    length: 0
+    fadeOut: 0.04
+  crouchesNeeded: 3
+  crouchWindow: 2
+  corpseDistance: 1.5
+  unlockId: escape
 --- !u!1 &2106315908
 GameObject:
   m_ObjectHideFlags: 0
