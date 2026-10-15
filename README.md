@@ -22,25 +22,47 @@ You're sent back in time through a portal to the night a genetics facility's zom
 
 ## Running the game (build)
 
-The build is a **macOS app** for Apple silicon (M1 or later).
+Builds are provided for **macOS (Apple silicon, M1 or later)** and **Windows (64-bit)**.
+Download the zip for your system from the [v1.0 release](https://github.com/Shayur-p60/Time_Trap/releases/tag/v1.0) (under **Assets**) and unzip it. Keep everything in the unzipped folder together.
 
-1. Open the build folder and find **`Time Trap.app`**.
-2. **The first time:** right-click the app and choose **Open**, then **Open** again. The app isn't signed, so macOS blocks a normal double-click the first time.
+### macOS
+
+1. Unzip `TimeTrap-macOS.zip` and find `Time Trap.app`.
+2. **The first time:** the app isn't signed, so macOS blocks it. Right-click the app, choose **Open**, then **Open** again.
+   On macOS Sequoia (15) or later that option may not appear. Try to open the app once, then go to
+   **System Settings → Privacy & Security**, scroll down and click **Open Anyway**.
+3. If macOS says the app is "damaged", open Terminal and run:
+   `xattr -dr com.apple.quarantine "/path/to/Time Trap.app"`
+   (type the command up to the quote, then drag the app into the Terminal window).
+4. The game starts fullscreen at your screen's resolution. Press **Esc** in-game for the pause menu.
+
+Log if something goes wrong: `~/Library/Logs/Dead Reckoning Games/Time Trap/Player.log`
+
+### Windows
+
+1. Unzip `TimeTrap-Windows.zip`. Run `Time Trap.exe` from inside the unzipped folder. It needs the files next to it
+   (`UnityPlayer.dll`, the `Time Trap_Data` folder), so don't move the .exe on its own.
+2. **The first time:** the app isn't signed, so Windows SmartScreen may show "Windows protected your PC".
+   Click **More info → Run anyway**.
 3. The game starts fullscreen at your screen's resolution. Press **Esc** in-game for the pause menu.
 
-If something goes wrong, the log is at:
-`~/Library/Logs/Dead Reckoning Games/Time Trap/Player.log`
+Log if something goes wrong: `%USERPROFILE%\AppData\LocalLow\Dead Reckoning Games\Time Trap\Player.log`
 
 ## Running from source
 
+Works on Windows or macOS.
+
 1. Install **Unity 6000.5.9f1** through Unity Hub. Use this exact version.
+   (To build for the other platform, add its Build Support module in Unity Hub → Installs → ⚙ → Add modules.)
 2. Clone the repository:
-   ```bash
+
+```
    git clone https://github.com/Shayur-p60/Time_Trap.git
-   ```
+```
+
 3. In Unity Hub: **Add → Add project from disk** and pick the `Time_Trap` folder. The first import takes a while.
 4. Open **`Assets/Scenes/MainGame.unity`** and press **Play**.
-5. **To build:** File → Build Profiles → macOS → Build. `MainGame` is the only scene in the build.
+5. **To build:** File → Build Profiles → macOS or Windows → Build. `MainGame` is the only scene in the build.
 
 **Dev keys** (work in the editor and in development builds only; on a Mac, hold **Fn**):
 F5 completes the next objective · F6 sets the timer to 30 s · F7 simulates a zombie catch · F8 pauses the timer.
